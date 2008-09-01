@@ -1,0 +1,145 @@
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+
+AC_PREREQ(2.61)
+
+AC_INIT(chenilles, svn, [dev-team@chenilles.org], chenilles)
+
+AC_CONFIG_SRCDIR(src/main.cpp)
+AM_INIT_AUTOMAKE(foreign 1.5)
+AC_CONFIG_HEADERS(config.h)
+
+################################################
+#					       #
+#  Checks for compiler characteristics         #
+#					       #
+################################################
+
+AC_PROG_CXX
+
+## If default C++ compiler is g++
+## check version for including -Wextra and -march=native CXXFLAGS
+if test "x${CXX}" = "xg++";then
+   CXX_VERSION=`$CXX --version | head -1 | cut -d ' ' -f 5 | sed "s/\.//g"`
+   
+   if test $CXX_VERSION -ge 420;then
+      CXXFLAGS="-march=native -Wextra"
+   elif test $CXX_VERSION -ge 400;then
+      CXXFLAGS="-Wextra"   
+   fi
+
+   CXXFLAGS="${CXXFLAGS} -O2 -pipe"
+fi
+
+## Checks for header files.
+AC_HEADER_STDC
+AC_CHECK_HEADER(stdio.h, [], AC_MSG_FAILURE(stdio.h was not found))
+
+## Checks for typedefs, structures, and compiler characteristics.
+AC_HEADER_STDBOOL
+AC_C_CONST
+
+################################################
+#					       #
+# Checks for SDL libraries and dev utilities   #
+# 	     	 	       	   	       #
+################################################
+
+case "$host_os" in
+freebsd*)
+	AC_CHECK_PROGS(SDLCONFIG, sdl11-config)
+;;
+**)
+	AC_CHECK_PROGS(SDLCONFIG, sdl-config)
+;;
+esac
+
+if test "x${SDLCONFIG}" = "x";then
+   AC_MSG_FAILURE(*** sdl-config/sdl11-config not found)
+fi
+
+CPPFLAGS=`${SDLCONFIG} --cflags`
+INC_SDL="`${SDLCONFIG} --prefix`/include/SDL"
+
+# Non standard math API (knows as libm)
+AC_CHECK_LIB(m, sqrt, LDFLAGS="-lm", 
+		AC_MSG_FAILURE(*** libm math API not found))
+
+AC_CHECK_HEADER(math.h, [],AC_MSG_FAILURE(
+			*** math.h header was not found))
+
+## SDL
+AC_CHECK_LIB(SDL, SDL_Init, LDFLAGS="${LDFLAGS} `${SDLCONFIG} --libs`", 
+		  AC_MSG_FAILURE(*** libSDL not found or didn't work))
+
+## SDL image
+AC_CHECK_LIB(SDL_image, IMG_Load, LDFLAGS="${LDFLAGS} -lSDL_image", 
+			AC_MSG_FAILURE(
+			*** sdl-image extension not found or didn't work))
+
+AC_CHECK_HEADER(${INC_SDL}/SDL_image.h, [],AC_MSG_FAILURE(
+				 *** SDL_image.h header was not found))
+
+## SDL TTF			  
+AC_CHECK_LIB(SDL_ttf, TTF_Init, LDFLAGS="${LDFLAGS} -lSDL_ttf", 
+		      AC_MSG_FAILURE(
+		      *** sdl-ttf extension not found or didn't work))
+
+AC_CHECK_HEADER(${INC_SDL}/SDL_ttf.h, [], AC_MSG_FAILURE(
+			       *** SDL_ttf.h header was not found))
+
+## SDL gfx
+AC_CHECK_LIB(SDL_gfx, aalineColor, LDFLAGS="${LDFLAGS} -lSDL_gfx", 
+		      AC_MSG_FAILURE(
+		      *** sdl-gfx extension not found or didn't work))
+
+AC_CHECK_HEADER(${INC_SDL}/SDL_gfxPrimitives.h, [],
+					 AC_MSG_FAILURE(
+*** SDL_gfxPrimitives.h header (part of SDL_gfx extension) was not found))
+
+################################################
+#					       #
+# Checks for libxml++ API xml parser	       #
+# 	     	 	       	   	       #
+################################################
+
+## pkg-config
+
+##PKG_CHECK_MODULES(LIBXMLCXX, libxml++-2.6, [],
+#                  AC_MSG_FAILURE("*** libxml++-2.6 pkg-config module not found"))
+
+##LIBXMLCXX_VERSION=`pkg-config libxml++-2.6 --modversion | cut -d '.' -f 2`
+
+##if test $LIBXMLCXX_VERSION -ge "20";then
+#   AC_DEFINE(HAVE_XMLPP_GOOD_MINOR, 1, 
+#   "Is libxml++-2.6 minor version equals at least 20 ?")
+#else	
+#   AC_DEFINE(HAVE_XMLPP_GOOD_MINOR, 0, 
+#   "Is libxml++-2.6 minor version equals at least 20")
+#fi
+
+AC_ARG_ENABLE(debug, [  --enable-debug          Enable debug in game],
+              debug=$enableval,
+              debug="")
+
+CXXFLAGS="${CXXFLAGS} -W -Wall -g"
+
+if test "x${debug}" = "xyes"; then
+    CPPFLAGS="$CPPFLAGS -DDEBUG"
+fi
+
+AC_OUTPUT([Makefile src/Makefile])
+
+
+echo "***************************************************"
+echo
+echo "Configuration:"
+echo
+echo " ${PACKAGE_NAME} Version..... ${VERSION}"
+echo " Compiler:................... ${CXX}"
+echo " CXXFLAGS:................... ${CXXFLAGS}"
+echo " Prefix:..................... ${prefix}"
+echo " Binary dir:................. ${prefix}/bin"
+echo " Data dir:................... ${prefix}/share"
+echo
+echo "***************************************************"
