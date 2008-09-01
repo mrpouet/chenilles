@@ -77,7 +77,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="0.7"
      inkscape:cx="720.78237"
-     inkscape:cy="561.37091"
+     inkscape:cy="847.0852"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -282,7 +282,11 @@
          sodipodi:role="line"
          x="106.24217"
          y="452.19144"
-         id="tspan2993" /><tspan
+         id="tspan2993">(interface des unités)</tspan><tspan
+         sodipodi:role="line"
+         x="106.24217"
+         y="452.19144"
+         id="tspan3118" /><tspan
          sodipodi:role="line"
          x="106.24217"
          y="467.19144"
@@ -941,12 +945,10 @@
          y="664.33435"
          id="tspan23711">update()</tspan></text>
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#EmptyDiamondL);stroke-opacity:1;display:inline"
-       d="M 873.88733,608.88925 L 957.76492,686.46291"
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.79259044px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#EmptyDiamondL);stroke-opacity:1;display:inline"
+       d="M 869.49792,558.78555 L 933.15549,622.9963"
        id="path3434"
-       inkscape:connector-type="polyline"
-       inkscape:connection-start="#path3214"
-       inkscape:connection-end="#path3170" />
+       inkscape:connector-type="polyline" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#EmptyDiamondL);stroke-opacity:1;display:inline"
        d="M 726.37601,646.46294 L 542.54993,638.52683"
@@ -1621,5 +1623,18 @@
        d="M 587.14286,393.03073 L 371.42857,211.60216"
        id="path4426"
        transform="translate(-136.60075,-179.42494)" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="372.85715"
+       y="630.17358"
+       id="text3111"
+       transform="translate(-136.60075,-179.42494)"><tspan
+         sodipodi:role="line"
+         id="tspan3114"
+         x="372.85715"
+         y="630.17358"></tspan><tspan
+         sodipodi:role="line"
+         id="tspan3116" /></text>
   </g>
 </svg>
