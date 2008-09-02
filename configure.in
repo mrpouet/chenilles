@@ -19,25 +19,31 @@ AC_PROG_CXX
 
 ## If default C++ compiler is g++
 ## check version for including -Wextra and -march=native CXXFLAGS
+
 if test "x${CXX}" = "xg++";then
-   CXX_VERSION=`$CXX --version | head -1 | cut -d ' ' -f 5 | sed "s/\.//g"`
+
+   AC_MSG_CHECKING(g++ version)
+
+   CXX_VERSION=`$CXX -dumpversion`
    
+   AC_MSG_RESULT($CXX_VERSION)
+
+   CXX_VERSION=`echo $CXX_VERSION | sed "s/\.//g"`
+
    if test $CXX_VERSION -ge 420;then
-      CXXFLAGS="-march=native -Wextra"
+      CXXFLAGS="-march=native -Wextra ${CXXFLAGS}"
    elif test $CXX_VERSION -ge 400;then
-      CXXFLAGS="-Wextra"   
+      CXXFLAGS="-Wextra ${CXXFLAGS}"   
    fi
 
-   CXXFLAGS="${CXXFLAGS} -O2 -pipe"
+   CXXFLAGS="${CXXFLAGS} -pipe"
 fi
 
 ## Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADER(stdio.h, [], AC_MSG_FAILURE(stdio.h was not found))
 
-## Checks for typedefs, structures, and compiler characteristics.
-AC_HEADER_STDBOOL
-AC_C_CONST
+
 
 ################################################
 #					       #
@@ -61,7 +67,19 @@ fi
 CPPFLAGS=`${SDLCONFIG} --cflags`
 INC_SDL="`${SDLCONFIG} --prefix`/include/SDL"
 
-# Non standard math API (knows as libm)
+AC_MSG_CHECKING(SDL version)
+
+SDL_VERSION=`${SDLCONFIG} --version`
+
+AC_MSG_RESULT($SDL_VERSION)
+
+SDL_VERSION=`echo ${SDL_VERSION} | sed "s/\.//g"`
+
+if test $SDL_VERSION -lt 1210; then
+   AC_MSG_FAILURE(*** SDL version seems to be >= 1.2.10)		
+fi
+
+# libm
 AC_CHECK_LIB(m, sqrt, LDFLAGS="-lm", 
 		AC_MSG_FAILURE(*** libm math API not found))
 
@@ -70,7 +88,8 @@ AC_CHECK_HEADER(math.h, [],AC_MSG_FAILURE(
 
 ## SDL
 AC_CHECK_LIB(SDL, SDL_Init, LDFLAGS="${LDFLAGS} `${SDLCONFIG} --libs`", 
-		  AC_MSG_FAILURE(*** libSDL not found or didn't work))
+		  AC_MSG_FAILURE(*** SDL_Init subroutine not found))
+
 
 ## SDL image
 AC_CHECK_LIB(SDL_image, IMG_Load, LDFLAGS="${LDFLAGS} -lSDL_image", 
@@ -79,11 +98,11 @@ AC_CHECK_LIB(SDL_image, IMG_Load, LDFLAGS="${LDFLAGS} -lSDL_image",
 
 AC_CHECK_HEADER(${INC_SDL}/SDL_image.h, [],AC_MSG_FAILURE(
 				 *** SDL_image.h header was not found))
-
+#TODO: Add it later
 ## SDL TTF			  
-AC_CHECK_LIB(SDL_ttf, TTF_Init, LDFLAGS="${LDFLAGS} -lSDL_ttf", 
-		      AC_MSG_FAILURE(
-		      *** sdl-ttf extension not found or didn't work))
+#AC_CHECK_LIB(SDL_ttf, TTF_Init, LDFLAGS="${LDFLAGS} -lSDL_ttf", 
+#		      AC_MSG_FAILURE(
+#		      *** sdl-ttf extension not found or didn't work))
 
 AC_CHECK_HEADER(${INC_SDL}/SDL_ttf.h, [], AC_MSG_FAILURE(
 			       *** SDL_ttf.h header was not found))
@@ -98,7 +117,7 @@ AC_CHECK_HEADER(${INC_SDL}/SDL_gfxPrimitives.h, [],
 *** SDL_gfxPrimitives.h header (part of SDL_gfx extension) was not found))
 
 
-CXXFLAGS="${CXXFLAGS} -W -Wall -g"
+CXXFLAGS="${CXXFLAGS} -W -Wall"
 
 AC_OUTPUT([Makefile src/Makefile])
 

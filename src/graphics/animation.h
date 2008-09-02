@@ -29,10 +29,9 @@ class Animation
     // this method do nothing.
     void Start (void);
 
-    // Refresh to next Sprite if his delay of the current
-    // is finished.
-    // If motion isn't started this method blit the first frame of
-    // the motion to "dest" Surface.
+    // Refresh to next Sprite if his "time delay" was finished.
+    // If motion isn't started this method blitd the first frame 
+    // to "dest" Surface.
     void Update (void);
 
     // Stop motion
@@ -68,10 +67,12 @@ class Animation
 
     bool m_active;
     Uint32 m_last_update_time;
+    //FIXME: Remove this member later 
+    // (replace it by screen or map Surface directly)
     Surface m_dest;
     Point m_location;
-    vector < Sprite > m_frames;
-    vector < Sprite >::iterator m_it;
+    vector<Sprite> m_frames;
+    vector<Sprite>::iterator m_it;
 
 };
 
