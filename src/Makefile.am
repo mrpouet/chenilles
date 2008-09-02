@@ -12,6 +12,8 @@ chenilles_SOURCES =	tools/point.h				\
 		graphics/color.cpp			\
 		graphics/surface.h			\
 		graphics/surface.cpp			\
+		graphics/animation.h			\
+		graphics/animation.cpp			\
 		main.cpp
 
 AM_LDFLAGS= @LDFLAGS@

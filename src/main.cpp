@@ -1,9 +1,8 @@
 #include <iostream>
 #include <tools/base.h>
 
-int
-main (void)
+int main(void)
 {
-  cerr << "Not implemented yet !" << endl;
+  cout << "Not implemented yet !" << endl;
   return 0;
 }
