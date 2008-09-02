@@ -15,30 +15,11 @@ typedef SDL_Rect rectangle;
 
 class Surface
 {
-  private:
-
-    SDL_Surface * surface;
-
-  private:
-    inline Uint32 MapRGB (const Color & c) const
-    {
-	return SDL_MapRGB (surface->format, c.GetR (), c.GetG (), c.GetB ());
-    }
-
-    inline Uint8 *GetPixel(const Point& px) const
-    {
-      return static_cast<Uint8 *>(surface->pixels) 
-	+ surface->pitch * px.y + px.x * surface->format->BytesPerPixel;
-    }
-
-    void Clone (const Surface & s);
-
-    void validPtr(void) const throw(bad_alloc);
 
   public:
 
     // Default constructor
-      Surface ();
+    Surface ();
 
     // Copy constructor
     explicit Surface (const Surface & s);
@@ -81,7 +62,7 @@ class Surface
     //TODO: Necessary ?
     //Color GetRGBA (const Point & px) const;
 
-    void Dig(const Point& px, Uint8 alpha);
+    void Dig (const Point & px, Uint8 alpha);
 
     // Returns Width/Height of the current surface
     inline int GetWidth (void) const
@@ -127,7 +108,7 @@ class Surface
     }
     // Fill the given rectangle with the given Color
     // and clip it to the current surface.
-    void FillRect (rectangle * dstrect, const Color & c);
+    void FillRect (const Color & c, rectangle * destrect = NULL);
 
     void FillRect (const Point & p1, const Point & p2, const Color & c);
 
@@ -135,6 +116,7 @@ class Surface
     // in a blit.
     bool SetClipRect (const rectangle * dstrect);
 
+    //TODO: Necessary ? (slow...)
     void rotozoom (double angle, double zoom, int smooth);
 
     // Draw Anti Aliased Line from 'begin' to 'end' with the given Color
@@ -150,6 +132,25 @@ class Surface
     void AACircle (const Point & center, Sint16 r, const Color & c);
 
     void AAFillCircle (const Point & center, Sint16 r, const Color & c);
+
+  private:
+
+    SDL_Surface * surface;
+
+    inline Uint32 MapRGB (const Color & c) const
+    {
+	return SDL_MapRGB (surface->format, c.GetR (), c.GetG (), c.GetB ());
+    }
+
+    inline Uint8 *GetPixel (const Point & px) const
+    {
+	return static_cast < Uint8 * >(surface->pixels)
+	    + surface->pitch * px.y + px.x * surface->format->BytesPerPixel;
+    }
+
+    void Clone (const Surface & s);
+
+    void validPtr (void) const throw (bad_alloc);
 };
 
 #endif /*      __SURFACE_H__   */

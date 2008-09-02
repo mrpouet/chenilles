@@ -1,12 +1,12 @@
 #ifndef __TIMER_H__
 #define __TIMER_H__
 
-#include "SDL/SDL_types.h"
-#include "SDL/SDL_timer.h"
+#include <SDL/SDL_types.h>
+#include <SDL/SDL_timer.h>
 
 #include <tools/singleton.h>
 
-class Timer:public Singleton <Timer>
+class Timer:public Singleton<Timer>
 {
   private:
     bool m_paused;
@@ -14,7 +14,7 @@ class Timer:public Singleton <Timer>
     Uint32 m_pause_begin_time;
     Uint32 m_total_pause_time;
 
-    friend class Singleton <Timer>;
+    friend class Singleton<Timer>;
 
     void Constructor (void);
 

@@ -5,4 +5,4 @@
 
 using namespace std;
 
-#endif	/*	__BASE_H__	*/
+#endif /*      __BASE_H__      */

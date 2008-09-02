@@ -31,7 +31,8 @@ Surface::Surface (const Surface & s)
 // (for example)
 
 void
-Surface::validPtr (void) const throw(bad_alloc)
+Surface::validPtr (void) const
+throw (bad_alloc)
 {
     if (!surface)
 	throw bad_alloc ();
@@ -113,16 +114,16 @@ Color Surface::GetRGBA (const Point & px) const
 }
 */
 
-void 
-Surface::Dig (const Point& px, Uint8 alpha)
+void
+Surface::Dig (const Point & px, Uint8 alpha)
 {
-  Uint8 *pixel = NULL;
+    Uint8 *pixel = NULL;
 
-  // This is not a RGBA surface
-  if (surface->format->BytesPerPixel != 4)
-    return;
-  pixel = GetPixel(px);
-  pixel[3] = alpha;
+    // This is not a RGBA surface
+    if (surface->format->BytesPerPixel != 4)
+	return;
+    pixel = GetPixel (px);
+    pixel[3] = alpha;
 }
 
 void
@@ -168,9 +169,9 @@ Surface::SetAlpha (Uint8 alpha, Uint32 flag)
 }
 
 void
-Surface::FillRect (rectangle * dstrect, const Color & c)
+Surface::FillRect (const Color & c, rectangle * destrect)
 {
-    if (SDL_FillRect (surface, dstrect, MapRGB (c)))
+    if (SDL_FillRect (surface, destrect, MapRGB (c)))
 	throw exception ();
 }
 
@@ -181,8 +182,7 @@ Surface::FillRect (const Point & p1, const Point & p2, const Color & c)
 	throw exception ();
 }
 
-bool
-Surface::SetClipRect (const rectangle * dstrect)
+bool Surface::SetClipRect (const rectangle * dstrect)
 {
     return SDL_SetClipRect (surface, dstrect);
 }

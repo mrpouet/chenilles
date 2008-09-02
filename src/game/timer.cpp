@@ -1,5 +1,3 @@
-#include <exception>
-
 #include "timer.h"
 
 void

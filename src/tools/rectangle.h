@@ -13,14 +13,16 @@ class Rectangle
   public:
       Rectangle (Sint16 x, Sint16 y, Uint16 w = 0, Uint16 h = 0);
 
-    inline SDL_Rect GetSDLRect (void) const {
+    inline SDL_Rect GetSDLRect (void) const
+    {
 	SDL_Rect r = { x, y, w, h };
-	return r;
+	  return r;
     }
 
-    inline bool IsInRect (const Point& at) const {
-      return (at.x >= x) && (at.x <= (x + w)) 
-	&& (at.y >= y) && (at.y <= (y + h));
+    inline bool IsInRect (const Point & at) const
+    {
+	return (at.x >= x) && (at.x <= (x + w))
+	    && (at.y >= y) && (at.y <= (y + h));
     }
 
 };

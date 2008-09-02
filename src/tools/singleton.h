@@ -1,31 +1,35 @@
 #ifndef __SINGLETON_H__
 #define __SINGLETON_H__
 
-template<class T>
+template <class T> 
 class Singleton
 {
- protected:
-  static T* singleton;
+  protected:
+    static T *singleton;
 
- protected:
-  ~Singleton()
+  protected:
+    ~Singleton ()
     {
-      singleton = NULL;
+	singleton = NULL;
     }
 
- public:
-  static T* GetInstance(void)
-  {
-    if (!singleton)
-	singleton = new T();
-    return singleton;
-  }
+  public:
+    static T *GetInstance (void)
+    {
+	if (!singleton)
+	    singleton = new T ();
+	return singleton;
+    }
 
-  static void CleanUp(void) { if (singleton) delete singleton; };
-  
+    static void CleanUp (void)
+    {
+	if (singleton)
+	    delete singleton;
+    };
+
 };
 
-template<typename T>
+template<class T> 
 T * Singleton<T>::singleton = NULL;
 
-#endif	/*	__SINGLETON_H__	*/
+#endif /*      __SINGLETON_H__ */

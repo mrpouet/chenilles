@@ -97,36 +97,8 @@ AC_CHECK_HEADER(${INC_SDL}/SDL_gfxPrimitives.h, [],
 					 AC_MSG_FAILURE(
 *** SDL_gfxPrimitives.h header (part of SDL_gfx extension) was not found))
 
-################################################
-#					       #
-# Checks for libxml++ API xml parser	       #
-# 	     	 	       	   	       #
-################################################
-
-## pkg-config
-
-##PKG_CHECK_MODULES(LIBXMLCXX, libxml++-2.6, [],
-#                  AC_MSG_FAILURE("*** libxml++-2.6 pkg-config module not found"))
-
-##LIBXMLCXX_VERSION=`pkg-config libxml++-2.6 --modversion | cut -d '.' -f 2`
-
-##if test $LIBXMLCXX_VERSION -ge "20";then
-#   AC_DEFINE(HAVE_XMLPP_GOOD_MINOR, 1, 
-#   "Is libxml++-2.6 minor version equals at least 20 ?")
-#else	
-#   AC_DEFINE(HAVE_XMLPP_GOOD_MINOR, 0, 
-#   "Is libxml++-2.6 minor version equals at least 20")
-#fi
-
-AC_ARG_ENABLE(debug, [  --enable-debug          Enable debug in game],
-              debug=$enableval,
-              debug="")
 
 CXXFLAGS="${CXXFLAGS} -W -Wall -g"
-
-if test "x${debug}" = "xyes"; then
-    CPPFLAGS="$CPPFLAGS -DDEBUG"
-fi
 
 AC_OUTPUT([Makefile src/Makefile])
 

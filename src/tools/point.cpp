@@ -2,23 +2,24 @@
 
 #include "point.h"
 
-Point::Point()
+Point::Point ()
 {
-  x = y = 0;
+    x = y = 0;
 }
 
-Point::Point(int abs, int ord):
-  x(abs), y(ord)
+Point::Point (int abs, int ord):
+x (abs), y (ord)
 {}
 
-inline double Point::Distance(const Point &p)
+inline double
+Point::Distance (const Point & p)
 {
-  double dist = (p.x - x) * (p.x - x) + (p.y - y) * (p.y - y);
-  return sqrt(dist);
+    double dist = (p.x - x) * (p.x - x) + (p.y - y) * (p.y - y);
+    return sqrt (dist);
 }
 
 bool
-operator!=(const Point& a, const Point& b)
+operator!= (const Point & a, const Point & b)
 {
-  return !(a == b);
+    return !(a == b);
 }

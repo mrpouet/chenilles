@@ -15,8 +15,15 @@ Color::SetColor (Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 // in a object.
 // Due to SDL_gfx API which uses 'Big endian' as type of endianness 
 
-Uint32 Color::GetRGBAColor (void) const
+Uint32
+Color::GetRGBAColor (void) const
 {
-  return ((Uint32)red << 24) | ((Uint32)green << 16)
-    | ((Uint32)blue << 8) | (Uint32)alpha;
+    return ((Uint32) red << 24) | ((Uint32) green << 16)
+	| ((Uint32) blue << 8) | (Uint32) alpha;
+}
+
+bool
+operator!= (const Color & a, const Color & b)
+{
+    return !(a == b);
 }
