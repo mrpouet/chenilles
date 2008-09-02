@@ -3,7 +3,7 @@
 
 AC_PREREQ(2.61)
 
-AC_INIT(chenilles, svn, [dev-team@chenilles.org], chenilles)
+AC_INIT(chenilles, git, [dev-team@chenilles.org], chenilles)
 
 AC_CONFIG_SRCDIR(src/main.cpp)
 AM_INIT_AUTOMAKE(foreign 1.5)
