@@ -44,6 +44,10 @@ class Surface
     // Unlock the current Surface.
     void Unlock (void);
 
+    inline void LockFree(void) 
+    {
+      lockfree = true;
+    }
     // Blit 'src' Surface from 'srcrect' to 'dstrect' 
     // into the current Surface. 
     void Blit (const Surface & src, rectangle * dstrect = NULL,
@@ -58,10 +62,11 @@ class Surface
     // as SDL_UpdateRect(0, 0, 0, 0)
     void Flip (void);
 
-    // Get the PixelColor at location 'px' in the current Surface
-    //TODO: Necessary ?
-    //Color GetRGBA (const Point & px) const;
+    // Get the Color of pixel 'px' in the current Surface
+    Color GetRGBA (const Point & px) const;
 
+    // Dig the pixel 'px' by settings his alpha channel
+    // to 'alpha' value.
     void Dig (const Point & px, Uint8 alpha);
 
     // Returns Width/Height of the current surface
@@ -136,6 +141,7 @@ class Surface
   private:
 
     SDL_Surface * surface;
+    bool lockfree;
 
     inline Uint32 MapRGB (const Color & c) const
     {

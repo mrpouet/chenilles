@@ -9,8 +9,8 @@
 class Sprite
 {
   private:
-  Sprite (const Surface & surface, Uint32 delay = 120):
-    m_surface (surface), m_delay (delay)
+  Sprite (const char *path, Uint32 delay = 120):
+    m_surface (path), m_delay (delay)
     {}
 
     Surface m_surface;
@@ -56,11 +56,21 @@ class Animation
 	m_location = p;
     }
 
+    inline int GetWidth(void) const
+    {
+      return m_it->m_surface.GetWidth();
+    }
+
+    inline int GetHeight(void) const
+    {
+      return m_it->m_surface.GetHeight();
+    }
+
     // Add a new Sprite in the current Animation, 
     // with the fallowing time delay.
     inline void newSprite (const char *path, Uint32 delay = 120)
     {
-	m_frames.push_back (Sprite (Surface (path), delay));
+	m_frames.push_back (Sprite(path, delay));
     }
 
   private:

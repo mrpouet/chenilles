@@ -6,13 +6,15 @@
 
 Surface::Surface ()
 {
-    surface = NULL;
+    surface  = NULL;
+    lockfree = false;
 }
 
 void
 Surface::Clone (const Surface & s)
 {
     surface = s.surface;
+    lockfree = s.lockfree;
     if (surface)
 	surface->refcount++;
 }
@@ -41,22 +43,26 @@ throw (bad_alloc)
 Surface::Surface (const Rectangle & rect, int dept, Uint32 flag)
 {
     surface = SDL_CreateRGBSurface (flag, rect.w, rect.h, dept, 0, 0, 0, 0);
+    lockfree = false;
     validPtr ();
 }
 
 Surface::Surface (SDL_Surface * s)
 {
-    surface = s;
+    surface  = s;
+    lockfree = false;
     validPtr ();
 }
 
 Surface::Surface (const char *filename)
 {
     surface = IMG_Load (filename);
+    lockfree = false;
     validPtr ();
 }
 
-Surface & Surface::operator= (const Surface & s)
+Surface& 
+Surface::operator= (const Surface & s)
 {
     Clone (s);
     return *this;
@@ -64,7 +70,7 @@ Surface & Surface::operator= (const Surface & s)
 
 Surface::~Surface ()
 {
-    if (surface)
+    if (surface && !lockfree)
 	SDL_FreeSurface (surface);
 }
 
@@ -102,17 +108,14 @@ Surface::Flip (void)
 	throw exception ();
 }
 
-/*
+
 Color Surface::GetRGBA (const Point & px) const
-{
-    Uint8 r,g,b,a;  
-    Uint32 pixel = *static_cast<Uint32 *>(GetPixel(px));
-
-    SDL_GetRGBA (pixel, surface->format, &r, &g, &b, &a);
-
-    return Color (r, g, b, a);
+{ 
+  if (surface->format->BytesPerPixel != 4)
+    throw exception();
+  Uint8 *pixel = GetPixel(px);
+  return Color (pixel[0], pixel[1], pixel[2], pixel[3]);
 }
-*/
 
 void
 Surface::Dig (const Point & px, Uint8 alpha)

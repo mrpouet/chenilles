@@ -13,5 +13,8 @@ rm -f config.h.in
 rm -f stamp-h1
 rm -f Makefile
 rm -f src/Makefile
+rm -f test/Makefile
+rm -f test/Makefile.in
 rm -rf src/.deps
+rm -rf test/.deps
 rm -f *~

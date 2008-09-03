@@ -119,7 +119,9 @@ AC_CHECK_HEADER(${INC_SDL}/SDL_gfxPrimitives.h, [],
 
 CXXFLAGS="${CXXFLAGS} -W -Wall"
 
-AC_OUTPUT([Makefile src/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile test/Makefile])
+
+AC_OUTPUT
 
 
 echo "***************************************************"
