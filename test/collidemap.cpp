@@ -4,6 +4,7 @@
 #include <game/timer.h>
 
 #include <SDL.h>
+#include <SDL_framerate.h>
 #include <unistd.h>
 
 namespace
@@ -38,14 +39,12 @@ main (void)
     Animation motion (screen);
     SDL_Event event;
     bool started = true, game = true;
-    Uint32 update_time = 0, current_time = 0, start = 0;
+    Uint32 current_time = 0, checkTime = 0, update_time = 0;
 
-    // Time Frame rate
-    Uint32 FrameMax_time = 1000 / 50;
-    Uint32 rest_time = 0;
-    // Frames
-    Uint32 count = 0;
-    // FPS average
+    // Frames rate
+    Uint32 rate = 40;
+
+    // Average Frames Per Seconds
     float avg = 0;
 
     // Worms foots
@@ -76,13 +75,15 @@ main (void)
     // When we blit a surface at a point,
     // this point is ALWAYS this left-top corner.
     motion.setLocation (location);
-    update_time = Timer::GetInstance ()->Read ();
+    checkTime = Timer::GetInstance ()->Read ();
+    Uint32 framecount = 0;
 
     while (game)
       {
 
-	  start = Timer::GetInstance ()->Read ();
-
+	  if (Timer::GetInstance ()->Read () < (checkTime + 1000 / rate))
+	      continue;
+	  checkTime = Timer::GetInstance ()->Read ();
 	  while (SDL_PollEvent (&event))
 	    {
 		if (event.type == SDL_QUIT)
@@ -122,21 +123,16 @@ main (void)
 	  screen.Blit (background);
 	  motion.Update ();
 
-	  current_time = Timer::GetInstance ()->Read () - start;
-
-	  if (current_time < FrameMax_time)
-	      rest_time = FrameMax_time - current_time;
-	  waitDelay (rest_time);
 	  screen.Flip ();
-	  count++;
+	  framecount++;
 
-	  current_time = Timer::GetInstance()->Read ();
-	  if (current_time > (update_time + 5000))
+	  current_time = Timer::GetInstance ()->Read ();
+	  if (current_time > (update_time + 2000))
 	    {
-	      avg = count / ((current_time - update_time) / 1000.f);
-		cout << avg << " fps in 5 seconds" << endl;
+		avg = framecount / ((current_time - update_time) / 1000.f);
+		cout << avg << " fps in 2 seconds " << endl;
 		update_time = current_time;
-		count = 0;
+		framecount = 0;
 	    }
 
       }
