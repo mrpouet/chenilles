@@ -9,7 +9,7 @@
 class Sprite
 {
   private:
-  Sprite (const char *path, Uint32 delay = 120):
+  Sprite (const char *path, Uint32 delay):
     m_surface (path), m_delay (delay)
     {}
 
@@ -35,9 +35,10 @@ class Animation
     void Update (void);
 
     // Stop motion
-    inline void Stop (void)
+    inline void Stop (bool visible = true)
     {
-	m_active = false;
+	m_active  = false;
+	m_visible = visible;
 	m_it = m_frames.begin ();
     }
 
@@ -74,7 +75,7 @@ class Animation
     }
 
   private:
-
+    bool m_visible;
     bool m_active;
     Uint32 m_last_update_time;
     //FIXME: Remove this member later 

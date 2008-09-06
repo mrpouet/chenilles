@@ -9,6 +9,22 @@ AC_CONFIG_SRCDIR(src/main.cpp)
 AM_INIT_AUTOMAKE(foreign 1.5)
 AC_CONFIG_HEADERS(config.h)
 
+AC_DEFUN([AC_DEFINE_DIR], [
+  prefix_NONE=
+  exec_prefix_NONE=
+  test "x$prefix" = xNONE && prefix_NONE=yes && prefix=$ac_default_prefix
+  test "x$exec_prefix" = xNONE && exec_prefix_NONE=yes && exec_prefix=$prefix
+dnl In Autoconf 2.60, ${datadir} refers to ${datarootdir}, which in turn
+dnl refers to ${prefix}.  Thus we have to use `eval' twice.
+  eval ac_define_dir="\"[$]$2\""
+  eval ac_define_dir="\"$ac_define_dir\""
+  AC_SUBST($1, "$ac_define_dir")
+  AC_DEFINE_UNQUOTED($1, "$ac_define_dir", [$3])
+  test "$prefix_NONE" && prefix=NONE
+  test "$exec_prefix_NONE" && exec_prefix=NONE
+])
+
+
 ################################################
 #					       #
 #  Checks for compiler characteristics         #
@@ -116,8 +132,15 @@ AC_CHECK_HEADER(${INC_SDL}/SDL_gfxPrimitives.h, [],
 					 AC_MSG_FAILURE(
 *** SDL_gfxPrimitives.h header (part of SDL_gfx extension) was not found))
 
+## libxml++
+
+PKG_CHECK_MODULES(LIBXMLPP, libxml++-2.6 >= 2.20.0)
+
 
 CXXFLAGS="${CXXFLAGS} -W -Wall"
+
+AC_DEFINE_DIR(DATAROOTDIR, datarootdir,
+The directory for installing read-only architecture-independent data)
 
 AC_CONFIG_FILES([Makefile src/Makefile test/Makefile])
 
@@ -133,6 +156,6 @@ echo " Compiler:................... ${CXX}"
 echo " CXXFLAGS:................... ${CXXFLAGS}"
 echo " Prefix:..................... ${prefix}"
 echo " Binary dir:................. ${prefix}/bin"
-echo " Data dir:................... ${prefix}/share"
+echo " Data dir:................... ${datarootdir}"
 echo
 echo "***************************************************"

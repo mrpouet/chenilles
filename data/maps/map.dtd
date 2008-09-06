@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!ELEMENT map (informations, layer, layer, layer, layer)>
+<!ELEMENT informations (author, name, version, description?)>
+<!ELEMENT layer (#PCDATA)>
+<!ELEMENT author (#PCDATA)>
+<!ELEMENT name (#PCDATA)>
+<!ELEMENT version (#PCDATA)>
+<!ELEMENT description (#PCDATA)>
+<!ATTLIST layer type (sky|ground|foreground|explosion) #REQUIRED>

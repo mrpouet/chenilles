@@ -1,7 +1,8 @@
-bin_PROGRAMS= collidemap
+bin_PROGRAMS= collidemap chenilles-viewer
 
 PREFIX=../src
-collidemap_SOURCES= tools/point.h		\
+
+collidemap_DEPS= tools/point.h		\
 	$(PREFIX)/tools/point.cpp		\
 	tools/rectangle.h			\
 	$(PREFIX)/tools/rectangle.cpp		\
@@ -14,10 +15,19 @@ collidemap_SOURCES= tools/point.h		\
 	graphics/surface.h			\
 	$(PREFIX)/graphics/surface.cpp		\
 	graphics/animation.h			\
-	$(PREFIX)/graphics/animation.cpp	\
+	$(PREFIX)/graphics/animation.cpp
+collidemap_SOURCES= ${collidemap_DEPS}		\
 	collidemap.cpp
 
-AM_CXXFLAGS= @CXXFLAGS@ -I$(PREFIX)
-AM_CPPFLAGS= @CPPFLAGS@
-AM_LDFLAGS= @LDFLAGS@
+chenilles_viewer_SOURCES= ${collidemap_DEPS} 	\
+	config/xml_parser.h			\
+	$(PREFIX)/config/xml_parser.cpp		\
+	map/map.h				\
+	$(PREFIX)/map/map.cpp			\
+	chenilles-viewer.cpp
+
+chenilles_viewer_LDFLAGS= @LDFLAGS@ @LIBXMLPP_LIBS@
+chenilles_viewer_CXXFLAGS= @CXXFLAGS@ @LIBXMLPP_CFLAGS@ -I$(PREFIX)
+chenilles_viewer_CPPFLAGS= @CPPFLAGS@
+
 

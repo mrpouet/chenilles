@@ -32,7 +32,7 @@ class Surface
     explicit Surface (SDL_Surface * surface);
 
     // Create a Surface from "filename" image
-    explicit Surface (const char *filename);
+    explicit Surface (const string& filename);
 
      ~Surface ();
 
@@ -156,7 +156,7 @@ class Surface
 
     void Clone (const Surface & s);
 
-    void validPtr (void) const throw (bad_alloc);
+    void validPtr (void) const;
 };
 
 #endif /*      __SURFACE_H__   */

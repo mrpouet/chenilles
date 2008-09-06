@@ -4,21 +4,6 @@
 #include <game/timer.h>
 
 #include <SDL.h>
-#include <SDL_framerate.h>
-#include <unistd.h>
-
-namespace
-{
-    void waitDelay (Uint32 ms)
-    {
-	Uint32 tmp = Timer::GetInstance ()->Read () + ms;
-
-	while (Timer::GetInstance ()->Read () < tmp)
-	    ;;
-    }
-
-};
-
 
 int
 main (void)
@@ -42,7 +27,7 @@ main (void)
     Uint32 current_time = 0, checkTime = 0, update_time = 0;
 
     // Frames rate
-    Uint32 rate = 40;
+    Uint32 rate = 50;
 
     // Average Frames Per Seconds
     float avg = 0;

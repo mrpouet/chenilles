@@ -2,6 +2,7 @@
 #include <SDL/SDL_gfxPrimitives.h>
 #include <SDL/SDL_rotozoom.h>
 
+#include "sdl_exception.h"
 #include "surface.h"
 
 Surface::Surface ()
@@ -34,10 +35,9 @@ Surface::Surface (const Surface & s)
 
 void
 Surface::validPtr (void) const
-throw (bad_alloc)
 {
     if (!surface)
-	throw bad_alloc ();
+	throw SDLException ();
 }
 
 Surface::Surface (const Rectangle & rect, int dept, Uint32 flag)
@@ -54,9 +54,9 @@ Surface::Surface (SDL_Surface * s)
     validPtr ();
 }
 
-Surface::Surface (const char *filename)
+Surface::Surface (const string& filename)
 {
-    surface = IMG_Load (filename);
+  surface = IMG_Load (filename.c_str());
     lockfree = false;
     validPtr ();
 }
@@ -78,7 +78,7 @@ void
 Surface::Lock ()
 {
     if (SDL_LockSurface (surface))
-	throw exception ();
+	throw SDLException ();
 }
 
 void
@@ -91,7 +91,7 @@ void
 Surface::Blit (const Surface & src, rectangle * dstrect, rectangle * srcrect)
 {
     if (SDL_BlitSurface (src.surface, srcrect, surface, dstrect))
-	throw exception ();
+	throw SDLException ();
 }
 
 void
@@ -105,14 +105,17 @@ void
 Surface::Flip (void)
 {
     if (SDL_Flip (surface))
-	throw exception ();
+	throw SDLException ();
 }
 
 
 Color Surface::GetRGBA (const Point & px) const
 { 
   if (surface->format->BytesPerPixel != 4)
-    throw exception();
+    {
+      SDL_SetError("%p is not a RGBA Surface !", surface);
+      throw SDLException();
+    }
   Uint8 *pixel = GetPixel(px);
   return Color (pixel[0], pixel[1], pixel[2], pixel[3]);
 }
@@ -133,7 +136,7 @@ void
 Surface::SetColorKey (const Color & key, Uint32 flag)
 {
     if (SDL_SetColorKey (surface, flag, MapRGB (key)))
-	throw exception ();
+	throw SDLException ();
 }
 
 int
@@ -168,21 +171,21 @@ void
 Surface::SetAlpha (Uint8 alpha, Uint32 flag)
 {
     if (SDL_SetAlpha (surface, flag, alpha))
-	throw exception ();
+	throw SDLException ();
 }
 
 void
 Surface::FillRect (const Color & c, rectangle * destrect)
 {
     if (SDL_FillRect (surface, destrect, MapRGB (c)))
-	throw exception ();
+	throw SDLException ();
 }
 
 void
 Surface::FillRect (const Point & p1, const Point & p2, const Color & c)
 {
     if (boxColor (surface, p1.x, p1.y, p2.x, p2.y, c.GetRGBAColor ()))
-	throw exception ();
+	throw SDLException ();
 }
 
 bool Surface::SetClipRect (const rectangle * dstrect)
@@ -208,26 +211,26 @@ Surface::AALine (const Point & begin, const Point & end, const Color & c)
 {
     if (aalineColor
 	(surface, begin.x, begin.y, end.x, end.y, c.GetRGBAColor ()))
-	throw exception ();
+	throw SDLException ();
 }
 
 void
 Surface::AARect (const Point & p1, const Point & p2, const Color & c)
 {
     if (rectangleColor (surface, p1.x, p1.y, p2.x, p2.y, c.GetRGBAColor ()))
-	throw exception ();
+	throw SDLException ();
 }
 
 void
 Surface::AACircle (const Point & center, Sint16 r, const Color & c)
 {
     if (aacircleColor (surface, center.x, center.y, r, c.GetRGBAColor ()))
-	throw exception ();
+	throw SDLException ();
 }
 
 void
 Surface::AAFillCircle (const Point & center, Sint16 r, const Color & c)
 {
     if (filledCircleColor (surface, center.x, center.y, r, c.GetRGBAColor ()))
-	throw exception ();
+	throw SDLException ();
 }
