@@ -22,7 +22,7 @@ class Surface
     Surface ();
 
     // Copy constructor
-    explicit Surface (const Surface & s);
+    Surface (const Surface & s);
 
     // Create a generic RGB Surface
       Surface (const Rectangle & rect, int dept = 32,
