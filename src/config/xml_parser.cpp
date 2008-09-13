@@ -58,7 +58,12 @@ throw (XMLException)
 
     if (!eNode)
 	xml_throw (node, " is not a Element Node");
+#if XMLPP_MINOR >= 20
     return eNode->get_attribute_value (att_name);
+#else
+    return eNode->get_attribute(att_name)->get_value();
+#endif
+
 }
 
 Glib::ustring

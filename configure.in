@@ -134,7 +134,12 @@ AC_CHECK_HEADER(${INC_SDL}/SDL_gfxPrimitives.h, [],
 
 ## libxml++
 
-PKG_CHECK_MODULES(LIBXMLPP, libxml++-2.6 >= 2.20.0)
+PKG_CHECK_MODULES(LIBXMLPP, libxml++-2.6)
+
+LIBXMLPP_MINOR=`pkg-config libxml++-2.6 --modversion | cut -d '.' -f 2`
+
+AC_DEFINE_UNQUOTED(XMLPP_MINOR, ${LIBXMLPP_MINOR}, 
+				Define to libxml++-2.6 minor code version)
 
 
 CXXFLAGS="${CXXFLAGS} -W -Wall"
