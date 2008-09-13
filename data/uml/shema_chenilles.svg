@@ -77,7 +77,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="0.7"
      inkscape:cx="720.78237"
-     inkscape:cy="838.82095"
+     inkscape:cy="309.73564"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -491,7 +491,7 @@
          sodipodi:role="line"
          x="801.95648"
          y="836.47717"
-         id="tspan3045">~Gam();</tspan><tspan
+         id="tspan3045">~Game();</tspan><tspan
          sodipodi:role="line"
          x="801.95648"
          y="851.47717"
@@ -1416,30 +1416,6 @@
        d="M 1045.7143,877.31644 L 992.85714,393.03073 L 591.42857,218.74501"
        id="path4376"
        transform="translate(-136.60075,-179.42494)" />
-    <rect
-       style="fill:#f2f2f2;fill-opacity:1;stroke:#000000;stroke-width:2.30892491;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="rect7015"
-       width="178.63051"
-       height="135.77336"
-       x="389.08395"
-       y="749.29059" />
-    <rect
-       style="fill:#f2f2f2;fill-opacity:1;stroke:#000000;stroke-width:2.3330133;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="rect7017"
-       width="180.03497"
-       height="27.177843"
-       x="389.09604"
-       y="722.15973" />
-    <text
-       xml:space="preserve"
-       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-       x="399.11353"
-       y="739.32007"
-       id="text7019"><tspan
-         sodipodi:role="line"
-         id="tspan7021"
-         x="399.11353"
-         y="739.32007">TeamsList</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
@@ -1454,71 +1430,12 @@
     <text
        xml:space="preserve"
        style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-       x="399.11353"
-       y="745.03436"
-       id="text7027"><tspan
-         sodipodi:role="line"
-         id="tspan7029"
-         x="399.11353"
-         y="745.03436" /><tspan
-         sodipodi:role="line"
-         id="tspan7031"
-         x="399.11353"
-         y="760.03436">private:</tspan><tspan
-         sodipodi:role="line"
-         x="399.11353"
-         y="775.03436"
-         id="tspan7035">list&lt;Team *&gt; teams;</tspan><tspan
-         sodipodi:role="line"
-         x="399.11353"
-         y="790.03436"
-         id="tspan5969">TeamList();</tspan><tspan
-         sodipodi:role="line"
-         x="399.11353"
-         y="805.03436"
-         id="tspan5975">~TeamList();</tspan><tspan
-         sodipodi:role="line"
-         x="399.11353"
-         y="820.03436"
-         id="tspan7037">public:</tspan><tspan
-         sodipodi:role="line"
-         x="399.11353"
-         y="835.03436"
-         id="tspan3067">addTeam(const Team *t);</tspan><tspan
-         sodipodi:role="line"
-         x="399.11353"
-         y="850.03436"
-         id="tspan3059">ActiveTeam();</tspan><tspan
-         sodipodi:role="line"
-         x="399.11353"
-         y="865.03436"
-         id="tspan3061">BeginTurn();</tspan><tspan
-         sodipodi:role="line"
-         x="399.11353"
-         y="880.03436"
-         id="tspan3131">EndOfTurn();</tspan><tspan
-         sodipodi:role="line"
-         x="399.11353"
-         y="895.03436"
-         id="tspan7039" /></text>
-    <text
-       xml:space="preserve"
-       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
        x="590"
        y="1014.4593"
        id="text3051"
        transform="translate(-136.60075,-179.42494)"><tspan
          sodipodi:role="line"
          id="tspan3055" /></text>
-    <path
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:none;marker-end:url(#EmptyDiamondL)"
-       d="M 521.42857,988.74501 L 420,978.74501"
-       id="path3069"
-       transform="translate(-136.60075,-179.42494)" />
-    <path
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.98371702px;stroke-linecap:butt;stroke-linejoin:miter;marker-start:none;marker-end:url(#Arrow1Lend);stroke-opacity:1"
-       d="M 396.26453,717.89964 L 336.24825,212.06848 L 396.26453,39.311929"
-       id="path3071" />
     <rect
        style="fill:#f2f2f2;fill-opacity:1;stroke:#000000;stroke-width:2.36800003;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect4376"

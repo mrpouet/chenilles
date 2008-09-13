@@ -5,6 +5,8 @@
 #include "sdl_exception.h"
 #include "surface.h"
 
+#include <iostream>
+
 Surface::Surface ()
 {
     surface  = NULL;
@@ -30,9 +32,6 @@ Surface::Surface (const Surface & s)
     Clone (s);
 }
 
-//FIXME: Replace ALL std:exception later by SDLException
-// (for example)
-
 void
 Surface::validPtr (void) const
 {
@@ -56,7 +55,7 @@ Surface::Surface (SDL_Surface * s)
 
 Surface::Surface (const string& filename)
 {
-  surface = IMG_Load (filename.c_str());
+    surface = IMG_Load (filename.c_str());
     lockfree = false;
     validPtr ();
 }
@@ -151,9 +150,9 @@ Surface::ConvertSurface (const Surface & s, Uint32 flag)
     SDL_Surface *tmp = NULL;
 
     tmp = SDL_ConvertSurface (surface, s.surface->format, flag);
-    validPtr ();
     SDL_FreeSurface (surface);
     surface = tmp;
+    validPtr();
 }
 
 void
@@ -162,9 +161,20 @@ Surface::DisplayFormat (void)
     SDL_Surface *tmp = NULL;
 
     tmp = SDL_DisplayFormat (surface);
-    validPtr ();
     SDL_FreeSurface (surface);
     surface = tmp;
+    validPtr();
+}
+
+void
+Surface::DisplayFormatAlpha (void)
+{
+    SDL_Surface *tmp = NULL;
+
+    tmp = SDL_DisplayFormatAlpha (surface);
+    SDL_FreeSurface (surface);
+    surface = tmp;
+    validPtr();
 }
 
 void
@@ -191,19 +201,6 @@ Surface::FillRect (const Point & p1, const Point & p2, const Color & c)
 bool Surface::SetClipRect (const rectangle * dstrect)
 {
     return SDL_SetClipRect (surface, dstrect);
-}
-
-//TODO: Really needed ? (slow...)
-void
-Surface::rotozoom (double angle, double zoom, int smooth)
-{
-    SDL_Surface *tmp = NULL;
-
-    tmp = rotozoomSurface (surface, angle, zoom, smooth);
-
-    validPtr ();
-    SDL_FreeSurface (surface);
-    surface = tmp;
 }
 
 void

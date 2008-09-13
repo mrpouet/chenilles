@@ -11,7 +11,7 @@ class Rectangle
     Uint16 w, h;
 
   public:
-      Rectangle (Sint16 x, Sint16 y, Uint16 w = 0, Uint16 h = 0);
+      Rectangle (Sint16 x = 0, Sint16 y = 0, Uint16 w = 0, Uint16 h = 0);
 
     inline SDL_Rect GetSDLRect (void) const
     {

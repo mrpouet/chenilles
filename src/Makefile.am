@@ -1,6 +1,6 @@
-bin_PROGRAMS = chenilles
+bin_PROGRAMS = chenilles ArtEditor
 
-chenilles_SOURCES= tools/point.h				\
+chenilles_DEPENDENCIES= tools/point.h		\
 	tools/point.cpp				\
 	tools/rectangle.h			\
 	tools/rectangle.cpp			\
@@ -19,11 +19,20 @@ chenilles_SOURCES= tools/point.h				\
 	config/xml_exception.h			\
 	config/xml_parser.h			\
 	config/xml_parser.cpp			\
+	interface/hmi.h				\
+	interface/hmi.cpp			\
+	interface/camera.h			\
+	interface/camera.cpp			\
 	map/map_exception.h			\
 	map/map.h				\
-	map/map.cpp				\
+	map/map.cpp				
+
+chenilles_SOURCES= ${chenilles_DEPENDENCIES}	\
 	main.cpp
 
-chenilles_LDFLAGS= @LDFLAGS@ @LIBXMLPP_LIBS@
-chenilles_CPPFLAGS=@CPPFLAGS@
-chenilles_CXXFLAGS=@CXXFLAGS@ @LIBXMLPP_CFLAGS@ -I..
+ArtEditor_SOURCES= ${chenilles_DEPENDENCIES} 	\
+	ArtEditor.cpp
+
+AM_LDFLAGS= @LDFLAGS@ @LIBXMLPP_LIBS@
+AM_CPPFLAGS=@CPPFLAGS@
+AM_CXXFLAGS=@CXXFLAGS@ @LIBXMLPP_CFLAGS@ -I..

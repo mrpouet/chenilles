@@ -2,11 +2,6 @@
 
 #include "point.h"
 
-Point::Point ()
-{
-    x = y = 0;
-}
-
 Point::Point (int abs, int ord):
 x (abs), y (ord)
 {}

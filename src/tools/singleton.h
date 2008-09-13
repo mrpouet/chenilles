@@ -4,16 +4,9 @@
 template <class T> 
 class Singleton
 {
-  protected:
-    static T *singleton;
-
-  protected:
-    ~Singleton ()
-    {
-	singleton = NULL;
-    }
 
   public:
+
     static T *GetInstance (void)
     {
 	if (!singleton)
@@ -21,11 +14,25 @@ class Singleton
 	return singleton;
     }
 
+    static T & GetRef (void)
+    {
+	return *singleton;
+    }
+
     static void CleanUp (void)
     {
 	if (singleton)
 	    delete singleton;
-    };
+    }
+
+  protected:
+    static T *singleton;
+
+    ~Singleton ()
+    {
+	singleton = NULL;
+    }
+
 
 };
 

@@ -21,9 +21,32 @@ class Map
 	return m_ground.GetRGBA (p).GetA () == 255;
     }
 
-    //TODO: Remove @param in the future to replace it directly
-    // by the screen Surface
-    void Draw (Surface & s) const;
+    inline int WidthOfWorld (void) const
+    {
+	return m_sky.GetWidth ();
+    }
+
+    inline int HeightOfWorld (void) const
+    {
+	return m_sky.GetHeight ();
+    }
+
+    inline bool IsOutOfWorldX (int x) const
+    {
+	return (x < 0) || (x >= WidthOfWorld ());
+    }
+
+    inline bool IsOutOfWorldY (int y) const
+    {
+	return (y < 0) || (y >= HeightOfWorld ());
+    }
+
+    inline bool IsOutOfWorld (const Point & pos) const
+    {
+	return IsOutOfWorldX (pos.x) || IsOutOfWorldY (pos.y);
+    }
+
+    void draw (void) const;
 
   private:
 

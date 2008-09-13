@@ -26,7 +26,8 @@ class Surface
 
     // Create a generic RGB Surface
       Surface (const Rectangle & rect, int dept = 32,
-	       Uint32 flags = SDL_HWSURFACE | SDL_SRCALPHA);
+	       Uint32 flags = SDL_HWSURFACE | SDL_HWACCEL | SDL_HWPALETTE
+	       | SDL_DOUBLEBUF);
 
     // Create a Surface from SDL_Surface object
     explicit Surface (SDL_Surface * surface);
@@ -102,6 +103,8 @@ class Surface
 
     void DisplayFormat (void);
 
+    void DisplayFormatAlpha(void);
+
     // Set/Unset alpha blending on the current surface
     // 'flag' : SDL_SRCALPHA, SDL_RLEACCEL.
     // Note: if 'flag' is 0, alpha blending is disable.
@@ -120,9 +123,6 @@ class Surface
     // Sets the clipping rectangle for the current surface
     // in a blit.
     bool SetClipRect (const rectangle * dstrect);
-
-    //TODO: Necessary ? (slow...)
-    void rotozoom (double angle, double zoom, int smooth);
 
     // Draw Anti Aliased Line from 'begin' to 'end' with the given Color
     // on the current Surface.

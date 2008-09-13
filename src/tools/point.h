@@ -9,8 +9,8 @@ class Point
   public:
     // Typicaly Cartesien Point implements is know
     int x, y;
-      Point ();
-      Point (int abs, int ord);
+    
+    Point (int abs = 0, int ord = 0);
 
     inline Point & operator+= (const Point & p)
     {
