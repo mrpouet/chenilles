@@ -76,15 +76,15 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.7"
-     inkscape:cx="720.78237"
-     inkscape:cy="309.73564"
+     inkscape:cx="698.86877"
+     inkscape:cy="763.97626"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1280"
+     inkscape:window-width="1272"
      inkscape:window-height="739"
-     inkscape:window-x="-5"
-     inkscape:window-y="-3"
+     inkscape:window-x="0"
+     inkscape:window-y="24"
      showguides="false"
      inkscape:connector-spacing="1" />
   <metadata
@@ -972,11 +972,9 @@
        inkscape:connection-end="#path3418" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-start:url(#EmptyDiamondL);marker-end:none;stroke-opacity:1"
-       d="M 791.25639,805.30482 L 542.54993,668.27361"
+       d="M 791.25639,752.44768 L 542.54993,615.41647"
        id="path3442"
-       inkscape:connector-type="polyline"
-       inkscape:connection-start="#path3198"
-       inkscape:connection-end="#path3418" />
+       inkscape:connector-type="polyline" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-start:none;marker-mid:none;marker-end:url(#EmptyDiamondL);stroke-opacity:1"
        d="M 1004.4726,686.46291 L 942.49402,800.31581"
@@ -1733,6 +1731,160 @@
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:none;marker-end:url(#EmptyDiamondL)"
        d="M 1095.7143,671.60216 L 922.85714,233.03073"
        id="path5688"
+       transform="translate(-136.60075,-179.42494)" />
+    <rect
+       style="fill:#f2f2f2;fill-opacity:1;stroke:#000000;stroke-width:2.49261546;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect2742"
+       width="144.1611"
+       height="151.30396"
+       x="412.03302"
+       y="735.09668" />
+    <rect
+       style="fill:#f2f2f2;fill-opacity:1;stroke:#000000;stroke-width:2.44975758;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect2744"
+       width="144.20396"
+       height="24.203957"
+       x="412.01157"
+       y="710.78949" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="552.85712"
+       y="905.88788"
+       id="text2747"
+       transform="translate(-136.60075,-179.42494)"><tspan
+         sodipodi:role="line"
+         id="tspan2749"
+         x="552.85712"
+         y="905.88788">HMI</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="557.14288"
+       y="927.31647"
+       id="text2751"
+       transform="translate(-136.60075,-179.42494)"><tspan
+         sodipodi:role="line"
+         id="tspan2753"
+         x="557.14288"
+         y="927.31647">public:</tspan><tspan
+         sodipodi:role="line"
+         x="557.14288"
+         y="942.31647"
+         id="tspan2755"> Init();</tspan><tspan
+         sodipodi:role="line"
+         x="557.14288"
+         y="957.31647"
+         id="tspan2757">SetVideoMode();</tspan><tspan
+         sodipodi:role="line"
+         x="557.14288"
+         y="972.31647"
+         id="tspan2759">SetCursor();</tspan><tspan
+         sodipodi:role="line"
+         x="557.14288"
+         y="987.31647"
+         id="tspan2761" /><tspan
+         sodipodi:role="line"
+         x="557.14288"
+         y="1002.3165"
+         id="tspan2763">private:</tspan><tspan
+         sodipodi:role="line"
+         x="557.14288"
+         y="1017.3165"
+         id="tspan2765">HMI();</tspan><tspan
+         sodipodi:role="line"
+         x="557.14288"
+         y="1032.3164"
+         id="tspan2767">~HMI();</tspan><tspan
+         sodipodi:role="line"
+         x="557.14288"
+         y="1047.3164"
+         id="tspan2769">friend class Singleton</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+       d="M 544.28571,933.03073 L 451.42857,460.17358 L 548.57143,221.60216"
+       id="path2773"
+       transform="translate(-136.60075,-179.42494)" />
+    <rect
+       style="fill:#f2f2f2;fill-opacity:1;stroke:#000000;stroke-width:2.55117965;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4090"
+       width="111.24539"
+       height="135.5311"
+       x="596.34796"
+       y="747.98309" />
+    <rect
+       style="fill:#f2f2f2;fill-opacity:1;stroke:#000000;stroke-width:2.51038766;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4092"
+       width="111.28618"
+       height="31.286184"
+       x="596.32758"
+       y="716.53412" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="601.97064"
+       y="735.03436"
+       id="text4094"><tspan
+         sodipodi:role="line"
+         id="tspan4096"
+         x="601.97064"
+         y="735.03436">Camera</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="742.85712"
+       y="944.45929"
+       id="text4098"
+       transform="translate(-136.60075,-179.42494)"><tspan
+         sodipodi:role="line"
+         x="742.85712"
+         y="944.45929"
+         id="tspan4102">public:</tspan><tspan
+         sodipodi:role="line"
+         x="742.85712"
+         y="959.45929"
+         id="tspan4106">GetCameraBox()</tspan><tspan
+         sodipodi:role="line"
+         x="742.85712"
+         y="974.45929"
+         id="tspan4108">GetCamera()</tspan><tspan
+         sodipodi:role="line"
+         x="742.85712"
+         y="989.45929"
+         id="tspan4110">GetSpeed();</tspan><tspan
+         sodipodi:role="line"
+         x="742.85712"
+         y="1004.4593"
+         id="tspan4112">CancelMove();</tspan><tspan
+         sodipodi:role="line"
+         x="742.85712"
+         y="1019.4593"
+         id="tspan4114" /><tspan
+         sodipodi:role="line"
+         x="742.85712"
+         y="1034.4592"
+         id="tspan4116">private:</tspan><tspan
+         sodipodi:role="line"
+         x="742.85712"
+         y="1049.4592"
+         id="tspan4118">Camera();</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="792.85712"
+       y="1034.4594"
+       id="text4120"
+       transform="translate(-136.60075,-179.42494)"><tspan
+         sodipodi:role="line"
+         id="tspan4122"
+         x="792.85712"
+         y="1034.4594"></tspan><tspan
+         sodipodi:role="line"
+         id="tspan4124" /></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+       d="M 794.28571,893.03073 L 688.57143,671.60216 L 468.57143,624.4593 L 492.85714,348.74501 L 511.42857,218.74501"
+       id="path4126"
        transform="translate(-136.60075,-179.42494)" />
   </g>
 </svg>
