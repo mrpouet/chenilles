@@ -1,12 +1,13 @@
 #ifndef __CAMERA_H__
 #define __CAMERA_H__
 
+#include <queue>
 #include <graphics/surface.h>
 #include <tools/singleton.h>
 
 #include "hmi.h"
 
-class Camera:public Singleton < Camera >
+class Camera:public Singleton<Camera>
 {
 
   public:
@@ -45,15 +46,20 @@ class Camera:public Singleton < Camera >
 	m_camera_box.x -= m_pixel_per_scroll;
     }
 
+    inline void ToRedraw (const Rectangle & dstrect)
+    {
+	m_redraw_queue.push (dstrect);
+    }
 
   private:
     Camera ();
-    friend class Singleton < Camera >;
+    friend class Singleton<Camera>;
     friend class HMI;
+    typedef queue<Rectangle> redraw_queue;
     Rectangle m_camera_box;
     Surface m_camera;
     int m_pixel_per_scroll;
-
+    redraw_queue m_redraw_queue;
 };
 
 #endif

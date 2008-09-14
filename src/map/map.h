@@ -46,7 +46,7 @@ class Map
 	return IsOutOfWorldX (pos.x) || IsOutOfWorldY (pos.y);
     }
 
-    void draw (void) const;
+    void draw (void);
 
   private:
 
@@ -54,7 +54,7 @@ class Map
     Surface m_ground;
     Surface m_foreground;
     Surface m_explosion;
-
+    bool m_init_draw;
 };
 
 #endif

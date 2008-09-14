@@ -52,10 +52,11 @@ Map::Map (const string & xmldoc) throw (std::exception)
     m_foreground.DisplayFormatAlpha ();
 
     parser->FreeDoc ();
+    m_init_draw = true;
 }
 
 void
-Map::draw (void) const
+Map::draw (void)
 {
     Camera & camera = Camera::GetRef ();
     const Rectangle & camera_box = camera.GetCameraBox ();
@@ -72,9 +73,13 @@ Map::draw (void) const
     if (IsOutOfWorldX (camera_box.x + camera_box.w) ||
 	IsOutOfWorldX (camera_box.x))
       {
+	  // And canceling last Camera movement
 	  camera.CancelMove();
 	  return;
       }
+
+    if ((!scroll) && (!m_init_draw))
+      return;
 
     // A king of "slicing" of the part which won't change
     // (just move).
@@ -116,5 +121,6 @@ Map::draw (void) const
     camera.UpdateCamera (m_sky, &to, &from);
     camera.UpdateCamera (m_ground, &to, &from);
     camera.UpdateCamera (m_foreground, &to, &from);
-
+    camera.ToRedraw(Rectangle(0, 0, camera_box.w, camera_box.h));
+    m_init_draw = false;
 }

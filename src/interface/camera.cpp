@@ -17,7 +17,6 @@ Camera::Camera ()
 void
 Camera::Refresh (void)
 {
-    HMI::GetInstance ()->RefreshMousePos ();
     Point tip = HMI::GetInstance ()->m_tip;
 
     if (tip.x >= (m_camera_box.w - MIN_SCROLL_MARGIN))

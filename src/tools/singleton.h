@@ -16,7 +16,7 @@ class Singleton
 
     static T & GetRef (void)
     {
-	return *singleton;
+      return *GetInstance();
     }
 
     static void CleanUp (void)

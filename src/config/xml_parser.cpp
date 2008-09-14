@@ -66,6 +66,7 @@ throw (XMLException)
 
 }
 
+//FIXME: replace get_children by get_child_text.
 Glib::ustring
 XMLParser::getText (const Node * node) const throw (XMLException)
 {

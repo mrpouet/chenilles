@@ -32,15 +32,15 @@ class HMI:public Singleton<HMI>
 
   private:
 
-     HMI (void);
-    ~HMI (void);
+      HMI (void);
+     ~HMI (void);
 
     inline void RefreshMousePos (void)
     {
 	SDL_GetMouseState (&m_tip.x, &m_tip.y);
     }
 
-    friend class Singleton < HMI >;
+    friend class Singleton<HMI>;
     friend class Camera;
     // The screen Surface
     Surface m_screen;
@@ -48,6 +48,7 @@ class HMI:public Singleton<HMI>
     Surface *m_cursor;
     // Tip of the cursor
     Point m_tip;
+
 };
 
 #endif

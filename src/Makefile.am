@@ -19,6 +19,8 @@ chenilles_DEPENDENCIES= tools/point.h		\
 	config/xml_exception.h			\
 	config/xml_parser.h			\
 	config/xml_parser.cpp			\
+	config/xml_writer.h			\
+	config/xml_writer.cpp			\
 	interface/hmi.h				\
 	interface/hmi.cpp			\
 	interface/camera.h			\

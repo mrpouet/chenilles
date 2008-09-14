@@ -58,6 +58,16 @@ class Surface
     // Surface.
     void Blit (const Surface & src, const Point & dstpt);
 
+    inline void UpdateRect(const Rectangle dstrect)
+    {
+      SDL_UpdateRect(surface, dstrect.x, dstrect.y, dstrect.w, dstrect.h);
+    }
+
+    inline void UpdateRects(int numrects, rectangle *rects)
+    {
+      SDL_UpdateRects(surface, numrects, rects);
+    }
+
     // Flip the current Surface, using the double buffering
     // if the current system supports it, else does exactly the same
     // as SDL_UpdateRect(0, 0, 0, 0)

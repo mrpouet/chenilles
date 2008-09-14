@@ -1,3 +1,5 @@
+#include <cstdlib>
+#include <new>
 #include <iostream>
 #include <tools/base.h>
 #include <game/timer.h>
@@ -13,6 +15,25 @@ namespace
 		(event->type == SDL_MOUSEBUTTONUP) ||
 		(event->type == SDL_MOUSEBUTTONDOWN)) ? 0 : 1;
     }
+
+    // Necessary for Surface::UpdateRects which doesn't check
+    // out of ranges of screen (apparently due to SDL_UpdateRects).
+    // otherwises X error, BadValue is throwed,
+    // (integer parameter out of range for operation).
+
+    void ComputeRect (Rectangle & r, int w, int h)
+    {
+	int rborder = r.x + r.w;
+	int bborder = r.y + r.h;
+
+	if (rborder > w)
+	    r.w -= (rborder - w);
+	if (bborder > h)
+	    r.h -= (bborder - h);
+	if (r.x < 0)
+	    r.x = 0;
+    }
+
 };
 
 HMI::HMI (void)
@@ -20,6 +41,9 @@ HMI::HMI (void)
     m_cursor = NULL;
 }
 
+//FIXME: It's more logic (and fast...) to ignore ALL SDL_Events
+// except these we interesting in.
+// (we don't know all events)
 void
 HMI::Init (void)
 throw (SDLException)
@@ -29,6 +53,8 @@ throw (SDLException)
     SDL_SetEventFilter (Events_Filter);
 }
 
+//FIXME: Replace these flags by testing current configuration
+// with SDL_GetVideoInfo() (more efficient and portable)
 void
 HMI::SetVideoMode (int width, int height)
 {
@@ -52,6 +78,7 @@ HMI::SetCursor (const string & icon)
     m_cursor->DisplayFormatAlpha ();
 
     SDL_ShowCursor (0);
+
 }
 
 void
@@ -65,13 +92,50 @@ void
 HMI::RefreshOutput (void)
 {
     Camera & camera = Camera::GetRef ();
+    Camera::redraw_queue & queue = camera.m_redraw_queue;
+    rectangle rect = { 0, 0, 0, 0 };
+    Rectangle r (0, 0, m_cursor->GetWidth (), m_cursor->GetHeight ());
 
+    int size = !queue.empty ()? static_cast < int >(queue.size () + 2) : 2;
+
+    rectangle *rects = (rectangle *) malloc (size * sizeof (rectangle));
+    int i;
+
+    if (!rects)
+	throw bad_alloc ();
+
+    // "Catch" and exec all redraw events
+    for (i = 0; !queue.empty (); i++)
+      {
+
+	  rects[i] = queue.front ().GetSDLRect ();
+	  camera.m_camera.UpdateRect (queue.front ());
+	  m_screen.Blit (camera.m_camera, &rects[i], &rects[i]);
+	  queue.pop ();
+      }
+
+    // Delete old cursor
+    r.x = m_tip.x;
+    r.y = m_tip.y;
+    ComputeRect (r, m_screen.GetWidth (), m_screen.GetHeight ());
+    rect = r.GetSDLRect ();
+    rects[i++] = rect;
+
+    m_screen.Blit (camera.m_camera, &rect, &rect);
+
+    // Compute the new cursor rectangle position
     RefreshMousePos ();
+    r.x = m_tip.x;
+    r.y = m_tip.y;
+    ComputeRect (r, m_screen.GetWidth (), m_screen.GetHeight ());
 
-    camera.m_camera.Flip ();
-    m_screen.Blit (camera.m_camera);
+    // Draw cursor
     m_screen.Blit (*m_cursor, m_tip);
-    m_screen.Flip ();
+    rects[i++] = r.GetSDLRect ();
+
+    m_screen.UpdateRects (size, rects);
+
+    free (rects);
 }
 
 HMI::~HMI (void)
