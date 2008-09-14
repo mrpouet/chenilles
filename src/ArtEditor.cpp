@@ -55,7 +55,7 @@ main (void)
 		    avg = framecount
 			/ ((Timer::GetInstance ()->Read () - update_time) /
 			   1000.f);
-		    cout << avg << " fps in 1 second" << endl;
+		    cout << avg << " frames in 1 second" << endl;
 		    update_time = Timer::GetInstance ()->Read ();
 		    framecount = 0;
 		}
