@@ -1,9 +1,7 @@
 #include <string>
-#include <fstream>
-#include <iostream>
 #include <tools/base.h>
 
-#include <libxml/tree.h>
+#include <libxml/tree.h> // For _xmlDoc * implement
 #include "xml_writer.h"
 
 XMLWriter::XMLWriter ()
