@@ -1,5 +1,9 @@
 #include <string>
+#include <fstream>
+#include <iostream>
+#include <tools/base.h>
 
+#include <libxml/tree.h>
 #include "xml_writer.h"
 
 XMLWriter::XMLWriter ()
@@ -14,6 +18,13 @@ XMLWriter::CreateDoc (const Glib::ustring & root)
 	return;
     m_doc = new Document ();
     m_doc->create_root_node (root);
+
+    // standalone="no" (no external refs)
+    m_doc->cobj ()->standalone = 0;
+
+    // Defining DTD internal subset (on local system).
+    m_doc->set_internal_subset (root, Glib::ustring (),
+				Glib::ustring ("../") + root + ".dtd");
 }
 
 void
@@ -42,7 +53,7 @@ void
 XMLWriter::AddText (Node * parent, const Glib::ustring & content)
 throw (XMLException)
 {
-    Element *eparent = dynamic_cast < Element * >(parent);
+    Element *eparent = dynamic_cast<Element *>(parent);
 
     if (!eparent)
 	throw XMLException (string (parent->get_name ().c_str ())
@@ -56,7 +67,7 @@ XMLWriter::SetAttribute (Node * node, const Glib::ustring & name,
 			 const Glib::ustring & value)
 throw (XMLException)
 {
-    Element *enode = dynamic_cast < Element * >(node);
+    Element *enode = dynamic_cast<Element *>(node);
 
     if (!enode)
 	throw XMLException (string (node->get_name ().c_str ()) +

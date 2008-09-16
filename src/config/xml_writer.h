@@ -26,16 +26,15 @@ class XMLWriter:public Singleton<XMLWriter>
 			const Glib::ustring & encoding =
 			Glib::ustring ("UTF-8"))
     {
-	if (!m_doc)
-	    return;
-	m_doc->write_to_file_formatted (filename, encoding);
+	if (m_doc)
+	    m_doc->write_to_file_formatted (filename, encoding);
     }
 
     // Get the root Node of the current XML tree.
     // @return a pointer from to root node.
     inline Node *GetRootNode (void) const
     {
-	return m_doc->get_root_node ();
+	return (m_doc) ? m_doc->get_root_node () : NULL;
     }
 
     // Add a child Element, to "parent" Node.
@@ -59,10 +58,9 @@ class XMLWriter:public Singleton<XMLWriter>
     void SetAttribute (Node * node, const Glib::ustring & name,
 		       const Glib::ustring & value) throw (XMLException);
 
-
   private:
     XMLWriter ();
-    friend class Singleton < XMLWriter >;
+    friend class Singleton<XMLWriter>;
     Document *m_doc;
 };
 

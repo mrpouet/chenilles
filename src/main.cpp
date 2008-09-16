@@ -4,6 +4,6 @@
 int
 main (void)
 {
-  cout << "Not implemented yet !" << endl;
+  cout << "No implemented yet !" << endl;
   return 0;
 }
