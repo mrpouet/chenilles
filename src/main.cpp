@@ -1,9 +1,18 @@
 #include <iostream>
-#include <tools/base.h>
+#include <map/map.h>
 
 int
-main (void)
+main (int argc, char *argv[])
 {
-  cout << "No implemented yet !" << endl;
+
+  try 
+    {
+      Map map("../data/maps/testMap1/config.xml");
+    }
+  catch(const std::exception& e)
+    {
+      cerr << "Caught exception:" << endl
+	   << "what(): " << e.what() << endl;
+    }
   return 0;
 }

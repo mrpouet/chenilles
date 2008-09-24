@@ -5,15 +5,13 @@
 
   <informations>
     <author>PILLEBOUE Adrien necropotame</author>
-
     <name>testMap1</name>
-    <version>1.0rc1</version>
     <description>A simple test map, cool, suxe, and funny</description>
   </informations>
 
-  <layer type="sky">background.png</layer>
+  <layer type="background">background.png</layer>
   <layer type="ground">main.png</layer>
-  <layer type="foreground">foreground.png</layer>
+  <layer type="background">foreground.png</layer>
   <layer type="explosion">explosion.png</layer>
 
 </map>

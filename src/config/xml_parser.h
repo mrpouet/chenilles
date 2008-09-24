@@ -4,6 +4,7 @@
 #include <string>
 #include <libxml++/parsers/domparser.h>
 #include <libxml++/nodes/node.h>
+#include <libxml++/nodes/textnode.h>
 #include <tools/singleton.h>
 #include <tools/base.h>
 
@@ -32,6 +33,11 @@ class XMLParser:public Singleton < XMLParser >
 
     // Get the text content of a Element Node
       Glib::ustring getText (const Node * node) const throw (XMLException);
+
+      inline bool isTextNode(const Node *node)
+      {
+	return dynamic_cast<const TextNode *>(node);
+      }
 
   private:
 

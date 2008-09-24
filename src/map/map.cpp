@@ -8,48 +8,44 @@
 
 namespace
 {
-    inline const Node *getLayer (const string & xpath)
-    {
-	const Node *node = XMLParser::GetInstance ()->getNode (xpath);
-	if (!node)
-	    throw MapException ("No <layer> node corresponding to \'" + xpath
-				+ "\' XPath syntax");
-	return node;
-
-    }
-
+  inline void AbsolutePath(string& str)
+  {
+    str.erase (str.rfind ("/") + 1, string::npos);
+  }
+  
 };
 
 Map::Map (const string & xmldoc) throw (std::exception)
 {
     XMLParser *parser = XMLParser::GetInstance ();
-    const Node *node = NULL;
     string path (xmldoc);
+    int i = 0;
+    
+    m_main_id = m_expl_id = 0;
 
     parser->LoadDoc (xmldoc);
 
-    path.erase (path.rfind ("/") + 1, string::npos);
+    AbsolutePath(path);
 
-    node = getLayer ("//layer[@type=\"sky\"]");
+    for (const Node *n = parser->getNode("//layer"); 
+	 n != NULL; n = n->get_next_sibling())
+      {
+	if (parser->isTextNode(n))
+	  continue;
 
-    m_sky = Surface (path + parser->getText (node).c_str ());
+	if (parser->getAttribute(n, "type") == "ground")
+	  m_main_id = i;
+	else if (parser->getAttribute(n, "type") == "explosion")
+	  m_expl_id = i;
 
-    node = getLayer ("//layer[@type=\"ground\"]");
+	m_layers.push_back(Surface(path + parser->getText(n).c_str()));
+	m_layers.back().DisplayFormatAlpha();
+	AbsolutePath(path);
+	i++;
+      }
 
-    m_ground = Surface (path + parser->getText (node).c_str ());
-
-    node = getLayer ("//layer[@type=\"foreground\"]");
-
-    m_foreground = Surface (path + parser->getText (node).c_str ());
-
-    node = getLayer ("//layer[@type=\"explosion\"]");
-
-    m_explosion = Surface (path + parser->getText (node).c_str ());
-
-    // Absurd (use ConvertSurface instead)
-    m_sky.DisplayFormatAlpha ();
-    m_ground.DisplayFormatAlpha ();
-    m_foreground.DisplayFormatAlpha ();
+    if (!m_main_id || !m_expl_id)
+      throw MapException("No \"main\" or \"explosion\" layer type found");
 
     parser->FreeDoc ();
     m_init_draw = true;
@@ -118,9 +114,16 @@ Map::draw (void)
     to.w = width;
     to.h = from.h;
 
-    camera.UpdateCamera (m_sky, &to, &from);
-    camera.UpdateCamera (m_ground, &to, &from);
-    camera.UpdateCamera (m_foreground, &to, &from);
+    for (unsigned int i = 0; i < m_layers.size(); i++)
+      {
+	// We need to exclude explosion layer on drawing
+	// (just need for compute)
+	if (i == m_expl_id)
+	  continue;
+	camera.UpdateCamera (m_layers[i], &to, &from);
+      }
+   
     camera.ToRedraw(Rectangle(0, 0, camera_box.w, camera_box.h));
     m_init_draw = false;
 }
+

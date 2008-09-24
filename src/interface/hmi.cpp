@@ -21,7 +21,7 @@ namespace
     // otherwises X error, BadValue is throwed,
     // (integer parameter out of range for operation).
 
-    void ComputeRect (Rectangle & r, int w, int h)
+    void ComputeRect (Rectangle& r, int w, int h)
     {
 	int rborder = r.x + r.w;
 	int bborder = r.y + r.h;
@@ -39,6 +39,8 @@ namespace
 HMI::HMI (void)
 {
     m_cursor = NULL;
+    m_current_cursor = CURSOR_MAIN;
+    m_external_tip = false;
 }
 
 //FIXME: It's more logic (and fast...) to ignore ALL SDL_Events
@@ -54,7 +56,7 @@ throw (SDLException)
 }
 
 //FIXME: Replace these flags by testing current configuration
-// with SDL_GetVideoInfo() (more efficient and portable)
+// with SDL_GetVideoInfo() (more efficient and "portable")
 void
 HMI::SetVideoMode (int width, int height)
 {
@@ -66,28 +68,33 @@ HMI::SetVideoMode (int width, int height)
 }
 
 void
-HMI::SetCursor (const string & icon)
+HMI::SetCursor (CursorType type, const string& icon)
 {
+
     if (m_cursor)
 	delete m_cursor;
 
     m_cursor = new Surface (icon);
 
-    SDL_WarpMouse (m_screen.GetWidth () / 2, m_screen.GetHeight () / 2);
+    m_current_cursor = type;
 
     m_cursor->DisplayFormatAlpha ();
 
-    SDL_ShowCursor (0);
+    m_tip.x = m_screen.GetWidth() / 2;
+    m_tip.y = m_screen.GetHeight() / 2;
+
+    SDL_ShowCursor (SDL_DISABLE);
 
 }
 
 void
-HMI::HandleEvent (const SDL_Event & event)
+HMI::HandleEvent (const SDL_Event& event)
 {
     return;
 }
 
-
+//FIXME: Please refresh the cursor rects ONLY if 
+// it moved (more efficient).
 void
 HMI::RefreshOutput (void)
 {
@@ -96,10 +103,12 @@ HMI::RefreshOutput (void)
     rectangle rect = { 0, 0, 0, 0 };
     Rectangle r (0, 0, m_cursor->GetWidth (), m_cursor->GetHeight ());
 
-    int size = !queue.empty ()? static_cast < int >(queue.size () + 2) : 2;
-
-    rectangle *rects = (rectangle *) malloc (size * sizeof (rectangle));
+    int size = !queue.empty ()? static_cast<int>(queue.size () + 2) : 2;
+    rectangle *rects = NULL;
     int i;
+
+    //FIXME: not the most efficient
+    rects = (rectangle *) malloc (size * sizeof (rectangle));
 
     if (!rects)
 	throw bad_alloc ();
@@ -124,7 +133,7 @@ HMI::RefreshOutput (void)
     m_screen.Blit (camera.m_camera, &rect, &rect);
 
     // Compute the new cursor rectangle position
-    RefreshMousePos ();
+    RefreshMousePos();
     r.x = m_tip.x;
     r.y = m_tip.y;
     ComputeRect (r, m_screen.GetWidth (), m_screen.GetHeight ());

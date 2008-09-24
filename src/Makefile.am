@@ -1,4 +1,5 @@
-bin_PROGRAMS = chenilles ArtEditor
+SUBDIRS= ArtEditor
+bin_PROGRAMS = chenilles
 
 chenilles_DEPENDENCIES= tools/point.h		\
 	tools/point.cpp				\
@@ -32,9 +33,6 @@ chenilles_DEPENDENCIES= tools/point.h		\
 chenilles_SOURCES= ${chenilles_DEPENDENCIES}	\
 	main.cpp
 
-ArtEditor_SOURCES= ${chenilles_DEPENDENCIES} 	\
-	ArtEditor.cpp
-
-AM_LDFLAGS= @LDFLAGS@ @LIBXMLPP_LIBS@
+AM_LDFLAGS= @LDFLAGS@ @LIBXMLPP_LIBS@ @GTKMM_LIBS@
 AM_CPPFLAGS=@CPPFLAGS@
-AM_CXXFLAGS=@CXXFLAGS@ @LIBXMLPP_CFLAGS@ -I..
+AM_CXXFLAGS=@CXXFLAGS@ @LIBXMLPP_CFLAGS@ @GTKMM_CFLAGS@ -I..

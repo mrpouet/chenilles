@@ -17,4 +17,7 @@ rm -f test/Makefile
 rm -f test/Makefile.in
 rm -rf src/.deps
 rm -rf test/.deps
+rm -rf src/ArtEditor/.deps
+rm -rf src/ArtEditor/Makefile
+rm -rf src/ArtEditor/Makefile.in
 rm -f *~

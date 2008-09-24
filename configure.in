@@ -132,7 +132,7 @@ AC_CHECK_HEADER(${INC_SDL}/SDL_gfxPrimitives.h, [],
 					 AC_MSG_FAILURE(
 *** SDL_gfxPrimitives.h header (part of SDL_gfx extension) was not found))
 
-## libxml++
+## libxml++-2.6
 
 PKG_CHECK_MODULES(LIBXMLPP, libxml++-2.6)
 
@@ -141,13 +141,17 @@ LIBXMLPP_MINOR=`pkg-config libxml++-2.6 --modversion | cut -d '.' -f 2`
 AC_DEFINE_UNQUOTED(XMLPP_MINOR, ${LIBXMLPP_MINOR}, 
 				Define to libxml++-2.6 minor code version)
 
+## gtkmm-2.4
+
+PKG_CHECK_MODULES(GTKMM, gtkmm-2.4)
+
 
 CXXFLAGS="${CXXFLAGS} -W -Wall"
 
 AC_DEFINE_DIR(DATAROOTDIR, datarootdir,
 The directory for installing read-only architecture-independent data)
 
-AC_CONFIG_FILES([Makefile src/Makefile test/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile src/ArtEditor/Makefile])
 
 AC_OUTPUT
 

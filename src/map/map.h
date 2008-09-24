@@ -2,6 +2,7 @@
 #define __MAP_H__
 
 #include <exception>
+#include <vector>
 #include <graphics/surface.h>
 
 class Map
@@ -10,25 +11,25 @@ class Map
   public:
 
     explicit Map (const string & xmldoc) throw (std::exception);
-
+   
     inline bool isInTheVacuum (const Point & p) const
     {
-	return m_ground.GetRGBA (p).GetA () == 0;
+	return m_layers[m_main_id].GetRGBA (p).GetA () == 0;
     }
 
     inline bool isInTheGround (const Point & p) const
     {
-	return m_ground.GetRGBA (p).GetA () == 255;
+	return m_layers[m_main_id].GetRGBA (p).GetA () == 255;
     }
-
+   
     inline int WidthOfWorld (void) const
     {
-	return m_sky.GetWidth ();
+	return m_layers[0].GetWidth ();
     }
 
     inline int HeightOfWorld (void) const
     {
-	return m_sky.GetHeight ();
+	return m_layers[0].GetHeight ();
     }
 
     inline bool IsOutOfWorldX (int x) const
@@ -50,11 +51,13 @@ class Map
 
   private:
 
-    Surface m_sky;
-    Surface m_ground;
-    Surface m_foreground;
-    Surface m_explosion;
+    vector<Surface> m_layers;
+    unsigned int m_main_id;
+    unsigned int m_expl_id;
     bool m_init_draw;
+
+ protected:
+    Map(){};
 };
 
 #endif
