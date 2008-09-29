@@ -60,13 +60,6 @@ Surface::Surface (const string& filename)
     validPtr ();
 }
 
-Surface& 
-Surface::operator= (const Surface & s)
-{
-    Clone (s);
-    return *this;
-}
-
 Surface::~Surface ()
 {
     if (surface && !lockfree)

@@ -1,4 +1,3 @@
-#include <iostream>
 #include <cstdlib>
 #include <config/xml_parser.h>
 
@@ -36,13 +35,18 @@ namespace
 
 };
 
+Map::Map()
+{
+  m_main_it = m_expl_it = m_layers.end();
+  m_init_draw = true;
+}
+
 Map::Map (const string & xmldoc) throw (std::exception)
 {
     XMLParser *parser = XMLParser::GetInstance ();
     string path (xmldoc);
-    int i = 0;
 
-    m_main_id = m_expl_id = 0;
+    m_main_it = m_expl_it = m_layers.end ();
 
     parser->LoadDoc (xmldoc);
 
@@ -54,22 +58,52 @@ Map::Map (const string & xmldoc) throw (std::exception)
 	  if (parser->isTextNode (n))
 	      continue;
 
-	  if (parser->getAttribute (n, "type") == "ground")
-	      m_main_id = i;
-	  else if (parser->getAttribute (n, "type") == "explosion")
-	      m_expl_id = i;
-
 	  m_layers.push_back (Surface (path + parser->getText (n).c_str ()));
 	  m_layers.back ().DisplayFormatAlpha ();
 	  AbsolutePath (path);
-	  i++;
+
+	  // layers iterator are already to the sentinel of the container
+	  // so we just need to decreasing it.
+	  // (to access to the last element).
+	  if (parser->getAttribute (n, "type") == "ground")
+	      m_main_it--;
+	  else if (parser->getAttribute (n, "type") == "explosion")
+	      m_expl_it--;
+
       }
 
-    if (!m_main_id || !m_expl_id)
+    if ((m_main_it == m_layers.end ()) || (m_expl_it == m_layers.end ()))
 	throw MapException ("No \"main\" or \"explosion\" layer type found");
 
     parser->FreeDoc ();
     m_init_draw = true;
+}
+
+// Exactly the same complexity as std::list copy constructor
+// (linear time).
+// We need to do this, due to iterators member.
+
+Map & Map::operator= (const Map & map)
+{
+
+    m_layers.clear ();
+
+    m_init_draw = map.m_init_draw;
+
+    m_main_it = m_expl_it = m_layers.end ();
+
+    for (LayerList::const_iterator it = map.m_layers.begin ();
+	 it != map.m_layers.end (); it++)
+      {
+	  m_layers.push_back (*it);
+
+	  if (it == map.m_main_it)
+	      m_main_it--;
+	  else if (it == map.m_expl_it)
+	      m_expl_it--;
+      }
+
+    return *this;
 }
 
 void
@@ -135,13 +169,12 @@ Map::draw (void)
     to.w = width;
     to.h = from.h;
 
-    for (unsigned int i = 0; i < m_layers.size (); i++)
+    for (LayerList::const_iterator it = m_layers.begin ();
+	 it != m_layers.end (); it++)
       {
-	  // We need to exclude explosion layer on drawing
-	  // (just need for compute)
-	  if (i == m_expl_id)
+	  if (it == m_expl_it)
 	      continue;
-	  camera.UpdateCamera (m_layers[i], &to, &from);
+	  camera.UpdateCamera (*it, &to, &from);
       }
 
     camera.ToRedraw (Rectangle (0, 0, camera_box.w, camera_box.h));

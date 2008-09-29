@@ -2,13 +2,11 @@
 #include <gtkmm/menubar.h>
 #include <gtkmm/toolbar.h>
 
-#include <iostream>
-#include "editor_ui.h"
+#include "project_map.h"
+#include "editor.h"
 
 using sigc::mem_fun;
 using Glib::ustring;
-using std::cout;
-using std::endl;
 
 EditorUI::EditorUI (int width, int height):
 Window (),
@@ -24,6 +22,8 @@ m_SDLArea (640, 480)
     MenuItem *option = manage (new MenuItem ("Option", true));
     MenuItem *help = manage (new MenuItem ("Help", true));
 
+    Menu *filemenu = manage (new Menu ());
+
     ToolButton *New = manage (new ToolButton (Stock::NEW));
     ToolButton *Open = manage (new ToolButton (Stock::OPEN));
     ToolButton *Save = manage (new ToolButton (Stock::SAVE));
@@ -36,16 +36,32 @@ m_SDLArea (640, 480)
 
     set_title ("ArtEditor - Artworks Editor For Chenilles");
 
+    add_menu_item (filemenu, Stock::NEW);
+    add_menu_item (filemenu, Stock::OPEN);
+    add_menu_separator (filemenu);
+
+    add_menu_item (filemenu, Stock::SAVE);
+    add_menu_item (filemenu, Stock::SAVE_AS);
+
+    add_menu_separator (filemenu);
+
+    add_menu_item (filemenu, Stock::CLOSE);
+    add_menu_item (filemenu, Stock::QUIT);
+
+    file->set_submenu (*filemenu);
+
     bar->append (*file);
     bar->append (*edit);
     bar->append (*option);
     bar->append (*help);
 
+    New->signal_clicked ().connect (mem_fun (*this,
+					     &EditorUI::on_new_clicked));
+
     Open->signal_clicked ().connect (mem_fun (*this,
 					      &EditorUI::on_open_clicked));
     SaveAs->signal_clicked ().connect (mem_fun (*this,
-						&EditorUI::
-						on_saveas_clicked));
+						&EditorUI::on_saveas_clicked));
 
     toolbar->append (*New);
     toolbar->append (*Open);
@@ -71,19 +87,46 @@ m_SDLArea (640, 480)
 }
 
 void
+EditorUI::on_new_clicked (void)
+{
+    Editor::GetRef ().new_project ();
+}
+
+void
 EditorUI::on_saveas_clicked (void)
 {
-  open_saveas_dialog ("Save file as", FILE_CHOOSER_ACTION_SAVE);
+    ustring ret = open_saveas_dialog ("Save file as", FILE_CHOOSER_ACTION_SAVE);
 
-  cout << "Not implemented yet !" << endl;
+    if (ret.empty ())
+	return;
+    Editor::GetRef ().save_project_as (ret);
 }
 
 void
 EditorUI::on_open_clicked (void)
 {
-    open_saveas_dialog ("Open file", FILE_CHOOSER_ACTION_OPEN);
+    ustring ret;
+    size_t id;
+    Editor & editor = Editor::GetRef ();
 
-    cout << "Not implemented yet !" << endl;
+    ret = open_saveas_dialog ("Open file", FILE_CHOOSER_ACTION_OPEN);
+
+    if (ret.empty ())
+	return;
+
+    id = ret.rfind (".");
+    id++;
+
+    if (ret.substr (id) == "png")
+      {
+	  ustring sub = ret.substr (ret.rfind ("/") + 1);
+	  sub = sub.substr (0, sub.size () - 4);
+	  m_list.append_text (sub);
+	  editor.add_layer_to_project (ret);
+      }
+    else
+	editor.open_project (ret);
+
 }
 
 ustring
@@ -92,6 +135,19 @@ EditorUI::open_saveas_dialog (const ustring & title,
 {
     FileChooserDialog dialog (*this, title, action);
     ustring ret;
+
+    // A filter for files, depending of the type
+    // (thanks to toineo)
+    FileFilter filter_png, filter_xml;
+
+    filter_png.set_name ("Layer (png)");
+    filter_png.add_mime_type ("image/png");
+
+    filter_xml.set_name ("Map/Sprite sheet (xml)");
+    filter_xml.add_mime_type ("text/xml");
+
+    dialog.add_filter (filter_png);
+    dialog.add_filter (filter_xml);
 
     dialog.add_button (Stock::CANCEL, RESPONSE_CANCEL);
     dialog.add_button ((action == FILE_CHOOSER_ACTION_OPEN) ?

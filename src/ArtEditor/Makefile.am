@@ -32,6 +32,11 @@ ArtEditor_SOURCES= tools/point.h		\
 	gtksdl.cpp				\
 	editor_ui.h				\
 	editor_ui.cpp				\
+	project.h				\
+	project_map.h				\
+	project_map.cpp				\
+	editor.h				\
+	editor.cpp				\
 	main.cpp
 
 AM_LDFLAGS= @LDFLAGS@ @LIBXMLPP_LIBS@ @GTKMM_LIBS@

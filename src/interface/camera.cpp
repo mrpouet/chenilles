@@ -19,6 +19,9 @@ Camera::Refresh (void)
 {
     Point tip = HMI::GetInstance ()->m_tip;
 
+    if (HMI::GetRef().m_current_cursor == HMI::NO_CURSOR)
+	return;
+
     if (tip.x >= (m_camera_box.w - MIN_SCROLL_MARGIN))
 	m_pixel_per_scroll = 5;
     else if (tip.x <= MIN_SCROLL_MARGIN)

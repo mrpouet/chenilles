@@ -37,8 +37,19 @@ class Surface
 
      ~Surface ();
 
-    // Assigment operator, needed by STL containers.
-      Surface & operator= (const Surface & s);
+     // Assigment operator need by STL containers
+      inline Surface& operator= (const Surface & s)
+	{
+	  Clone(s);
+	  return *this;
+	}
+
+      // Severals Surface copied from the same source
+      // share the same SDL_Surface *, so we can compare them.
+      inline bool operator==(const Surface& s)
+      {
+	return surface == s.surface;
+      }
 
     // Lock the current Surface.
     void Lock (void);
@@ -65,7 +76,8 @@ class Surface
 
     inline void UpdateRects(int numrects, rectangle *rects)
     {
-      SDL_UpdateRects(surface, numrects, rects);
+      if (numrects)
+	SDL_UpdateRects(surface, numrects, rects);
     }
 
     // Flip the current Surface, using the double buffering

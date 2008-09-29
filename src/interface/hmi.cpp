@@ -1,6 +1,5 @@
 #include <cstdlib>
 #include <new>
-#include <iostream>
 #include <tools/base.h>
 #include <game/timer.h>
 #include <SDL.h>
@@ -21,7 +20,7 @@ namespace
     // otherwises X error, BadValue is throwed,
     // (integer parameter out of range for operation).
 
-    void ComputeRect (Rectangle& r, int w, int h)
+    void ComputeRect (Rectangle & r, int w, int h)
     {
 	int rborder = r.x + r.w;
 	int bborder = r.y + r.h;
@@ -38,9 +37,13 @@ namespace
 
 HMI::HMI (void)
 {
-    m_cursor = NULL;
-    m_current_cursor = CURSOR_MAIN;
+    m_current_cursor = NO_CURSOR;
     m_external_tip = false;
+}
+
+HMI::~HMI (void)
+{
+    SDL_Quit ();
 }
 
 //FIXME: It's more logic (and fast...) to ignore ALL SDL_Events
@@ -68,50 +71,72 @@ HMI::SetVideoMode (int width, int height)
 }
 
 void
-HMI::SetCursor (CursorType type, const string& icon)
+HMI::SetCursor (CursorType type, const string & icon)
 {
 
-    if (m_cursor)
-	delete m_cursor;
+    CursorContainer::iterator it;
 
-    m_cursor = new Surface (icon);
+    // NO_CURSOR is undefinable.
+    // Typically, it's not Alpha Surface,
+    // but it's nothing (so, not drawable).
+    if (type == NO_CURSOR)
+	return;
 
-    m_current_cursor = type;
+    it = m_cursors.find (type);
 
-    m_cursor->DisplayFormatAlpha ();
+    // CursorType is already defined
+    if (it != m_cursors.end ())
+	return;
 
-    m_tip.x = m_screen.GetWidth() / 2;
-    m_tip.y = m_screen.GetHeight() / 2;
+    m_cursors[type] = Surface(icon);
+
+    // When HMI::RefreshOutput is called,
+    // current cursor is directly drawed to the
+    // screen itself.
+    m_cursors[type].DisplayFormatAlpha ();
+
+    m_tip.x = m_screen.GetWidth () / 2;
+    m_tip.y = m_screen.GetHeight () / 2;
 
     SDL_ShowCursor (SDL_DISABLE);
 
 }
 
 void
-HMI::HandleEvent (const SDL_Event& event)
+HMI::HandleEvent (const SDL_Event & event)
 {
     return;
 }
 
-//FIXME: Please refresh the cursor rects ONLY if 
-// it moved (more efficient).
 void
 HMI::RefreshOutput (void)
 {
     Camera & camera = Camera::GetRef ();
     Camera::redraw_queue & queue = camera.m_redraw_queue;
     rectangle rect = { 0, 0, 0, 0 };
-    Rectangle r (0, 0, m_cursor->GetWidth (), m_cursor->GetHeight ());
+    Rectangle r;
 
-    int size = !queue.empty ()? static_cast<int>(queue.size () + 2) : 2;
+    int size = static_cast < int >(queue.size ());
     rectangle *rects = NULL;
     int i;
 
-    //FIXME: not the most efficient
-    rects = (rectangle *) malloc (size * sizeof (rectangle));
+    size += (m_current_cursor != NO_CURSOR) ? 2 : 0;
 
-    if (!rects)
-	throw bad_alloc ();
+    r.w = (m_current_cursor != NO_CURSOR) ?
+	m_cursors[m_current_cursor].GetWidth () : 0;
+
+    r.h = (m_current_cursor != NO_CURSOR) ?
+	m_cursors[m_current_cursor].GetHeight () : 0;
+
+    //FIXME: not the most efficient
+
+    if (size)
+      {
+	  rects = (rectangle *) malloc (size * sizeof (rectangle));
+
+	  if (!rects)
+	      throw bad_alloc ();
+      }
 
     // "Catch" and exec all redraw events
     for (i = 0; !queue.empty (); i++)
@@ -123,33 +148,31 @@ HMI::RefreshOutput (void)
 	  queue.pop ();
       }
 
-    // Delete old cursor
-    r.x = m_tip.x;
-    r.y = m_tip.y;
-    ComputeRect (r, m_screen.GetWidth (), m_screen.GetHeight ());
-    rect = r.GetSDLRect ();
-    rects[i++] = rect;
+    if (m_current_cursor != NO_CURSOR)
+      {
+	  // Delete old cursor
+	  r.x = m_tip.x;
+	  r.y = m_tip.y;
+	  ComputeRect (r, m_screen.GetWidth (), m_screen.GetHeight ());
+	  rect = r.GetSDLRect ();
+	  rects[i++] = rect;
 
-    m_screen.Blit (camera.m_camera, &rect, &rect);
+	  m_screen.Blit (camera.m_camera, &rect, &rect);
 
-    // Compute the new cursor rectangle position
-    RefreshMousePos();
-    r.x = m_tip.x;
-    r.y = m_tip.y;
-    ComputeRect (r, m_screen.GetWidth (), m_screen.GetHeight ());
+	  // Compute the new cursor rectangle position
+	  RefreshMousePos();
+	  r.x = m_tip.x;
+	  r.y = m_tip.y;
+	  ComputeRect (r, m_screen.GetWidth (), m_screen.GetHeight ());
 
-    // Draw cursor
-    m_screen.Blit (*m_cursor, m_tip);
-    rects[i++] = r.GetSDLRect ();
+	  // Draw cursor
+	  m_screen.Blit (m_cursors[m_current_cursor], m_tip);
+	  rects[i++] = r.GetSDLRect ();
+      }
 
     m_screen.UpdateRects (size, rects);
 
     free (rects);
 }
 
-HMI::~HMI (void)
-{
-    if (m_cursor)
-	delete m_cursor;
-    SDL_Quit ();
-}
+  

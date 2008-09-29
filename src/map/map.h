@@ -2,34 +2,34 @@
 #define __MAP_H__
 
 #include <exception>
-#include <vector>
+#include <list>
 #include <graphics/surface.h>
-
+#include <cstdio>
 class Map
 {
 
   public:
 
     explicit Map (const string & xmldoc) throw (std::exception);
-   
+
     inline bool isInTheVacuum (const Point & p) const
     {
-	return m_layers[m_main_id].GetRGBA (p).GetA () == 0;
+	return m_main_it->GetRGBA (p).GetA () == 0;
     }
 
     inline bool isInTheGround (const Point & p) const
     {
-	return m_layers[m_main_id].GetRGBA (p).GetA () == 255;
+	return m_main_it->GetRGBA (p).GetA () == 255;
     }
-   
+
     inline int WidthOfWorld (void) const
     {
-	return m_layers[0].GetWidth ();
+	return m_main_it->GetWidth ();
     }
 
     inline int HeightOfWorld (void) const
     {
-	return m_layers[0].GetHeight ();
+	return m_main_it->GetHeight ();
     }
 
     inline bool IsOutOfWorldX (int x) const
@@ -49,15 +49,18 @@ class Map
 
     void draw (void);
 
-  private:
+  protected:
+    Map ();
 
-    vector<Surface> m_layers;
-    unsigned int m_main_id;
-    unsigned int m_expl_id;
+    // Non copyable, except by their sub-class
+    Map & operator= (const Map & map);
+
+    typedef list<Surface> LayerList;
+    LayerList m_layers;
+    LayerList::iterator m_main_it;
+    LayerList::iterator m_expl_it;
     bool m_init_draw;
 
- protected:
-    Map(){};
 };
 
 #endif
