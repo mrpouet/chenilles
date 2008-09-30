@@ -2,6 +2,7 @@
 #include <gtkmm/menubar.h>
 #include <gtkmm/toolbar.h>
 #include <gtkmm/cellrenderercombo.h>
+#include <gtkmm/treeview.h>
 
 #include "project_map.h"
 #include "editor.h"

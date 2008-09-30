@@ -2,7 +2,6 @@
 #define __GUI_H__
 
 #include <gtkmm/window.h>
-#include <gtkmm/listviewtext.h>
 #include <gtkmm/stock.h>
 #include <gtkmm/filechooserdialog.h>
 #include <gtkmm/menu.h>
