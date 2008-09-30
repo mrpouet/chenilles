@@ -1,6 +1,7 @@
 #include <gtkmm/box.h>
 #include <gtkmm/menubar.h>
 #include <gtkmm/toolbar.h>
+#include <gtkmm/cellrenderercombo.h>
 
 #include "project_map.h"
 #include "editor.h"
@@ -8,9 +9,9 @@
 using sigc::mem_fun;
 using Glib::ustring;
 
+
 EditorUI::EditorUI (int width, int height):
 Window (),
-m_list (2),
 m_SDLArea (640, 480)
 {
     VBox *vbox = manage (new VBox ());
@@ -29,6 +30,9 @@ m_SDLArea (640, 480)
     ToolButton *Save = manage (new ToolButton (Stock::SAVE));
     ToolButton *SaveAs = manage (new ToolButton (Stock::SAVE_AS));
     Toolbar *toolbar = manage (new Toolbar ());
+    TreeView *treeview = manage (new TreeView ());
+    CellRendererCombo *cell = manage (new CellRendererCombo ());
+    TreeView::Column * column = NULL;
 
     set_size_request (width, height);
 
@@ -61,18 +65,41 @@ m_SDLArea (640, 480)
     Open->signal_clicked ().connect (mem_fun (*this,
 					      &EditorUI::on_open_clicked));
     SaveAs->signal_clicked ().connect (mem_fun (*this,
-						&EditorUI::on_saveas_clicked));
+						&EditorUI::
+						on_saveas_clicked));
 
     toolbar->append (*New);
     toolbar->append (*Open);
     toolbar->append (*Save);
     toolbar->append (*SaveAs);
 
-    m_list.set_column_title (0, "Layers");
-    m_list.set_column_title (1, "Types");
+    m_refTreeModel = ListStore::create (m_ustringcolumns);
+
+    (*m_refTreeModel->append ())[m_ustringcolumns.str] = "background";
+    (*m_refTreeModel->append ())[m_ustringcolumns.str] = "main";
+    (*m_refTreeModel->append ())[m_ustringcolumns.str] = "explosion";
+
+    m_list = ListStore::create (m_layercolumns);
+
+    treeview->set_model (m_list);
+
+    treeview->append_column ("Name", m_layercolumns.str);
+    column = treeview->get_column (treeview->append_column ("Type", *cell)
+				   - 1);
+
+    column->add_attribute (cell->property_text (), m_layercolumns.type);
+
+    cell->property_has_entry () = false;
+    cell->property_model () = m_refTreeModel;
+    cell->property_text_column () = 0;
+    cell->property_editable () = true;
+
+    cell->signal_edited ().
+	connect (mem_fun (*this, &EditorUI::on_combo_change));
+
 
     hbox->pack_start (m_SDLArea, false, false);
-    hbox->pack_start (m_list, false, false);
+    hbox->pack_start (*treeview, false, false);
 
     vbox->pack_start (*bar, false, false);
 
@@ -95,7 +122,8 @@ EditorUI::on_new_clicked (void)
 void
 EditorUI::on_saveas_clicked (void)
 {
-    ustring ret = open_saveas_dialog ("Save file as", FILE_CHOOSER_ACTION_SAVE);
+    ustring ret =
+	open_saveas_dialog ("Save file as", FILE_CHOOSER_ACTION_SAVE);
 
     if (ret.empty ())
 	return;
@@ -121,7 +149,7 @@ EditorUI::on_open_clicked (void)
       {
 	  ustring sub = ret.substr (ret.rfind ("/") + 1);
 	  sub = sub.substr (0, sub.size () - 4);
-	  m_list.append_text (sub);
+	  add_list_entry (sub, "background");
 	  editor.add_layer_to_project (ret);
       }
     else
@@ -130,8 +158,8 @@ EditorUI::on_open_clicked (void)
 }
 
 ustring
-EditorUI::open_saveas_dialog (const ustring & title,
-			      const FileChooserAction & action)
+    EditorUI::open_saveas_dialog (const ustring & title,
+				  const FileChooserAction & action)
 {
     FileChooserDialog dialog (*this, title, action);
     ustring ret;
