@@ -24,6 +24,8 @@ class GtkSDL:public DrawingArea
 	m_signal_init.emit ();
     }
 
+    //bool on_configure_event(GdkEventConfigure *event);
+
     bool on_expose_event (GdkEventExpose * event);
 
     bool on_motion_notify_event (GdkEventMotion * event);

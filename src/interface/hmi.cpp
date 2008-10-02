@@ -65,7 +65,7 @@ HMI::SetVideoMode (int width, int height)
 {
     m_screen = Surface (SDL_SetVideoMode (width, height, 32, SDL_HWSURFACE
 					  | SDL_HWACCEL | SDL_HWPALETTE
-					  | SDL_DOUBLEBUF));
+					  | SDL_DOUBLEBUF | SDL_RESIZABLE));
     m_screen.LockFree ();
 
 }

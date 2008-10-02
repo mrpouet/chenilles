@@ -12,7 +12,7 @@
 
 using namespace xmlpp;
 
-class XMLParser:public Singleton < XMLParser >
+class XMLParser:public Singleton<XMLParser>
 {
   public:
 
@@ -28,16 +28,22 @@ class XMLParser:public Singleton < XMLParser >
 
     // Returns the attribute value named "att_name" in "node" Node
     Glib::ustring getAttribute (const Node * node,
-				const Glib::ustring& att_name) const
+				const Glib::ustring & att_name) const
 	throw (XMLException);
 
     // Get the text content of a Element Node
-      Glib::ustring getText (const Node * node) const throw (XMLException);
+    Glib::ustring getText (const Node * node) const throw (XMLException);
 
-      inline bool isTextNode(const Node *node)
-      {
-	return dynamic_cast<const TextNode *>(node);
-      }
+    
+    inline bool isTextNode (const Node * node) const
+    {
+	return dynamic_cast < const TextNode *>(node);
+    }
+
+    // Get the sibling of a node
+    // @param node The node which we want the sibling
+    // @return the node sibling of "node".
+    const Node *NextSibling (const Node * node) const;
 
   private:
 

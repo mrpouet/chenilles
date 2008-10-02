@@ -99,14 +99,14 @@ m_SDLArea (640, 480)
 	connect (mem_fun (*this, &EditorUI::on_combo_change));
 
 
-    hbox->pack_start (m_SDLArea, false, false);
-    hbox->pack_start (*treeview, false, false);
+    hbox->pack_start (m_SDLArea);
+    hbox->pack_start (*treeview);
 
     vbox->pack_start (*bar, false, false);
 
     vbox->pack_start (*toolbar, false, false);
 
-    vbox->pack_start (*hbox, false, false);
+    vbox->pack_start (*hbox);
 
     add (*vbox);
 
@@ -159,7 +159,7 @@ EditorUI::on_open_clicked (void)
 }
 
 ustring
-    EditorUI::open_saveas_dialog (const ustring & title,
+EditorUI::open_saveas_dialog (const ustring & title,
 				  const FileChooserAction & action)
 {
     FileChooserDialog dialog (*this, title, action);

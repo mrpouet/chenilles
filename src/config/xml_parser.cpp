@@ -1,6 +1,9 @@
 #include <libxml++/nodes/textnode.h>
-
 #include "xml_parser.h"
+
+#if XMLPP_MINOR < 18
+#	include <libxml/tree.h>
+#endif
 
 namespace
 {
@@ -61,17 +64,20 @@ throw (XMLException)
 #if XMLPP_MINOR >= 20
     return eNode->get_attribute_value (att_name);
 #else
-    return eNode->get_attribute(att_name)->get_value();
+    return eNode->get_attribute (att_name)->get_value ();
 #endif
 
 }
 
 //FIXME: replace get_children by get_child_text.
-Glib::ustring
-XMLParser::getText (const Node * node) const throw (XMLException)
+Glib::ustring XMLParser::getText (const Node * node) const
+throw (XMLException)
 {
-    const Node::NodeList list = node->get_children ("text");
-    const TextNode *tNode = NULL;
+    const
+	Node::NodeList
+	list = node->get_children ("text");
+    const TextNode *
+	tNode = NULL;
 
     if (list.empty ())
 	xml_throw (node, " has not childs");
@@ -80,4 +86,34 @@ XMLParser::getText (const Node * node) const throw (XMLException)
     if (!tNode)
 	xml_throw (node, " has a child type != TextNode");
     return tNode->get_content ();
+}
+
+// C++ instances will be delete by libxml++ itself
+// so, zero memory leaks ;)
+const Node *
+XMLParser::NextSibling (const Node * node) const
+{
+#if XMLPP_MINOR >= 18
+    return node->get_next_sibling ();
+#else
+    const Node *sibling = NULL;
+
+    if (!node->cobj ()->next)
+	return NULL;
+
+    switch (node->cobj ()->next->type)
+      {
+      case XML_TEXT_NODE:
+	  sibling = new TextNode (node->cobj ()->next);
+	  break;
+      case XML_ELEMENT_NODE:
+	  sibling = new Element (node->cobj ()->next);
+	  break;
+      default:
+	  sibling = new Node (node->cobj ()->next);
+	  break;
+      }
+
+    return sibling;
+#endif
 }

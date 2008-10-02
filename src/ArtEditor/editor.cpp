@@ -1,6 +1,10 @@
+#include <iostream>
 #include <interface/camera.h>
 #include <interface/hmi.h>
+#include <tools/game_exception.h>
+
 #include "editor.h"
+#include <cstdio>
 
 #define DEFAULT_WIDTH  800
 #define DEFAULT_HEIGHT 600
@@ -40,8 +44,7 @@ Editor::~Editor ()
 	delete *it;
 }
 
-bool
-Editor::editor_refresh (void)
+bool Editor::editor_refresh (void)
 {
     // ProjectList contains zero project opened, nothing to do.
     if (m_project_handler.empty ())
@@ -63,7 +66,16 @@ Editor::open_project (const Glib::ustring & filename)
 	cursor_init ();
     p = new ProjectMap ();
 
-    p->open (filename);
+    try
+    {
+	p->open (filename);
+    }
+    catch (const GameException & e)
+    {
+	cerr << "Caught exception:" << endl
+	    << "what  : " << e.what () << endl
+	    << "error : " << e.error () << endl;
+    }
 
     m_project_handler.push_back (p);
     switch_to_new_project ();

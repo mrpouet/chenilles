@@ -1,10 +1,5 @@
 #include <cstdlib>
 #include <config/xml_parser.h>
-
-#if XMLPP_MINOR < 18
-#	include <libxml/tree.h>
-#endif
-
 #include <interface/camera.h>
 
 #include "map_exception.h"
@@ -12,36 +7,20 @@
 
 namespace
 {
-
-
     inline void AbsolutePath (string & str)
     {
 	str.erase (str.rfind ("/") + 1, string::npos);
     }
-
-    inline const Node *NextSibling (const Node * node)
-    {
-#if XMLPP_MINOR >= 18
-	return node->get_next_sibling ();
-#else
-	static const Node *sibling = NULL;
-	if (sibling != NULL)
-	    delete sibling;
-	sibling = (node->cobj ()->next) ?
-	    new Node (node->cobj ()->next) : NULL;
-	return sibling;
-#endif
-    }
-
 };
 
-Map::Map()
+Map::Map ()
 {
-  m_main_it = m_expl_it = m_layers.end();
-  m_init_draw = true;
+    m_main_it = m_expl_it = m_layers.end ();
+    m_init_draw = true;
 }
 
-Map::Map (const string & xmldoc) throw (std::exception)
+Map::Map (const string & xmldoc)
+throw (std::exception)
 {
     XMLParser *parser = XMLParser::GetInstance ();
     string path (xmldoc);
@@ -53,7 +32,7 @@ Map::Map (const string & xmldoc) throw (std::exception)
     AbsolutePath (path);
 
     for (const Node * n = parser->getNode ("//layer");
-	 n != NULL; n = NextSibling (n))
+	 n != NULL; n = parser->NextSibling (n))
       {
 	  if (parser->isTextNode (n))
 	      continue;
