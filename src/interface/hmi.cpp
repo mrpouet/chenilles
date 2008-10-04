@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <iostream>
 #include <new>
 #include <tools/base.h>
 #include <game/timer.h>
@@ -19,18 +20,33 @@ namespace
     // out of ranges of screen (apparently due to SDL_UpdateRects).
     // otherwises X error, BadValue is throwed,
     // (integer parameter out of range for operation).
+    // Note: see http://www.libsdl.org/cgi/docwiki.cgi/SDL_UpdateRects.
 
-    void ComputeRect (Rectangle & r, int w, int h)
+    //TODO: moved this subroutine to Surface ?
+    // (needed to use Surface::UpdateRects in general)
+    void ComputeRect (rectangle & r, int w, int h)
     {
 	int rborder = r.x + r.w;
 	int bborder = r.y + r.h;
+	int tmp = 0;
+
+	r.x = (r.x < 0) ? 0 : r.x;
+	r.y = (r.y < 0) ? 0 : r.y;
 
 	if (rborder > w)
-	    r.w -= (rborder - w);
+	  {
+	    // Fix overflow due to Rectangle width 
+	    // unsigned integer on 16 bits.
+	    // thanks to vladisback bug report ;)
+	    tmp = r.w - rborder - w;
+	    r.w = (tmp < 0) ? 0 : tmp;
+	  }
 	if (bborder > h)
-	    r.h -= (bborder - h);
-	if (r.x < 0)
-	    r.x = 0;
+	  {
+	    tmp = r.h - bborder - h;
+	    r.h = (tmp < 0) ? 0 : tmp;
+	  }
+
     }
 
 };
@@ -63,6 +79,7 @@ throw (SDLException)
 void
 HMI::SetVideoMode (int width, int height)
 {
+
     m_screen = Surface (SDL_SetVideoMode (width, height, 32, SDL_HWSURFACE
 					  | SDL_HWACCEL | SDL_HWPALETTE
 					  | SDL_DOUBLEBUF | SDL_RESIZABLE));
@@ -105,6 +122,10 @@ HMI::SetCursor (CursorType type, const string & icon)
 void
 HMI::HandleEvent (const SDL_Event & event)
 {
+  // Informe and fix temporaly warning.
+  // (unsed event parameter)
+  cerr << __func__ << "(event=" << event.type 
+       << "): Not implemented yet !" << endl;
     return;
 }
 
@@ -153,24 +174,30 @@ HMI::RefreshOutput (void)
 	  // Delete old cursor
 	  r.x = m_tip.x;
 	  r.y = m_tip.y;
-	  ComputeRect (r, m_screen.GetWidth (), m_screen.GetHeight ());
+	  
 	  rect = r.GetSDLRect ();
+	  m_screen.Blit (camera.m_camera, &rect, &rect);
+
+	  ComputeRect (rect, m_screen.GetWidth (), m_screen.GetHeight ());
 	  rects[i++] = rect;
 
-	  m_screen.Blit (camera.m_camera, &rect, &rect);
+	 
 
 	  // Compute the new cursor rectangle position
 	  RefreshMousePos();
 	  r.x = m_tip.x;
 	  r.y = m_tip.y;
-	  ComputeRect (r, m_screen.GetWidth (), m_screen.GetHeight ());
+	  rect = r.GetSDLRect();
+	  ComputeRect (rect, m_screen.GetWidth (), m_screen.GetHeight ());
 
 	  // Draw cursor
 	  m_screen.Blit (m_cursors[m_current_cursor], m_tip);
-	  rects[i++] = r.GetSDLRect ();
+	  
+	  rects[i++] = rect;
+
       }
 
-    m_screen.UpdateRects (size, rects);
+    m_screen.UpdateRects(size, rects);
 
     free (rects);
 }

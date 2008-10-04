@@ -93,13 +93,29 @@ Surface::Blit (const Surface & src, const Point & dstpt)
     Blit (src, &dstrect, NULL);
 }
 
+//TODO: Is there more efficient of this way ?
+void
+Surface::Resize(int width, int height)
+{
+  SDL_Surface *tmp = SDL_CreateRGBSurface(surface->flags, width, height,
+					  surface->format->BitsPerPixel, 
+					  0, 0, 0, 0);
+  if (!tmp)
+    throw SDLException();
+  SDL_BlitSurface (surface, NULL, tmp, NULL);
+  
+  SDL_FreeSurface(surface);
+  surface = tmp;
+
+}
+
 void
 Surface::Flip (void)
 {
     if (SDL_Flip (surface))
 	throw SDLException ();
 }
-
+ 
 
 Color Surface::GetRGBA (const Point & px) const
 { 

@@ -100,15 +100,18 @@ Map::draw (void)
 
     // If borner right or borner left of camera 
     // try to go out of the world, do nothing.
-    if (IsOutOfWorldX (camera_box.x + camera_box.w) ||
-	IsOutOfWorldX (camera_box.x))
+    if ((IsOutOfWorldX (camera_box.x + camera_box.w) && (scroll > 0)) ||
+	(IsOutOfWorldX (camera_box.x) && (scroll < 0)))
       {
 	  // And canceling last Camera movement
 	  camera.CancelMove ();
 	  return;
       }
 
-    if ((!scroll) && (!m_init_draw))
+    if (camera.IsResized())
+      m_init_draw = true;
+
+    else if ((!scroll) && (!m_init_draw))
 	return;
 
     // A king of "slicing" of the part which won't change
@@ -158,4 +161,26 @@ Map::draw (void)
 
     camera.ToRedraw (Rectangle (0, 0, camera_box.w, camera_box.h));
     m_init_draw = false;
+}
+
+void
+Map::draw_rects(int numrects, rectangle *rects)
+{
+  int i = 0;
+  Camera & camera = Camera::GetRef();
+  Rectangle r;
+
+  for (LayerList::const_iterator it = m_layers.begin(); 
+       (i < numrects) && (it != m_layers.end()); it++, i++)
+    {
+      if (it == m_expl_it)
+	continue;
+      camera.UpdateCamera(*it, &rects[i], &rects[i]);
+      r.x = rects[i].x;
+      r.y = rects[i].y;
+      r.w = rects[i].w;
+      r.h = rects[i].h;
+      camera.ToRedraw(r);
+    }
+
 }

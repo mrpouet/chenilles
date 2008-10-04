@@ -1,6 +1,7 @@
 #include <config/xml_writer.h>
 #include "project_map.h"
 #include <cstdio>
+
 void
 EditableMap::add_layer (const Glib::ustring & filename)
 {

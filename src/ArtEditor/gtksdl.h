@@ -23,8 +23,10 @@ class GtkSDL:public DrawingArea
     {
 	m_signal_init.emit ();
     }
+    
+    void SetVideoMode(int width, int height);
 
-    //bool on_configure_event(GdkEventConfigure *event);
+    bool on_configure_event(GdkEventConfigure *event);
 
     bool on_expose_event (GdkEventExpose * event);
 

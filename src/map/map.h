@@ -4,7 +4,7 @@
 #include <exception>
 #include <list>
 #include <graphics/surface.h>
-#include <cstdio>
+
 class Map
 {
 
@@ -47,7 +47,17 @@ class Map
 	return IsOutOfWorldX (pos.x) || IsOutOfWorldY (pos.y);
     }
 
+    // Draw the map to the Camera.
+    // This method redraw only the "scrolled" parts,
+    // reducing CPU time.
     void draw (void);
+
+ private:
+    // Draw ONLY the rects from map, to Camera.
+    // ONLY used by draw on camera resize.
+    // @param numrects The rects number (the sizeof rects "array")
+    // @param rects Rectangles to redraw from map.
+    void draw_rects(int numrects, rectangle * rects);
 
   protected:
     Map ();

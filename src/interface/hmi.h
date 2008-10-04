@@ -28,6 +28,11 @@ class HMI:public Singleton<HMI>
     // Depending: Init()
     void SetVideoMode (int width, int height);
 
+    inline void Flip(void)
+    {
+      m_screen.Flip();
+    }
+
     // Set the cursor pixmap
     // @param type The cursor type.
     // @param icon pixmap which 'll define the cursor type

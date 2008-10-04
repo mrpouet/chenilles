@@ -26,6 +26,37 @@ GtkSDL::~GtkSDL ()
     HMI::CleanUp ();
 }
 
+void
+GtkSDL::SetVideoMode(int width, int height)
+{
+     gchar SDL_WINDOWID[32];
+
+    // As default, SDL check if environment variable
+    // SDL_WINDOWID is defined, on true he diverts
+    // the screen stream to the following XID (if it exists)
+    // otherwises, just creates and display a new Xwindow.
+    //FIXME: not portable to Win32.
+    snprintf (SDL_WINDOWID, 32 * sizeof (gchar), "SDL_WINDOWID=%ld",
+	      GDK_WINDOW_XWINDOW (unwrap (get_window ())));
+
+    SDL_putenv (SDL_WINDOWID);
+
+    HMI::Init ();
+
+    HMI::GetRef ().SetVideoMode (width, height);
+}
+
+bool
+GtkSDL::on_configure_event(GdkEventConfigure *event)
+{
+  if (m_init)
+    return true;
+  set_size_request(event->width, event->height);
+  SetVideoMode(get_width(), get_height());
+
+  return true;
+}
+
 // Simple way to share the same cursor
 // between Gtkmm and SDL (2 threads).
 // The problem is Gtkmm lock the X11 cursor (thread-safe).
@@ -49,7 +80,6 @@ GtkSDL::on_motion_notify_event (GdkEventMotion * event)
 bool
 GtkSDL::on_expose_event (GdkEventExpose * event)
 {
-    gchar SDL_WINDOWID[32];
 
     if (!m_init)
       {
@@ -59,19 +89,8 @@ GtkSDL::on_expose_event (GdkEventExpose * event)
 	  return true;
       }
 
-    // As default, SDL check if environment variable
-    // SDL_WINDOWID is defined, on true he diverts
-    // the screen stream to the following XID (if it exists)
-    // otherwises, just creates and display a new Xwindow.
-    //FIXME: not portable to Win32.
-    snprintf (SDL_WINDOWID, 32 * sizeof (gchar), "SDL_WINDOWID=%ld",
-	      GDK_WINDOW_XWINDOW (unwrap (get_window ())));
 
-    SDL_putenv (SDL_WINDOWID);
-
-    HMI::Init ();
-
-    HMI::GetRef ().SetVideoMode (get_width (), get_height ());
+    SetVideoMode(get_width(), get_height());
 
     do_init ();
 

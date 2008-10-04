@@ -69,9 +69,15 @@ class Surface
     // Surface.
     void Blit (const Surface & src, const Point & dstpt);
 
-    inline void UpdateRect(const Rectangle dstrect)
+    inline void UpdateRect(const rectangle *dstrect)
     {
-      SDL_UpdateRect(surface, dstrect.x, dstrect.y, dstrect.w, dstrect.h);
+      SDL_UpdateRect(surface, dstrect->x, dstrect->y, dstrect->w, dstrect->h);
+    }
+
+    inline void UpdateRect(const Rectangle& dstrect)
+    {
+      rectangle r = dstrect.GetSDLRect();
+      UpdateRect(&r);
     }
 
     inline void UpdateRects(int numrects, rectangle *rects)
@@ -79,6 +85,8 @@ class Surface
       if (numrects)
 	SDL_UpdateRects(surface, numrects, rects);
     }
+
+    void Resize (int width, int height);
 
     // Flip the current Surface, using the double buffering
     // if the current system supports it, else does exactly the same

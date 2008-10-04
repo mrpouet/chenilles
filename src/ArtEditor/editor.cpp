@@ -32,7 +32,7 @@ m_current_project (m_project_handler.end ())
 
     Glib::signal_timeout ().connect (sigc::mem_fun (*this,
 						    &Editor::editor_refresh),
-				     20);
+				     15);
     m_gui.signal_init ().connect (sigc::ptr_fun (on_init));
 
 }
@@ -49,9 +49,13 @@ bool Editor::editor_refresh (void)
     // ProjectList contains zero project opened, nothing to do.
     if (m_project_handler.empty ())
 	return true;
+    
     Camera::GetRef ().Refresh ();
+
     (*m_current_project)->get_drawable ().draw ();
+    
     HMI::GetRef ().RefreshOutput ();
+
     return true;
 }
 

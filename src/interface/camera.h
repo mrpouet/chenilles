@@ -51,6 +51,11 @@ class Camera:public Singleton<Camera>
 	m_redraw_queue.push (dstrect);
     }
 
+    inline bool IsResized(void) const
+    {
+      return m_resized;
+    }
+
   private:
     Camera ();
     friend class Singleton<Camera>;
@@ -60,6 +65,7 @@ class Camera:public Singleton<Camera>
     Surface m_camera;
     int m_pixel_per_scroll;
     redraw_queue m_redraw_queue;
+    bool m_resized;
 };
 
 #endif
