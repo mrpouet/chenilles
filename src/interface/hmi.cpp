@@ -85,9 +85,9 @@ HMI::SetVideoMode (int width, int height, bool resizable)
 
     if (resizable)
       flags |= SDL_RESIZABLE;
-    m_screen = Surface (SDL_SetVideoMode (width, height, 32, flags);
-    
-			m_screen.LockFree ();
+    m_screen = Surface (SDL_SetVideoMode (width, height, 32, flags));
+
+    m_screen.LockFree ();
 
 }
 
