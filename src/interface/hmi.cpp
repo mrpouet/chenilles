@@ -55,6 +55,7 @@ HMI::HMI (void)
 {
     m_current_cursor = NO_CURSOR;
     m_external_tip = false;
+    m_lock = false;
 }
 
 HMI::~HMI (void)
@@ -77,13 +78,16 @@ throw (SDLException)
 //FIXME: Replace these flags by testing current configuration
 // with SDL_GetVideoInfo() (more efficient and "portable")
 void
-HMI::SetVideoMode (int width, int height)
+HMI::SetVideoMode (int width, int height, bool resizable)
 {
+    Uint32 flags = SDL_HWSURFACE | SDL_HWACCEL | SDL_HWPALETTE
+      | SDL_DOUBLEBUF;
 
-    m_screen = Surface (SDL_SetVideoMode (width, height, 32, SDL_HWSURFACE
-					  | SDL_HWACCEL | SDL_HWPALETTE
-					  | SDL_DOUBLEBUF | SDL_RESIZABLE));
-    m_screen.LockFree ();
+    if (resizable)
+      flags |= SDL_RESIZABLE;
+    m_screen = Surface (SDL_SetVideoMode (width, height, 32, flags);
+    
+			m_screen.LockFree ();
 
 }
 
@@ -140,6 +144,9 @@ HMI::RefreshOutput (void)
     int size = static_cast < int >(queue.size ());
     rectangle *rects = NULL;
     int i;
+
+    if (m_lock)
+      return;
 
     size += (m_current_cursor != NO_CURSOR) ? 2 : 0;
 

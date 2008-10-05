@@ -26,12 +26,37 @@ class HMI:public Singleton<HMI>
 
     // Init the screen Surface
     // Depending: Init()
-    void SetVideoMode (int width, int height);
+    // @param width The screen width
+    // @param height The screen height
+    // @param resizable Screen must to be resizable ?
+    // (false as default)
+    void SetVideoMode (int width, int height, bool resizable = false);
 
-    inline void Flip(void)
+
+    // These three methods, are only use for screen resize
+    // (resizable by hand), you need rarely to use it.
+    // don't use in other cases.
+
+    // Blank the screen.
+    inline void Clear(void)
     {
+      m_screen.FillRect(Color(0, 0, 0));
       m_screen.Flip();
     }
+    
+    // Lock the screen from any refresh
+    inline void LockRefresh(void)
+    {
+      m_lock = true;
+    }
+    
+    // Unlock the screen from any refresh
+    // (all refresh are now autorized)
+    inline void UnlockRefresh(void)
+    {
+      m_lock = false;
+    }
+
 
     // Set the cursor pixmap
     // @param type The cursor type.
@@ -100,6 +125,9 @@ class HMI:public Singleton<HMI>
 
     // Cursor pixmaps
     CursorContainer m_cursors;
+
+    bool m_lock;
+
 };
 
 #endif

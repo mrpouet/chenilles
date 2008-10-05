@@ -111,7 +111,7 @@ Map::draw (void)
     if (camera.IsResized())
       m_init_draw = true;
 
-    else if ((!scroll) && (!m_init_draw))
+    if ((!scroll) && (!m_init_draw))
 	return;
 
     // A king of "slicing" of the part which won't change
