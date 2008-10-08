@@ -25,9 +25,11 @@ namespace
 
 };
 
+
 Editor::Editor ():
 m_gui (DEFAULT_WIDTH, DEFAULT_HEIGHT),
-m_current_project (m_project_handler.end ())
+m_current_project (m_project_handler.end ()),
+m_data(Glib::ustring(DATAROOTDIR) + "/ArtEditor")
 {
 
     Glib::signal_timeout ().connect (sigc::mem_fun (*this,

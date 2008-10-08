@@ -9,8 +9,12 @@
 #include <gtkmm/liststore.h>
 #include <gtkmm/entry.h>
 #include <gtkmm/aboutdialog.h>
+#include <tools/base.h>
 
 #include "gtksdl.h"
+#include "info_dialog.h"
+
+#define DATA DATAROOTDIR "/ArtEditor/"
 
 class EditorUI:public Window
 {
@@ -18,33 +22,33 @@ class EditorUI:public Window
 
     EditorUI (int width, int height);
 
-    inline signal<void> signal_init (void)
+    inline signal < void >signal_init (void)
     {
 	return m_SDLArea.signal_init ();
     }
 
   private:
 
-    struct IconModelColumns: public TreeModel::ColumnRecord
-      {
-	IconModelColumns()
-	  {
+    struct IconModelColumns:public TreeModel::ColumnRecord
+    {
+	IconModelColumns ()
+	{
 	    add (m_label);
 	    add (m_pixbuf);
-	  }
-
-	TreeModelColumn<Glib::ustring> m_label;
-	TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf> > m_pixbuf;
-      };
-
-    struct ComboModelColumns: public TreeModel::ColumnRecord
-    {
-      ComboModelColumns()
-	{
-	  add(m_type);
 	}
 
-      TreeModelColumn<Glib::ustring> m_type;
+	TreeModelColumn < Glib::ustring > m_label;
+	TreeModelColumn < Glib::RefPtr < Gdk::Pixbuf > >m_pixbuf;
+    };
+
+    struct ComboModelColumns:public TreeModel::ColumnRecord
+    {
+	ComboModelColumns ()
+	{
+	    add (m_type);
+	}
+
+	TreeModelColumn < Glib::ustring > m_type;
     };
 
     void on_new_clicked (void);
@@ -53,18 +57,25 @@ class EditorUI:public Window
 
     void on_saveas_clicked (void);
 
-    inline void on_about_clicked(void)
+    inline void on_info_clicked (void)
     {
-      m_about_dialog.show();
+	m_info_dialog.show ();
     }
-      
 
-    inline void add_icon_entry(const Glib::ustring& label)
+    inline void on_about_clicked (void)
     {
-      TreeModel::Row row = *(m_refIconTreeModel->append());
+	m_about_dialog.show ();
+    }
 
-      row[m_iconcolumns.m_label] = label;
-      row[m_iconcolumns.m_pixbuf] = Gdk::Pixbuf::create_from_file("layer.png");
+
+    inline void add_icon_entry (const Glib::ustring & label)
+    {
+	TreeModel::Row row = *(m_refIconTreeModel->append ());
+
+	row[m_iconcolumns.m_label] = label;
+	row[m_iconcolumns.m_pixbuf] =
+	    Gdk::Pixbuf::create_from_file (Glib::ustring (DATA) +
+					   "layer.png");
     }
 
     inline MenuItem *add_menu_item (Menu * menu, const StockID & id)
@@ -85,9 +96,9 @@ class EditorUI:public Window
 				      const FileChooserAction & action);
 
     // IconView TreeModel
-    Glib::RefPtr<ListStore> m_refIconTreeModel;
+    Glib::RefPtr < ListStore > m_refIconTreeModel;
     // ComboBox TreeModel
-    Glib::RefPtr<ListStore> m_refComboTreeModel;
+    Glib::RefPtr < ListStore > m_refComboTreeModel;
 
     // IconView ModelColumn
     IconModelColumns m_iconcolumns;
@@ -99,6 +110,9 @@ class EditorUI:public Window
 
     // About ArtEditor
     AboutDialog m_about_dialog;
+
+    // Artwork information dialog
+    InfoDialog m_info_dialog;
 
     // The GtkSDL Wrapper
     // (which contains SDL stream screen)

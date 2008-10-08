@@ -30,6 +30,8 @@ ArtEditor_SOURCES= tools/point.h		\
 	../map/map.cpp				\
 	gtksdl.h				\
 	gtksdl.cpp				\
+	info_dialog.h				\
+	info_dialog.cpp				\
 	editor_ui.h				\
 	editor_ui.cpp				\
 	project.h				\

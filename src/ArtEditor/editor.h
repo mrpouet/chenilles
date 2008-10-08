@@ -50,11 +50,17 @@ class Editor:public Singleton<Editor>
 	Main::run (m_gui);
     }
 
+    inline Glib::ustring get_datarootdir(void) const
+    {
+      return m_data;
+    }
+
   private:
 
     Editor ();
     ~Editor ();
     friend class Singleton<Editor>;
+    
 
     inline void switch_to_new_project (void)
     {
@@ -69,6 +75,8 @@ class Editor:public Singleton<Editor>
     typedef list <Project *> ProjectList;
     ProjectList m_project_handler;
     ProjectList::iterator m_current_project;
+
+    const Glib::ustring m_data;
 
 };
 

@@ -7,7 +7,7 @@
 using namespace Gtk;
 using sigc::signal;
 
-class GtkSDL:public DrawingArea
+class GtkSDL: public DrawingArea
 {
   public:
     GtkSDL (int width, int height);
@@ -25,12 +25,12 @@ class GtkSDL:public DrawingArea
     {
 	m_signal_init.emit ();
     }
-    
-    void SetVideoMode(int width, int height);
 
-    bool on_configure_event(GdkEventConfigure *event);
+    void SetVideoMode (int width, int height);
 
-    bool on_resize(void);
+    bool on_configure_event (GdkEventConfigure * event);
+
+    bool on_resize (void);
 
     bool on_expose_event (GdkEventExpose * event);
 

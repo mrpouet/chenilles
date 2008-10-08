@@ -10,14 +10,14 @@
 using sigc::mem_fun;
 using Glib::ustring;
 
-
 EditorUI::EditorUI (int width, int height):
 Window (),
+m_info_dialog (*this),
 m_SDLArea (640, 480)
 {
     VBox *vbox = manage (new VBox ());
     HBox *hbox = manage (new HBox ());
-    VBox *layerbox = manage (new VBox());
+    VBox *layerbox = manage (new VBox ());
 
     MenuBar *bar = manage (new MenuBar ());
     MenuItem *file = manage (new MenuItem ("File", true));
@@ -34,9 +34,10 @@ m_SDLArea (640, 480)
     ToolButton *Save = manage (new ToolButton (Stock::SAVE));
     ToolButton *SaveAs = manage (new ToolButton (Stock::SAVE_AS));
     Toolbar *toolbar = manage (new Toolbar ());
-    IconView *iconview = manage(new IconView());
-    ComboBox *combobox = manage(new ComboBox());
-    list<Glib::ustring> authors;
+    IconView *iconview = manage (new IconView ());
+    ComboBox *combobox = manage (new ComboBox ());
+    list < Glib::ustring > authors;
+    MenuItem *item = NULL;
 
     set_size_request (width, height);
 
@@ -62,7 +63,9 @@ m_SDLArea (640, 480)
     file->set_submenu (*filemenu);
 
     // Edit submenu
-    add_menu_item (editmenu, Stock::DIALOG_INFO);
+    item = add_menu_item (editmenu, Stock::DIALOG_INFO);
+    item->signal_activate ().connect (mem_fun (*this,
+					       &EditorUI::on_info_clicked));
     add_menu_separator (editmenu);
     add_menu_item (editmenu, Stock::PREFERENCES);
 
@@ -70,38 +73,40 @@ m_SDLArea (640, 480)
 
     // Help submenu
 
-    m_about_dialog.set_name("ArtEditor");
-    m_about_dialog.set_version("1.0alpha1");
-    m_about_dialog.set_copyright("PERIER Romain (mrpouet)");
-    m_about_dialog.set_comments("Artworks editor for chenilles");
-    m_about_dialog.set_license("GPL");
+    // About dialog
+    m_about_dialog.set_name ("ArtEditor");
+    m_about_dialog.set_version ("1.0alpha1");
+    m_about_dialog.set_copyright ("PERIER Romain (mrpouet)");
+    m_about_dialog.set_comments (get_title ());
+    m_about_dialog.set_license ("General Public License v3 (GPL)");
 
-    m_about_dialog.set_website("http://chenilles.org/ArtEditor");
-    m_about_dialog.set_website_label("ArtEditor website");
+    m_about_dialog.set_website ("http://chenilles.org/ArtEditor");
+    m_about_dialog.set_website_label ("ArtEditor website");
 
-    authors.push_back("(toineo)");
-    authors.push_back("PERIER Romain (mrpouet)");
-    
-    m_about_dialog.set_authors(authors);
+    authors.push_back ("NOM Prénom (toineo)");
+    authors.push_back ("PERIER Romain (mrpouet)");
 
-    authors.clear();
-    authors.push_back("PERIER Romain (mrpouet)");
-    m_about_dialog.set_documenters(authors);
-    
-    authors.clear();
-    authors.push_back("PILLEBOUE Adrien (necropotame)");
-    authors.push_back("NOM Prénom (herberts)");
-    authors.push_back("NOM Prénom (vladisback)");
-    m_about_dialog.set_artists(authors);
+    m_about_dialog.set_authors (authors);
 
-    m_about_dialog.set_translator_credits("PERIER Romain (mrpouet)");
-		      
+    authors.clear ();
+    authors.push_back ("PERIER Romain (mrpouet)");
+    m_about_dialog.set_documenters (authors);
+
+    authors.clear ();
+    authors.push_back ("PILLEBOUE Adrien (necropotame)");
+    authors.push_back ("NOM Prénom (herberts)");
+    authors.push_back ("NOM Prénom (vladisback)");
+    m_about_dialog.set_artists (authors);
+
+    m_about_dialog.set_translator_credits ("PERIER Romain (mrpouet)");
+    m_about_dialog.set_logo (Gdk::Pixbuf::create_from_file (ustring (DATA)
+							    + "logo.png"));
 
     add_menu_item (helpmenu, Stock::HELP);
-    
-    MenuItem *item = add_menu_item (helpmenu, Stock::ABOUT);
-    item->signal_activate().connect(mem_fun(*this, 
-					  &EditorUI::on_about_clicked));
+
+    item = add_menu_item (helpmenu, Stock::ABOUT);
+    item->signal_activate ().connect (mem_fun (*this,
+					       &EditorUI::on_about_clicked));
 
     help->set_submenu (*helpmenu);
 
@@ -116,8 +121,7 @@ m_SDLArea (640, 480)
     Open->signal_clicked ().connect (mem_fun (*this,
 					      &EditorUI::on_open_clicked));
     SaveAs->signal_clicked ().connect (mem_fun (*this,
-						&EditorUI::
-						on_saveas_clicked));
+						&EditorUI::on_saveas_clicked));
 
     toolbar->append (*New);
     toolbar->append (*Open);
@@ -125,25 +129,25 @@ m_SDLArea (640, 480)
     toolbar->append (*SaveAs);
 
     // IconView
-    m_refIconTreeModel = ListStore::create(m_iconcolumns);
+    m_refIconTreeModel = ListStore::create (m_iconcolumns);
 
-    iconview->set_model(m_refIconTreeModel);
-    iconview->set_markup_column(m_iconcolumns.m_label);
-    iconview->set_pixbuf_column(m_iconcolumns.m_pixbuf);
+    iconview->set_model (m_refIconTreeModel);
+    iconview->set_markup_column (m_iconcolumns.m_label);
+    iconview->set_pixbuf_column (m_iconcolumns.m_pixbuf);
 
     // ComboBox
-    m_refComboTreeModel = ListStore::create(m_combocolumns);
-    combobox->set_model(m_refComboTreeModel);
-    
-    (*m_refComboTreeModel->append())[m_combocolumns.m_type] = "background";
-    (*m_refComboTreeModel->append())[m_combocolumns.m_type] = "main";
-    (*m_refComboTreeModel->append())[m_combocolumns.m_type] = "explosion";
+    m_refComboTreeModel = ListStore::create (m_combocolumns);
+    combobox->set_model (m_refComboTreeModel);
 
-    combobox->pack_start(m_combocolumns.m_type);
+    (*m_refComboTreeModel->append ())[m_combocolumns.m_type] = "background";
+    (*m_refComboTreeModel->append ())[m_combocolumns.m_type] = "main";
+    (*m_refComboTreeModel->append ())[m_combocolumns.m_type] = "explosion";
+
+    combobox->pack_start (m_combocolumns.m_type);
 
     // Boxes
-    layerbox->pack_start(*combobox, false, false);
-    layerbox->pack_start(*iconview);
+    layerbox->pack_start (*combobox, false, false);
+    layerbox->pack_start (*iconview);
 
     hbox->pack_start (m_SDLArea);
     hbox->pack_start (*layerbox);
@@ -169,8 +173,8 @@ EditorUI::on_new_clicked (void)
 void
 EditorUI::on_saveas_clicked (void)
 {
-    ustring ret =
-	open_saveas_dialog ("Save file as", FILE_CHOOSER_ACTION_SAVE);
+    ustring ret = open_saveas_dialog ("Save file as", 
+				      FILE_CHOOSER_ACTION_SAVE);
 
     if (ret.empty ())
 	return;
@@ -205,7 +209,7 @@ EditorUI::on_open_clicked (void)
 }
 
 ustring
-EditorUI::open_saveas_dialog (const ustring & title,
+    EditorUI::open_saveas_dialog (const ustring & title,
 				  const FileChooserAction & action)
 {
     FileChooserDialog dialog (*this, title, action);

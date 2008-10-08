@@ -24,16 +24,15 @@ DrawingArea ()
 
     m_configure_time = 0;
 
-    Glib::signal_timeout ().connect (sigc::mem_fun (*this, 
-				     &GtkSDL::on_resize),
-				     20);
+    Glib::signal_timeout ().connect (sigc::mem_fun (*this,
+						    &GtkSDL::on_resize), 20);
 
 }
 
 GtkSDL::~GtkSDL ()
 {
     HMI::CleanUp ();
-    Timer::CleanUp();
+    Timer::CleanUp ();
 }
 
 void
@@ -58,7 +57,8 @@ GtkSDL::SetVideoMode (int width, int height)
     Timer::GetRef ().Reset ();
 }
 
-bool GtkSDL::on_configure_event (GdkEventConfigure * event)
+bool
+GtkSDL::on_configure_event (GdkEventConfigure * event)
 {
     if (m_init)
 	return true;
@@ -73,8 +73,15 @@ bool GtkSDL::on_configure_event (GdkEventConfigure * event)
     return true;
 }
 
+// Use a timer to delay as much as possible 
+// the real time resize.
+// More "configure_event" signal is emit and more time of
+// the resize is delayed.
+// Is equivalent to really resize SDL stream, ONLY
+// at the end of handler resizement (using borders).
 
-bool GtkSDL::on_resize (void)
+bool
+GtkSDL::on_resize (void)
 {
     if ((!m_need_resize) ||
 	(Timer::GetRef ().Read () < (m_configure_time + 100)))
@@ -89,7 +96,8 @@ bool GtkSDL::on_resize (void)
 // between Gtkmm and SDL (2 threads).
 // The problem is due to thread-safe.
 
-bool GtkSDL::on_motion_notify_event (GdkEventMotion * event)
+bool
+GtkSDL::on_motion_notify_event (GdkEventMotion * event)
 {
     Point sdl_tip;
 
@@ -102,12 +110,13 @@ bool GtkSDL::on_motion_notify_event (GdkEventMotion * event)
     return true;
 }
 
-bool GtkSDL::on_expose_event (GdkEventExpose * event)
+bool
+GtkSDL::on_expose_event (GdkEventExpose * event)
 {
 
     if (!m_init)
       {
-	  const Rectangle &box = Camera::GetRef ().GetCameraBox ();
+	  const Rectangle & box = Camera::GetRef ().GetCameraBox ();
 	  Camera::GetRef ().ToRedraw (Rectangle (0, 0, box.w, box.h));
 	  HMI::GetRef ().RefreshOutput ();
 	  return true;
