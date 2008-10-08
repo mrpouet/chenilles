@@ -76,7 +76,7 @@ m_SDLArea (640, 480)
     // About dialog
     m_about_dialog.set_name ("ArtEditor");
     m_about_dialog.set_version ("1.0alpha1");
-    m_about_dialog.set_copyright ("PERIER Romain (mrpouet)");
+    m_about_dialog.set_copyright ("Copyright © 2008 PERIER Romain (mrpouet)");
     m_about_dialog.set_comments (get_title ());
     m_about_dialog.set_license ("General Public License v3 (GPL)");
 

@@ -20,11 +20,11 @@ Dialog ("Map informations", parent, false, true)
     Entry *desc_entry = manage (new Entry ());
 
     author_box->pack_start (*author_label);
-    author_box->pack_start (*author_entry);
+    author_box->pack_end (*author_entry);
     name_box->pack_start (*name_label);
-    name_box->pack_start (*name_entry);
+    name_box->pack_end (*name_entry);
     desc_box->pack_start (*desc_label);
-    desc_box->pack_start (*desc_entry);
+    desc_box->pack_end (*desc_entry);
 
     vbox->pack_start (*author_box);
     vbox->pack_start (*name_box);
