@@ -33,6 +33,7 @@ DrawingArea ()
 GtkSDL::~GtkSDL ()
 {
     HMI::CleanUp ();
+    Timer::CleanUp();
 }
 
 void

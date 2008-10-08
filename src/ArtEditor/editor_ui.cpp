@@ -1,8 +1,8 @@
 #include <gtkmm/box.h>
 #include <gtkmm/menubar.h>
 #include <gtkmm/toolbar.h>
-#include <gtkmm/cellrenderercombo.h>
-#include <gtkmm/treeview.h>
+#include <gtkmm/iconview.h>
+#include <gtkmm/combobox.h>
 
 #include "project_map.h"
 #include "editor.h"
@@ -17,6 +17,7 @@ m_SDLArea (640, 480)
 {
     VBox *vbox = manage (new VBox ());
     HBox *hbox = manage (new HBox ());
+    VBox *layerbox = manage (new VBox());
 
     MenuBar *bar = manage (new MenuBar ());
     MenuItem *file = manage (new MenuItem ("File", true));
@@ -25,15 +26,17 @@ m_SDLArea (640, 480)
     MenuItem *help = manage (new MenuItem ("Help", true));
 
     Menu *filemenu = manage (new Menu ());
+    Menu *editmenu = manage (new Menu ());
+    Menu *helpmenu = manage (new Menu ());
 
     ToolButton *New = manage (new ToolButton (Stock::NEW));
     ToolButton *Open = manage (new ToolButton (Stock::OPEN));
     ToolButton *Save = manage (new ToolButton (Stock::SAVE));
     ToolButton *SaveAs = manage (new ToolButton (Stock::SAVE_AS));
     Toolbar *toolbar = manage (new Toolbar ());
-    TreeView *treeview = manage (new TreeView ());
-    CellRendererCombo *cell = manage (new CellRendererCombo ());
-    TreeView::Column * column = NULL;
+    IconView *iconview = manage(new IconView());
+    ComboBox *combobox = manage(new ComboBox());
+    list<Glib::ustring> authors;
 
     set_size_request (width, height);
 
@@ -41,8 +44,11 @@ m_SDLArea (640, 480)
 
     set_title ("ArtEditor - Artworks Editor For Chenilles");
 
+    // File submenu
+
     add_menu_item (filemenu, Stock::NEW);
     add_menu_item (filemenu, Stock::OPEN);
+
     add_menu_separator (filemenu);
 
     add_menu_item (filemenu, Stock::SAVE);
@@ -54,6 +60,50 @@ m_SDLArea (640, 480)
     add_menu_item (filemenu, Stock::QUIT);
 
     file->set_submenu (*filemenu);
+
+    // Edit submenu
+    add_menu_item (editmenu, Stock::DIALOG_INFO);
+    add_menu_separator (editmenu);
+    add_menu_item (editmenu, Stock::PREFERENCES);
+
+    edit->set_submenu (*editmenu);
+
+    // Help submenu
+
+    m_about_dialog.set_name("ArtEditor");
+    m_about_dialog.set_version("1.0alpha1");
+    m_about_dialog.set_copyright("PERIER Romain (mrpouet)");
+    m_about_dialog.set_comments("Artworks editor for chenilles");
+    m_about_dialog.set_license("GPL");
+
+    m_about_dialog.set_website("http://chenilles.org/ArtEditor");
+    m_about_dialog.set_website_label("ArtEditor website");
+
+    authors.push_back("(toineo)");
+    authors.push_back("PERIER Romain (mrpouet)");
+    
+    m_about_dialog.set_authors(authors);
+
+    authors.clear();
+    authors.push_back("PERIER Romain (mrpouet)");
+    m_about_dialog.set_documenters(authors);
+    
+    authors.clear();
+    authors.push_back("PILLEBOUE Adrien (necropotame)");
+    authors.push_back("NOM Prénom (herberts)");
+    authors.push_back("NOM Prénom (vladisback)");
+    m_about_dialog.set_artists(authors);
+
+    m_about_dialog.set_translator_credits("PERIER Romain (mrpouet)");
+		      
+
+    add_menu_item (helpmenu, Stock::HELP);
+    
+    MenuItem *item = add_menu_item (helpmenu, Stock::ABOUT);
+    item->signal_activate().connect(mem_fun(*this, 
+					  &EditorUI::on_about_clicked));
+
+    help->set_submenu (*helpmenu);
 
     bar->append (*file);
     bar->append (*edit);
@@ -74,33 +124,29 @@ m_SDLArea (640, 480)
     toolbar->append (*Save);
     toolbar->append (*SaveAs);
 
-    m_refTreeModel = ListStore::create (m_ustringcolumns);
+    // IconView
+    m_refIconTreeModel = ListStore::create(m_iconcolumns);
 
-    (*m_refTreeModel->append ())[m_ustringcolumns.str] = "background";
-    (*m_refTreeModel->append ())[m_ustringcolumns.str] = "main";
-    (*m_refTreeModel->append ())[m_ustringcolumns.str] = "explosion";
+    iconview->set_model(m_refIconTreeModel);
+    iconview->set_markup_column(m_iconcolumns.m_label);
+    iconview->set_pixbuf_column(m_iconcolumns.m_pixbuf);
 
-    m_list = ListStore::create (m_layercolumns);
+    // ComboBox
+    m_refComboTreeModel = ListStore::create(m_combocolumns);
+    combobox->set_model(m_refComboTreeModel);
+    
+    (*m_refComboTreeModel->append())[m_combocolumns.m_type] = "background";
+    (*m_refComboTreeModel->append())[m_combocolumns.m_type] = "main";
+    (*m_refComboTreeModel->append())[m_combocolumns.m_type] = "explosion";
 
-    treeview->set_model (m_list);
+    combobox->pack_start(m_combocolumns.m_type);
 
-    treeview->append_column ("Name", m_layercolumns.str);
-    column = treeview->get_column (treeview->append_column ("Type", *cell)
-				   - 1);
-
-    column->add_attribute (cell->property_text (), m_layercolumns.type);
-
-    cell->property_has_entry () = false;
-    cell->property_model () = m_refTreeModel;
-    cell->property_text_column () = 0;
-    cell->property_editable () = true;
-
-    cell->signal_edited ().
-	connect (mem_fun (*this, &EditorUI::on_combo_change));
-
+    // Boxes
+    layerbox->pack_start(*combobox, false, false);
+    layerbox->pack_start(*iconview);
 
     hbox->pack_start (m_SDLArea);
-    hbox->pack_start (*treeview);
+    hbox->pack_start (*layerbox);
 
     vbox->pack_start (*bar, false, false);
 
@@ -150,7 +196,7 @@ EditorUI::on_open_clicked (void)
       {
 	  ustring sub = ret.substr (ret.rfind ("/") + 1);
 	  sub = sub.substr (0, sub.size () - 4);
-	  add_list_entry (sub, "background");
+	  add_icon_entry (sub);
 	  editor.add_layer_to_project (ret);
       }
     else
