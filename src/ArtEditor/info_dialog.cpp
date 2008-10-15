@@ -1,5 +1,4 @@
 #include <gtkmm/label.h>
-#include <gtkmm/entry.h>
 #include <gtkmm/stock.h>
 
 #include "info_dialog.h"
@@ -15,16 +14,13 @@ Dialog ("Map informations", parent, false, true)
     Label *name_label = manage (new Label ("name:"));
     Label *author_label = manage (new Label ("author:"));
     Label *desc_label = manage (new Label ("description:"));
-    Entry *name_entry = manage (new Entry ());
-    Entry *author_entry = manage (new Entry ());
-    Entry *desc_entry = manage (new Entry ());
 
     author_box->pack_start (*author_label);
-    author_box->pack_end (*author_entry);
+    author_box->pack_end (m_author);
     name_box->pack_start (*name_label);
-    name_box->pack_end (*name_entry);
+    name_box->pack_end (m_name);
     desc_box->pack_start (*desc_label);
-    desc_box->pack_end (*desc_entry);
+    desc_box->pack_end (m_desc);
 
     vbox->pack_start (*author_box);
     vbox->pack_start (*name_box);

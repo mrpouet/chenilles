@@ -3,12 +3,15 @@
 
 #include <exception>
 #include <list>
+#include <vector>
 #include <graphics/surface.h>
 
 class Map
 {
 
   public:
+
+    typedef vector<Glib::ustring> InfoArray;
 
     explicit Map (const string & xmldoc) throw (std::exception);
 
@@ -52,15 +55,27 @@ class Map
     // reducing CPU time.
     void draw (void);
 
- private:
-    // Draw ONLY the rects from map, to Camera.
-    // ONLY used by draw on camera resize.
-    // @param numrects The rects number (the sizeof rects "array")
-    // @param rects Rectangles to redraw from map.
-    void draw_rects(int numrects, rectangle * rects);
+    // InfoArray accessor in read-only
+    // @return: the map info array
+    // elements are respectively in this order:
+    //  - author : the map author name.
+    //  - name   : the map name. 
+    //  - description : a small text to describe the map.
+    inline const InfoArray & get_infos (void) const
+    {
+	return m_infos;
+    }
+    
+    // InfoArray accessor/mutator in rw.
+    // @return: the map info array, respectively exactly the same,
+    // ways as the last method.
+    inline InfoArray & get_infos (void)
+    {
+	return m_infos;
+    }
 
   protected:
-    Map ();
+      Map ();
 
     // Non copyable, except by their sub-class
     Map & operator= (const Map & map);
@@ -70,7 +85,7 @@ class Map
     LayerList::iterator m_main_it;
     LayerList::iterator m_expl_it;
     bool m_init_draw;
-
+    InfoArray m_infos;
 };
 
 #endif

@@ -29,6 +29,17 @@ throw (std::exception)
 
     parser->LoadDoc (xmldoc);
 
+    for (const Node *n = parser->getNode("//author"); n != NULL; 
+	 n = parser->NextSibling(n))
+      {
+	// n must be NULL, on optionnal nodes.
+	// (specified in the DTD XML).
+	if (parser->isTextNode(n) || (n == NULL))
+	  continue;
+	m_infos.push_back(parser->getText(n));
+
+      }
+
     AbsolutePath (path);
 
     for (const Node * n = parser->getNode ("//layer");
@@ -55,17 +66,21 @@ throw (std::exception)
 	throw MapException ("No \"main\" or \"explosion\" layer type found");
 
     parser->FreeDoc ();
+    XMLParser::CleanUp();
     m_init_draw = true;
+
 }
 
 // Exactly the same complexity as std::list copy constructor
-// (linear time).
+// (linear time of size list).
 // We need to do this, due to iterators member.
 
 Map & Map::operator= (const Map & map)
 {
 
     m_layers.clear ();
+
+    m_infos = map.m_infos;
 
     m_init_draw = map.m_init_draw;
 
@@ -163,24 +178,3 @@ Map::draw (void)
     m_init_draw = false;
 }
 
-void
-Map::draw_rects(int numrects, rectangle *rects)
-{
-  int i = 0;
-  Camera & camera = Camera::GetRef();
-  Rectangle r;
-
-  for (LayerList::const_iterator it = m_layers.begin(); 
-       (i < numrects) && (it != m_layers.end()); it++, i++)
-    {
-      if (it == m_expl_it)
-	continue;
-      camera.UpdateCamera(*it, &rects[i], &rects[i]);
-      r.x = rects[i].x;
-      r.y = rects[i].y;
-      r.w = rects[i].w;
-      r.h = rects[i].h;
-      camera.ToRedraw(r);
-    }
-
-}

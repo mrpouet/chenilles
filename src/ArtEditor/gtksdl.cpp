@@ -74,7 +74,7 @@ GtkSDL::on_configure_event (GdkEventConfigure * event)
 }
 
 // Use a timer to delay as much as possible 
-// the real time resize.
+// the real time to resize.
 // More "configure_event" signal is emit and more time of
 // the resize is delayed.
 // Is equivalent to really resize SDL stream, ONLY

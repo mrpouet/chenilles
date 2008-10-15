@@ -1,23 +1,20 @@
 #include <iostream>
 #include <interface/camera.h>
-#include <interface/hmi.h>
 #include <tools/game_exception.h>
 
 #include "editor.h"
-#include <cstdio>
 
 #define DEFAULT_WIDTH  800
 #define DEFAULT_HEIGHT 600
 
 namespace
 {
-    inline void on_init (void)
-    {
-	HMI::GetRef ().set_external_tip ();
-    }
 
     inline void cursor_init (void)
     {
+	//FIXME: Replace path cursor by:
+	// ustring(DATA_GUI) + "cursor_main.png".
+	// where DATA_GUI is a macro-constante defines in HMI 
 	HMI::GetRef ().SetCursor (HMI::CURSOR_TIP,
 				  "../../data/menu/cursor_main.png");
 	HMI::GetRef ().SwitchToCursor (HMI::CURSOR_TIP);
@@ -28,14 +25,12 @@ namespace
 
 Editor::Editor ():
 m_gui (DEFAULT_WIDTH, DEFAULT_HEIGHT),
-m_current_project (m_project_handler.end ()),
-m_data(Glib::ustring(DATAROOTDIR) + "/ArtEditor")
+m_current_project (m_project_handler.end ())
 {
 
-    Glib::signal_timeout ().connect (sigc::mem_fun (*this,
-						    &Editor::editor_refresh),
-				     15);
-    m_gui.signal_init ().connect (sigc::ptr_fun (on_init));
+    m_gui.signal_init ().connect (sigc::mem_fun (*this, &Editor::on_init));
+
+    new_project ();
 
 }
 
@@ -46,52 +41,32 @@ Editor::~Editor ()
 	delete *it;
 }
 
-bool Editor::editor_refresh (void)
+bool
+Editor::editor_refresh (void)
 {
-    // ProjectList contains zero project opened, nothing to do.
-    if (m_project_handler.empty ())
-	return true;
-    
     Camera::GetRef ().Refresh ();
-
     (*m_current_project)->get_drawable ().draw ();
-    
-    HMI::GetRef ().RefreshOutput ();
 
+    HMI::GetRef ().RefreshOutput ();
     return true;
 }
 
 void
 Editor::open_project (const Glib::ustring & filename)
 {
-    Project *p = NULL;
-
-    // Initial project, we need to init HMI Cursor,
-    // which will draw funny tip on the drawable ;)
-    if (m_project_handler.empty ())
+    if ((m_project_handler.size () == 1) &&
+	(*m_current_project)->get_drawable ().empty ())
 	cursor_init ();
-    p = new ProjectMap ();
 
-    try
-    {
-	p->open (filename);
-    }
-    catch (const GameException & e)
-    {
-	cerr << "Caught exception:" << endl
-	    << "what  : " << e.what () << endl
-	    << "error : " << e.error () << endl;
-    }
-
-    m_project_handler.push_back (p);
-    switch_to_new_project ();
+    //TODO: Add tabs later.
+    (*m_current_project)->open (filename);
 
 }
 
-void
-Editor::add_layer_to_project (const Glib::ustring & filename)
+Drawable::iterator
+    Editor::add_layer_to_drawable_project (const Glib::ustring & filename)
 {
     if ((*m_current_project)->get_drawable ().empty ())
 	cursor_init ();
-    (*m_current_project)->get_drawable ().add_layer (filename);
+    return (*m_current_project)->get_drawable ().add_layer (filename);
 }

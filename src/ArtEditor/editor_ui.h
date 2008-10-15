@@ -9,10 +9,13 @@
 #include <gtkmm/liststore.h>
 #include <gtkmm/entry.h>
 #include <gtkmm/aboutdialog.h>
+#include <gtkmm/combobox.h>
+#include <gtkmm/iconview.h>
 #include <tools/base.h>
 
 #include "gtksdl.h"
 #include "info_dialog.h"
+#include "project.h"
 
 #define DATA DATAROOTDIR "/ArtEditor/"
 
@@ -22,7 +25,7 @@ class EditorUI:public Window
 
     EditorUI (int width, int height);
 
-    inline signal < void >signal_init (void)
+    inline signal<void> signal_init (void)
     {
 	return m_SDLArea.signal_init ();
     }
@@ -31,14 +34,20 @@ class EditorUI:public Window
 
     struct IconModelColumns:public TreeModel::ColumnRecord
     {
-	IconModelColumns ()
+      IconModelColumns ()
 	{
 	    add (m_label);
 	    add (m_pixbuf);
+	    add (m_it);
+	    add (m_type);
 	}
 
-	TreeModelColumn < Glib::ustring > m_label;
-	TreeModelColumn < Glib::RefPtr < Gdk::Pixbuf > >m_pixbuf;
+	TreeModelColumn<Glib::ustring> m_label;
+	TreeModelColumn< Glib::RefPtr < Gdk::Pixbuf > > m_pixbuf;
+	// Undisplayed values, just needed to save informations
+	// per line.
+	TreeModelColumn<Drawable::iterator> m_it;
+	TreeModelColumn<Glib::ustring> m_type;
     };
 
     struct ComboModelColumns:public TreeModel::ColumnRecord
@@ -48,7 +57,7 @@ class EditorUI:public Window
 	    add (m_type);
 	}
 
-	TreeModelColumn < Glib::ustring > m_type;
+	TreeModelColumn<Glib::ustring> m_type;
     };
 
     void on_new_clicked (void);
@@ -57,25 +66,42 @@ class EditorUI:public Window
 
     void on_saveas_clicked (void);
 
-    inline void on_info_clicked (void)
-    {
-	m_info_dialog.show ();
-    }
+    void on_combo_changed(void);
+
+    void on_iconview_selection_changed(void);
+
+    void on_info_clicked (void);
+
+
+    void on_info_response (int response);
 
     inline void on_about_clicked (void)
     {
 	m_about_dialog.show ();
     }
 
+    inline void dialog_hide(Widget& widget, int response)
+    {
+      if (response == RESPONSE_CANCEL)
+	widget.hide();
+    }
 
-    inline void add_icon_entry (const Glib::ustring & label)
+    inline void on_about_response (int response)
+    {
+      dialog_hide(m_about_dialog, response);
+    }
+
+    inline void add_icon_entry (const Glib::ustring & label, 
+				const Drawable::iterator& it)
     {
 	TreeModel::Row row = *(m_refIconTreeModel->append ());
 
 	row[m_iconcolumns.m_label] = label;
 	row[m_iconcolumns.m_pixbuf] =
-	    Gdk::Pixbuf::create_from_file (Glib::ustring (DATA) +
-					   "layer.png");
+	  Gdk::Pixbuf::create_from_file (Glib::ustring (DATA) +
+					 "layer.png");
+	row[m_iconcolumns.m_it] = it;
+	row[m_iconcolumns.m_type] = "0:0";
     }
 
     inline MenuItem *add_menu_item (Menu * menu, const StockID & id)
@@ -92,27 +118,34 @@ class EditorUI:public Window
 	menu->append (*item);
     }
 
+    TreeModel::Row get_last_selected_item_row(void);
+
     Glib::ustring open_saveas_dialog (const Glib::ustring & title,
 				      const FileChooserAction & action);
 
     // IconView TreeModel
-    Glib::RefPtr < ListStore > m_refIconTreeModel;
+    Glib::RefPtr<ListStore> m_refIconTreeModel;
     // ComboBox TreeModel
-    Glib::RefPtr < ListStore > m_refComboTreeModel;
+    Glib::RefPtr<ListStore> m_refComboTreeModel;
 
     // IconView ModelColumn
     IconModelColumns m_iconcolumns;
     // ComboBox ModelColumn
     ComboModelColumns m_combocolumns;
 
-    // The map name text entry
-    Entry m_name_entry;
+    IconView m_iconview;
+
+    ComboBox m_combobox;
 
     // About ArtEditor
     AboutDialog m_about_dialog;
 
     // Artwork information dialog
     InfoDialog m_info_dialog;
+
+    // Iterator of the last IconView activated layer
+    // (use by ComboBox for change layer type in constant time)
+    Drawable::iterator m_layer_activated;
 
     // The GtkSDL Wrapper
     // (which contains SDL stream screen)

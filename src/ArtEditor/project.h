@@ -2,6 +2,8 @@
 #define __PROJECT_H__
 
 #include <glibmm/ustring.h>
+#include <graphics/surface.h>
+#include <list>
 
 // Abstract Base Class.
 //
@@ -11,17 +13,21 @@ struct Drawable
 {
   public:
 
-    virtual ~Drawable() {};
+    typedef std::list<Surface>::iterator iterator;
+    typedef std::vector<Glib::ustring> InfoArray;
+
+    virtual ~ Drawable (){};
 
     virtual inline bool empty (void) const = 0;
 
     virtual void draw (void) = 0;
 
-    virtual void add_layer (const Glib::ustring & filename) = 0;
+    virtual iterator add_layer (const Glib::ustring & filename) = 0;
 
-    virtual void set_layer_visible (const Glib::ustring & name) = 0;
+    virtual void set_layer (const iterator & it, 
+			    const Glib::ustring & data) = 0;
 
-    virtual void set_layer_exclude (const Glib::ustring & name) = 0;
+    virtual inline InfoArray & get_infos (void) = 0;
 
 };
 
@@ -36,17 +42,18 @@ class Project
 {
   public:
 
-    virtual ~ Project () {};
+    virtual ~ Project (){};
 
     virtual void open (const Glib::ustring & filename) = 0;
 
+    //FIXME: writer this method
     inline void save (void)
     {
-	if (!m_filename.empty ())
-	    save_as (m_filename);
+	return;
     }
 
-    virtual void save_as (const Glib::ustring & filename) = 0;
+    virtual void save_as (const Glib::ustring & filename,
+			  const std::list<Glib::ustring> &l) = 0;
 
     virtual inline Drawable & get_drawable (void) = 0;
 

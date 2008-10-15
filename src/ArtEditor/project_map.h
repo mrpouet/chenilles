@@ -9,35 +9,38 @@ class EditableMap:public Drawable, public Map
 {
   public:
 
-    EditableMap ():Drawable (), Map () {};
+    EditableMap ():Drawable (), Map (){};
 
-    ~EditableMap(){};
+    ~EditableMap (){};
 
     explicit EditableMap (const Glib::ustring & xmldoc):Drawable (),
-	Map (xmldoc) {};
+	Map (xmldoc)
+    {};
 
-    void add_layer (const Glib::ustring & filename);
+    Drawable::iterator add_layer (const Glib::ustring & filename);
 
-    void set_layer_visible (const Glib::ustring & name);
+    void set_layer (const Drawable::iterator & it,
+		    const Glib::ustring & data);
 
-    void set_layer_exclude (const Glib::ustring & name);
-
-    void write_to_file (const Glib::ustring & filename);
+    void write_to_file (const Glib::ustring & filename,
+			const std::list<Glib::ustring> &l);
 
     inline void draw (void)
     {
-      if (!m_layers.empty())
-	Map::draw ();
+	if (!m_layers.empty ())
+	    Map::draw ();
     }
 
-    inline bool empty(void) const
+    inline bool empty (void) const
     {
-      return m_layers.empty() && m_exclude_list.empty();
+	return m_layers.empty ();
     }
 
-  private:
-    LayerList m_exclude_list;
-    map<Glib::ustring, LayerList::iterator> m_handler_it;
+    inline Drawable::InfoArray & get_infos (void)
+    {
+	return Map::get_infos ();
+    }
+
 
 };
 
@@ -48,7 +51,8 @@ class ProjectMap:public Project
 
     void open (const Glib::ustring & filename);
 
-    void save_as (const Glib::ustring & filename);
+    void save_as (const Glib::ustring & filename,
+		  const std::list<Glib::ustring> &l);
 
     inline Drawable & get_drawable (void)
     {
