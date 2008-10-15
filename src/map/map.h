@@ -5,6 +5,7 @@
 #include <list>
 #include <vector>
 #include <graphics/surface.h>
+#include <glibmm/ustring.h>
 
 class Map
 {
