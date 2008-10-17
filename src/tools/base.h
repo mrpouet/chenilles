@@ -5,4 +5,6 @@
 
 using namespace std;
 
+#define DATA DATAROOTDIR "/" PACKAGE_NAME
+
 #endif /*      __BASE_H__      */

@@ -8,6 +8,8 @@
 #include "editor_ui.h"
 #include "project_map.h"
 
+#define EDITORDATA DATA "/ArtEditor/"
+
 using std::list;
 using Gtk::Main;
 

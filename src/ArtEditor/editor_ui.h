@@ -17,7 +17,7 @@
 #include "info_dialog.h"
 #include "project.h"
 
-#define DATA DATAROOTDIR "/ArtEditor/"
+#define UIDATA DATA "/ui/"
 
 class EditorUI:public Window
 {
@@ -91,18 +91,8 @@ class EditorUI:public Window
       dialog_hide(m_about_dialog, response);
     }
 
-    inline void add_icon_entry (const Glib::ustring & label, 
-				const Drawable::iterator& it)
-    {
-	TreeModel::Row row = *(m_refIconTreeModel->append ());
-
-	row[m_iconcolumns.m_label] = label;
-	row[m_iconcolumns.m_pixbuf] =
-	  Gdk::Pixbuf::create_from_file (Glib::ustring (DATA) +
-					 "layer.png");
-	row[m_iconcolumns.m_it] = it;
-	row[m_iconcolumns.m_type] = "0:0";
-    }
+    void add_icon_entry (const Glib::ustring & label, 
+			 const Drawable::iterator& it);
 
     inline MenuItem *add_menu_item (Menu * menu, const StockID & id)
     {

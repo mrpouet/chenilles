@@ -6,20 +6,18 @@ failed()
     exit 1
 }
 
-echo -n "Running Autoheader..."
- autoheader || failed
-echo "done"
+rm -rf autom4te.cache
 
-echo -n "Running Aclocal..."
- aclocal || failed
-echo "done"
+echo "Running Autoheader..."; autoheader || failed
 
-echo -n "Running Autoconf..."
- autoconf || failed
-echo "done"
+echo "Running Aclocal..."; aclocal || failed
 
-echo -n "Running Automake..."
- automake -a -c --gnu || failed
-echo "done"
+echo "Running Autoconf..."; autoconf || failed
 
-echo "you can run now : ./configure"
+echo "Running Libtoolize..."; libtoolize --automake --copy || failed
+
+echo "Running Automake..."; automake -a -c --gnu || failed
+
+if [ -x configure ];then
+    ./configure $*
+fi

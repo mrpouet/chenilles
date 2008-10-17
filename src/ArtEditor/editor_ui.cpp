@@ -43,13 +43,22 @@ m_SDLArea (640, 480)
 
     // File submenu
 
-    add_menu_item (filemenu, Stock::NEW);
-    add_menu_item (filemenu, Stock::OPEN);
+    item = add_menu_item (filemenu, Stock::NEW);
+    item->signal_activate().connect(mem_fun(*this, 
+					   &EditorUI::on_new_clicked));
+
+    item = add_menu_item (filemenu, Stock::OPEN);
+    item->signal_activate().connect(mem_fun(*this, 
+					   &EditorUI::on_open_clicked));
 
     add_menu_separator (filemenu);
 
     add_menu_item (filemenu, Stock::SAVE);
-    add_menu_item (filemenu, Stock::SAVE_AS);
+    
+    item = add_menu_item (filemenu, Stock::SAVE_AS);
+    item->signal_activate().connect(mem_fun(*this, 
+					   &EditorUI::on_saveas_clicked));
+    
 
     add_menu_separator (filemenu);
 
@@ -100,7 +109,7 @@ m_SDLArea (640, 480)
     m_about_dialog.set_artists (authors);
 
     m_about_dialog.set_translator_credits ("PERIER Romain (mrpouet)");
-    m_about_dialog.set_logo (Gdk::Pixbuf::create_from_file (ustring (DATA)
+    m_about_dialog.set_logo (Gdk::Pixbuf::create_from_file (ustring (EDITORDATA)
 							    + "logo.png"));
 
     m_about_dialog.signal_response ().connect (mem_fun (*this,
@@ -173,6 +182,20 @@ m_SDLArea (640, 480)
 }
 
 void
+EditorUI::add_icon_entry (const Glib::ustring & label, 
+			  const Drawable::iterator& it)
+{
+	TreeModel::Row row = *(m_refIconTreeModel->append ());
+
+	row[m_iconcolumns.m_label] = label;
+	row[m_iconcolumns.m_pixbuf] =
+	  Gdk::Pixbuf::create_from_file (Glib::ustring (EDITORDATA) +
+					 "layer.png");
+	row[m_iconcolumns.m_it] = it;
+	row[m_iconcolumns.m_type] = "0:0";
+}
+
+void
 EditorUI::on_info_response (int response)
 {
     switch (response)
@@ -208,7 +231,6 @@ EditorUI::on_info_clicked (void)
 	  m_info_dialog.set_author (array[0]);
 	  m_info_dialog.set_name (array[1]);
 
-	  // description is optional in the Map DTD.
 	  if (array.size () >= 3)
 	      m_info_dialog.set_desc (array[2]);
       }

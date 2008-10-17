@@ -16,7 +16,7 @@ namespace
 	// ustring(DATA_GUI) + "cursor_main.png".
 	// where DATA_GUI is a macro-constante defines in HMI 
 	HMI::GetRef ().SetCursor (HMI::CURSOR_TIP,
-				  "../../data/menu/cursor_main.png");
+				  Glib::ustring(UIDATA) + "cursor_main.png");
 	HMI::GetRef ().SwitchToCursor (HMI::CURSOR_TIP);
     }
 
