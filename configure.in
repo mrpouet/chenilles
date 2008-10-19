@@ -15,7 +15,6 @@ AC_CONFIG_FILES([Makefile
 		src/lib/private/Makefile 
 		src/ArtEditor/Makefile 
 		data/Makefile 
-		data/maps/Makefile
 		data/ui/Makefile
 		data/ArtEditor/Makefile])
 AM_CONDITIONAL([NO_STD_LIBDIR], [test "${prefix}" != /usr ])
