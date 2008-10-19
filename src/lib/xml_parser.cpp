@@ -1,5 +1,8 @@
+#include <string>
 #include <libxml++/nodes/textnode.h>
-#include "xml_parser.h"
+#include <xml_parser.h>
+#include <tools/base.h>
+#include <private/xml_exception.h>
 
 #if XMLPP_MINOR < 18
 #	include <libxml/tree.h>
@@ -8,9 +11,9 @@
 namespace
 {
 
-    inline void xml_throw (const Node * node, const char *msg)
+  inline void xml_throw (const xmlpp::Node * node, const char *msg)
     {
-	throw XMLException (string (node->get_name ().c_str ()) + msg);
+      throw XMLException (string (node->get_name ().c_str ()) + msg);
     }
 
 };
@@ -28,13 +31,14 @@ XMLParser::~XMLParser (void)
 void
 XMLParser::FreeDoc (void)
 {
-    if (parser != NULL)
-	delete parser;
+    if (!parser)
+      return;
+    delete parser;
+    parser = NULL;
 }
 
 void
-XMLParser::LoadDoc (const string & xmldoc)
-throw (std::exception)
+XMLParser::LoadDoc (const Glib::ustring & xmldoc)
 {
     if (parser != NULL)
 	return;
@@ -55,7 +59,6 @@ XMLParser::getNode (const Glib::ustring & xpath) const
 Glib::ustring
 XMLParser::getAttribute (const Node * node,
 			 const Glib::ustring & att_name) const
-throw (XMLException)
 {
     const Element *eNode = dynamic_cast < const Element * >(node);
 
@@ -71,7 +74,6 @@ throw (XMLException)
 
 //FIXME: replace get_children by get_child_text.
 Glib::ustring XMLParser::getText (const Node * node) const
-throw (XMLException)
 {
     const
 	Node::NodeList

@@ -1,11 +1,11 @@
 #include <cstdlib>
 #include <iostream>
 #include <new>
-#include <tools/base.h>
-#include <game/timer.h>
 #include <SDL.h>
-
-#include "camera.h"
+#include <timer.h>
+#include <camera.h>
+#include <game_exception.h>
+#include <tools/base.h>
 
 namespace
 {
@@ -68,10 +68,9 @@ HMI::~HMI (void)
 // (we don't know all events)
 void
 HMI::Init (void)
-throw (SDLException)
 {
     if (SDL_Init (SDL_INIT_VIDEO | SDL_INIT_TIMER))
-	throw SDLException ();
+      throw GameException (SDL_GetError());
     SDL_SetEventFilter (Events_Filter);
 }
 
@@ -86,8 +85,6 @@ HMI::SetVideoMode (int width, int height, bool resizable)
     if (resizable)
       flags |= SDL_RESIZABLE;
     m_screen = Surface (SDL_SetVideoMode (width, height, 32, flags));
-
-    m_screen.LockFree ();
 
 }
 
@@ -109,7 +106,7 @@ HMI::SetCursor (CursorType type, const string & icon)
     if (it != m_cursors.end ())
 	return;
 
-    m_cursors[type] = Surface(icon);
+    m_cursors[type] = Surface::CreateFromFile(icon);
 
     // When HMI::RefreshOutput is called,
     // current cursor is directly drawed to the
@@ -137,7 +134,7 @@ void
 HMI::RefreshOutput (void)
 {
     Camera & camera = Camera::GetRef ();
-    Camera::redraw_queue & queue = camera.m_redraw_queue;
+    Camera::RegionQueue & queue = camera.m_region_queue;
     rectangle rect = { 0, 0, 0, 0 };
     Rectangle r;
 

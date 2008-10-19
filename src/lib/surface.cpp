@@ -1,68 +1,82 @@
 #include <SDL/SDL_image.h>
 #include <SDL/SDL_gfxPrimitives.h>
 #include <SDL/SDL_rotozoom.h>
+#include <surface.h>
+#include <game_exception.h>
+#include <tools/base.h>
 
-#include "sdl_exception.h"
-#include "surface.h"
+namespace
+{
 
-#include <iostream>
+    class SDLException:public GameException
+    {
+      public:
+
+	SDLException () throw ():GameException (SDL_GetError ())
+        {}
+
+	~SDLException () throw () {};
+
+	const char *what (void) const throw ()
+	{
+	    return "SDL exception (SDLException)";
+	}
+
+    };
+
+    inline void validPtr (void *ptr)
+    {
+	if (!ptr)
+	    throw SDLException ();
+    }
+
+};
 
 Surface::Surface ()
 {
-    surface  = NULL;
-    lockfree = false;
+    surface = NULL;
 }
 
+// Share the same surface pointer,
+// so we need to use the refcount SDL_Surface counter,
+//  to free
 void
 Surface::Clone (const Surface & s)
 {
     surface = s.surface;
-    lockfree = s.lockfree;
+
     if (surface)
 	surface->refcount++;
 }
 
-// Share the same surface
-// so we need to use refcount to free
-// the surface ONLY is the last object which 
-// uses it was destroyed.
-// Note: Same theory in assigment operator.
 Surface::Surface (const Surface & s)
 {
     Clone (s);
 }
 
-void
-Surface::validPtr (void) const
-{
-    if (!surface)
-	throw SDLException ();
-}
-
-Surface::Surface (const Rectangle & rect, int dept, Uint32 flag)
-{
-    surface = SDL_CreateRGBSurface (flag, rect.w, rect.h, dept, 0, 0, 0, 0);
-    lockfree = false;
-    validPtr ();
-}
-
 Surface::Surface (SDL_Surface * s)
 {
-    surface  = s;
-    lockfree = false;
-    validPtr ();
+    validPtr (s);
+    surface = s;
 }
 
-Surface::Surface (const string& filename)
+Surface Surface::CreateRGB (const Rectangle & rect, int dept, Uint32 flags)
 {
-    surface = IMG_Load (filename.c_str());
-    lockfree = false;
-    validPtr ();
+    Surface surface = Surface (SDL_CreateRGBSurface (flags, rect.w, rect.h, 
+						     dept, 0, 0, 0, 0));
+    return surface;
+}
+
+Surface Surface::CreateFromFile (const std::string & path)
+{
+    Surface surface = Surface (IMG_Load (path.c_str ()));
+
+    return surface;
 }
 
 Surface::~Surface ()
 {
-    if (surface && !lockfree)
+    if (surface)
 	SDL_FreeSurface (surface);
 }
 
@@ -93,19 +107,17 @@ Surface::Blit (const Surface & src, const Point & dstpt)
     Blit (src, &dstrect, NULL);
 }
 
-//TODO: Is there more efficient of this way ?
 void
-Surface::Resize(int width, int height)
+Surface::Resize (int width, int height)
 {
-  SDL_Surface *tmp = SDL_CreateRGBSurface(surface->flags, width, height,
-					  surface->format->BitsPerPixel, 
-					  0, 0, 0, 0);
-  if (!tmp)
-    throw SDLException();
-  SDL_BlitSurface (surface, NULL, tmp, NULL);
-  
-  SDL_FreeSurface(surface);
-  surface = tmp;
+    SDL_Surface *tmp = SDL_CreateRGBSurface (surface->flags, width, height,
+					     surface->format->BitsPerPixel,
+					     0, 0, 0, 0);
+    validPtr (tmp);
+
+    SDL_BlitSurface (surface, NULL, tmp, NULL);
+    SDL_FreeSurface (surface);
+    surface = tmp;
 
 }
 
@@ -115,17 +127,17 @@ Surface::Flip (void)
     if (SDL_Flip (surface))
 	throw SDLException ();
 }
- 
 
-Color Surface::GetRGBA (const Point & px) const
-{ 
-  if (surface->format->BytesPerPixel != 4)
-    {
-      SDL_SetError("%p is not a RGBA Surface !", surface);
-      throw SDLException();
-    }
-  Uint8 *pixel = GetPixel(px);
-  return Color (pixel[0], pixel[1], pixel[2], pixel[3]);
+Color
+Surface::GetPixColor (const Point & px) const
+{
+    if (surface->format->BytesPerPixel != 4)
+      {
+	  SDL_SetError ("%p is not a RGBA Surface !", surface);
+	  throw SDLException ();
+      }
+    Uint8 *pixel = GetPixel (px);
+    return Color (pixel[0], pixel[1], pixel[2], pixel[3]);
 }
 
 void
@@ -161,29 +173,18 @@ Surface::ConvertSurface (const Surface & s, Uint32 flag)
     tmp = SDL_ConvertSurface (surface, s.surface->format, flag);
     SDL_FreeSurface (surface);
     surface = tmp;
-    validPtr();
+    validPtr (surface);
 }
 
 void
-Surface::DisplayFormat (void)
+Surface::vfunc_DisplayFormat (SDL_Surface * (*func) (SDL_Surface *))
 {
     SDL_Surface *tmp = NULL;
 
-    tmp = SDL_DisplayFormat (surface);
+    tmp = func (surface);
     SDL_FreeSurface (surface);
     surface = tmp;
-    validPtr();
-}
-
-void
-Surface::DisplayFormatAlpha (void)
-{
-    SDL_Surface *tmp = NULL;
-
-    tmp = SDL_DisplayFormatAlpha (surface);
-    SDL_FreeSurface (surface);
-    surface = tmp;
-    validPtr();
+    validPtr (surface);
 }
 
 void
@@ -207,7 +208,8 @@ Surface::FillRect (const Point & p1, const Point & p2, const Color & c)
 	throw SDLException ();
 }
 
-bool Surface::SetClipRect (const rectangle * dstrect)
+bool
+Surface::SetClipRect (const rectangle * dstrect)
 {
     return SDL_SetClipRect (surface, dstrect);
 }

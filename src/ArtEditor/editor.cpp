@@ -1,6 +1,7 @@
 #include <iostream>
-#include <interface/camera.h>
-#include <tools/game_exception.h>
+#include <camera.h>
+#include <game_exception.h>
+#include <tools/base.h>
 
 #include "editor.h"
 
@@ -48,6 +49,7 @@ Editor::editor_refresh (void)
     (*m_current_project)->get_drawable ().draw ();
 
     HMI::GetRef ().RefreshOutput ();
+
     return true;
 }
 

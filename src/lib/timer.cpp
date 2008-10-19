@@ -1,4 +1,5 @@
-#include "timer.h"
+#include <timer.h>
+#include <tools/base.h>
 
 void
 Timer::Constructor (void)

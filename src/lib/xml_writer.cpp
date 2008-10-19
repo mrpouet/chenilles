@@ -1,12 +1,17 @@
 #include <string>
-#include <tools/base.h>
-
 #include <libxml/tree.h> // For _xmlDoc * implement
-#include "xml_writer.h"
+#include <xml_writer.h>
+#include <private/xml_exception.h>
+#include <tools/base.h>
 
 XMLWriter::XMLWriter ()
 {
     m_doc = NULL;
+}
+
+XMLWriter::~XMLWriter()
+{
+  FreeDoc();
 }
 
 void
@@ -36,7 +41,6 @@ XMLWriter::FreeDoc (void)
 
 Element *
 XMLWriter::AddChild (Node * parent, const Glib::ustring & name)
-throw (XMLException)
 {
     Element *child = parent->add_child (name);
 
@@ -49,7 +53,6 @@ throw (XMLException)
 
 void
 XMLWriter::AddText (Node * parent, const Glib::ustring & content)
-throw (XMLException)
 {
     Element *eparent = dynamic_cast<Element *>(parent);
 
@@ -63,7 +66,6 @@ throw (XMLException)
 void
 XMLWriter::SetAttribute (Node * node, const Glib::ustring & name,
 			 const Glib::ustring & value)
-throw (XMLException)
 {
     Element *enode = dynamic_cast<Element *>(node);
 

@@ -1,10 +1,9 @@
-#include <config/xml_writer.h>
+#include <xml_writer.h>
 #include "project_map.h"
 
 Drawable::iterator EditableMap::add_layer (const Glib::ustring & filename)
 {
-    Surface
-    layer (filename);
+    Surface layer = Surface::CreateFromFile(filename);
     Drawable::iterator it;
 
     m_layers.push_back (layer);

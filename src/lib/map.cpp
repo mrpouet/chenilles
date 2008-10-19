@@ -1,9 +1,9 @@
 #include <cstdlib>
-#include <config/xml_parser.h>
-#include <interface/camera.h>
-
-#include "map_exception.h"
-#include "map.h"
+#include <xml_parser.h>
+#include <camera.h>
+#include <map.h>
+#include <game_exception.h>
+#include <tools/base.h>
 
 namespace
 {
@@ -11,6 +11,21 @@ namespace
     {
 	str.erase (str.rfind ("/") + 1, string::npos);
     }
+
+    class MapException:public GameException
+    {
+      public:
+
+	explicit MapException (const std::string & msg) throw ():
+	  GameException (msg)
+	{}
+
+	const char *what (void) const throw ()
+	{
+	    return "Map exception (MapException)";
+	}
+
+    };
 };
 
 Map::Map ()
@@ -20,7 +35,6 @@ Map::Map ()
 }
 
 Map::Map (const string & xmldoc)
-throw (std::exception)
 {
     XMLParser *parser = XMLParser::GetInstance ();
     string path (xmldoc);
@@ -29,14 +43,14 @@ throw (std::exception)
 
     parser->LoadDoc (xmldoc);
 
-    for (const Node *n = parser->getNode("//author"); n != NULL; 
-	 n = parser->NextSibling(n))
+    for (const Node * n = parser->getNode ("//author"); n != NULL;
+	 n = parser->NextSibling (n))
       {
-	// n must be NULL, on optionnal nodes.
-	// (specified in the DTD XML).
-	if (parser->isTextNode(n) || (n == NULL))
-	  continue;
-	m_infos.push_back(parser->getText(n));
+	  // n must be NULL, on optionnal nodes.
+	  // (specified in the DTD XML).
+	  if (parser->isTextNode (n) || (n == NULL))
+	      continue;
+	  m_infos.push_back (parser->getText (n));
 
       }
 
@@ -48,7 +62,10 @@ throw (std::exception)
 	  if (parser->isTextNode (n))
 	      continue;
 
-	  m_layers.push_back (Surface (path + parser->getText (n).c_str ()));
+	  m_layers.push_back (Surface::CreateFromFile (path
+						       +
+						       parser->getText (n).
+						       c_str ()));
 	  m_layers.back ().DisplayFormatAlpha ();
 	  AbsolutePath (path);
 
@@ -66,7 +83,7 @@ throw (std::exception)
 	throw MapException ("No \"main\" or \"explosion\" layer type found");
 
     parser->FreeDoc ();
-    XMLParser::CleanUp();
+    XMLParser::CleanUp ();
     m_init_draw = true;
 
 }
@@ -111,7 +128,7 @@ Map::draw (void)
     int scroll = camera.GetSpeed ();
     int width = (scroll == 0) ? camera_box.w : abs (scroll);
     int w = camera_box.w - abs (scroll);
-    Surface tmp (Rectangle (0, 0, w, camera_box.h));
+    Surface tmp = Surface::CreateRGB (Rectangle (0, 0, w, camera_box.h));
 
     // If borner right or borner left of camera 
     // try to go out of the world, do nothing.
@@ -123,8 +140,8 @@ Map::draw (void)
 	  return;
       }
 
-    if (camera.IsResized())
-      m_init_draw = true;
+    if (camera.IsResized ())
+	m_init_draw = true;
 
     if ((!scroll) && (!m_init_draw))
 	return;
@@ -177,4 +194,3 @@ Map::draw (void)
     camera.ToRedraw (Rectangle (0, 0, camera_box.w, camera_box.h));
     m_init_draw = false;
 }
-

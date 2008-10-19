@@ -1,12 +1,13 @@
 #ifndef __EDITOR_H__
 #define __EDITOR_H__
 
-#include <interface/hmi.h>
-#include <tools/singleton.h>
+#include <hmi.h>
+#include <singleton.h>
 #include <gtkmm/main.h>
 
 #include "editor_ui.h"
 #include "project_map.h"
+#include <tools/base.h>
 
 #define EDITORDATA DATA "/ArtEditor/"
 

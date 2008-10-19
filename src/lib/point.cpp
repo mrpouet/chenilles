@@ -1,10 +1,12 @@
-#include <math.h>
+#include <cmath>
+#include <point.h>
+#include <tools/base.h>
 
-#include "point.h"
-
-Point::Point (int abs, int ord):
-x (abs), y (ord)
-{}
+Point::Point (int abs, int ord)
+{
+  x = abs;
+  y = ord;
+}
 
 inline double
 Point::Distance (const Point & p)

@@ -1,4 +1,5 @@
-#include "camera.h"
+#include <camera.h>
+#include <tools/base.h>
 
 #define MIN_SCROLL_MARGIN 50
 
@@ -8,7 +9,7 @@ Camera::Camera ()
     m_camera_box.w = HMI::GetInstance ()->m_screen.GetWidth ();
     m_camera_box.h = HMI::GetInstance ()->m_screen.GetHeight ();
 
-    m_camera = Surface (m_camera_box);
+    m_camera = Surface::CreateRGB (m_camera_box);
     m_camera.DisplayFormatAlpha ();
     m_pixel_per_scroll = 0;
 

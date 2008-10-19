@@ -1,11 +1,11 @@
-#include <game/timer.h>
-
-#include "animation.h"
+#include <timer.h>
+#include <animation.h>
+#include <tools/base.h>
 
 Animation::Animation (const Surface & dest):
 m_dest (dest)
 {
-    m_active  = false;
+    m_active = false;
     m_visible = true;
     m_last_update_time = 0;
 }
@@ -16,7 +16,7 @@ Animation::Start (void)
     if (m_frames.empty ())
 	return;
     m_it = m_frames.begin ();
-    m_active  = true;
+    m_active = true;
     m_visible = true;
     m_last_update_time = Timer::GetInstance ()->Read ();
 }
@@ -27,7 +27,7 @@ Animation::Update (void)
     Uint32 current_time;
 
     if (!m_visible)
-      return;
+	return;
 
     m_dest.Blit (m_it->m_surface, m_location);
 

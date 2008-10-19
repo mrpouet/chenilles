@@ -1,8 +1,10 @@
 #include <cstdio>
 #include <gdkmm.h>
 #include <gdk/gdkx.h>
-#include <interface/camera.h>
-#include <game/timer.h>
+#include <camera.h>
+#include <timer.h>
+#include <tools/base.h>
+
 #include "gtksdl.h"
 
 using Glib::unwrap;

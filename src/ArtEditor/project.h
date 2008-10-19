@@ -2,7 +2,7 @@
 #define __PROJECT_H__
 
 #include <glibmm/ustring.h>
-#include <graphics/surface.h>
+#include <surface.h>
 #include <list>
 
 // Abstract Base Class.

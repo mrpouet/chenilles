@@ -3,7 +3,7 @@
 
 AC_PREREQ(2.61)
 
-AC_INIT(chenilles, 1.0.0, [dev-team@chenilles.org], chenilles)
+AC_INIT(chenilles, [1.0.0], [dev-team@chenilles.org], chenilles)
 
 AC_CONFIG_SRCDIR(src/main.cpp)
 AM_INIT_AUTOMAKE(foreign 1.5)
@@ -11,12 +11,14 @@ AC_CONFIG_HEADERS(config.h)
 
 AC_CONFIG_FILES([Makefile 
 		src/Makefile 
-		src/lib/Makefile 
+		src/lib/Makefile
+		src/lib/private/Makefile 
 		src/ArtEditor/Makefile 
 		data/Makefile 
 		data/maps/Makefile
 		data/ui/Makefile
 		data/ArtEditor/Makefile])
+AM_CONDITIONAL([NO_STD_LIBDIR], [test "${prefix}" != /usr ])
 
 AC_DEFUN([AC_DEFINE_DIR], [
   prefix_NONE=
@@ -46,9 +48,9 @@ AC_PROG_LIBTOOL
 ## If default C++ compiler is g++
 ## check version for including -Wextra and -march=native CXXFLAGS
 
-if test "x${CXX}" = "xg++";then
+if test "x${ac_cv_cxx_compiler_gnu}" = "xyes";then
 
-   AC_MSG_CHECKING(g++ version)
+   AC_MSG_CHECKING($CXX version)
 
    CXX_VERSION=`$CXX -dumpversion`
    
@@ -62,7 +64,7 @@ if test "x${CXX}" = "xg++";then
       CXXFLAGS="-Wextra ${CXXFLAGS}"   
    fi
 
-   CXXFLAGS="${CXXFLAGS} -pipe"
+   CXXFLAGS="${CXXFLAGS} -pipe -W -Wall"
 fi
 
 ## Checks for header files.
@@ -171,7 +173,6 @@ echo
 echo "Configuration:"
 echo
 echo " ${PACKAGE_NAME} version..... ${VERSION}"
-echo " ${version_info}"
 echo " Compiler:................... ${CXX}"
 echo " CXXFLAGS:................... ${CXXFLAGS}"
 echo " Prefix:..................... ${prefix}"

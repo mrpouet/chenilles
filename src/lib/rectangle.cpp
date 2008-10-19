@@ -1,4 +1,5 @@
-#include "rectangle.h"
+#include <rectangle.h>
+#include <tools/base.h>
 
 Rectangle::Rectangle (Sint16 x, Sint16 y, Uint16 w, Uint16 h)
 {

@@ -1,6 +1,6 @@
 #include <SDL/SDL_types.h>
-
-#include "color.h"
+#include <color.h>
+#include <tools/base.h>
 
 void
 Color::SetColor (Uint8 r, Uint8 g, Uint8 b, Uint8 a)

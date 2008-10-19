@@ -2,7 +2,8 @@
 #define __PROJECT_MAP_H__
 
 #include <map>
-#include <map/map.h>
+#include <map.h>
+#include <tools/base.h>
 #include "project.h"
 
 class EditableMap:public Drawable, public Map

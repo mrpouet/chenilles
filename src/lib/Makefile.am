@@ -1,35 +1,35 @@
+SUBDIRS= private
 DISTCLEANFILES= Makefile.in
 lib_LTLIBRARIES= libchenilles.la
 
-libchenilles_la_SOURCES= tools/point.cpp	\
-	tools/rectangle.cpp			\
-	game/timer.cpp				\
-	graphics/color.cpp			\
-	graphics/surface.cpp			\
-	graphics/animation.cpp			\
-	config/xml_parser.cpp			\
-	config/xml_writer.cpp			\
-	interface/hmi.cpp			\
-	interface/camera.cpp			\
-	map/map.cpp
+libchenilles_la_SOURCES=		\
+	point.cpp			\
+	rectangle.cpp			\
+	timer.cpp			\
+	color.cpp			\
+	surface.cpp			\
+	animation.cpp			\
+	xml_parser.cpp			\
+	xml_writer.cpp			\
+	hmi.cpp				\
+	camera.cpp			\
+	map.cpp
 
-include_HEADERS= tools/point.h			\
-	tools/rectangle.h			\
-	tools/singleton.h			\
-	tools/game_exception.h			\
-	game/timer.h				\
-	game/timer.cpp				\
-	graphics/color.h			\
-	graphics/sdl_exception.h		\
-	graphics/surface.h			\
-	graphics/animation.h			\
-	config/xml_exception.h			\
-	config/xml_parser.h			\
-	config/xml_writer.h			\
-	interface/hmi.h				\
-	interface/camera.h			\
-	map/map_exception.h			\
-	map/map.h
+installed_headersdir= $(includedir)/chenilles
+installed_headers_DATA= 		\
+	point.h				\
+	rectangle.h			\
+	singleton.h			\
+	game_exception.h		\
+	timer.h				\
+	color.h				\
+	surface.h			\
+	animation.h			\
+	xml_parser.h			\
+	xml_writer.h			\
+	hmi.h				\
+	camera.h			\
+	map.h
 
 libchenilles_la_CPPFLAGS= -I$(top_builddir)/src
 libchenilles_la_CXXFLAGS= @CXXFLAGS@ @LIBXMLPP_CFLAGS@ @GTKMM_CFLAGS@
