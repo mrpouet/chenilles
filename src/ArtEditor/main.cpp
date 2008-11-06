@@ -5,9 +5,9 @@ main (int argc, char *argv[])
 {
 
     Main kit (argc, argv);
-    Editor & editor = Editor::GetRef ();
-
-    editor.run ();
+    
+    Editor::GetRef ().run();
+    Editor::CleanUp();
 
     return 0;
 }

@@ -36,6 +36,8 @@ Camera::Refresh (void)
 	m_resized = true;
       }
 
+    m_pixel_per_scroll = 0;
+
     if (hmi.m_current_cursor == HMI::NO_CURSOR)
 	return;
 
@@ -43,8 +45,6 @@ Camera::Refresh (void)
 	m_pixel_per_scroll = 5;
     else if (tip.x <= MIN_SCROLL_MARGIN)
 	m_pixel_per_scroll = -5;
-    else
-	m_pixel_per_scroll = 0;
     m_camera_box.x += m_pixel_per_scroll;
 
 }

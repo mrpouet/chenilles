@@ -1,30 +1,38 @@
 #ifndef __PROJECT_MAP_H__
 #define __PROJECT_MAP_H__
 
-#include <map>
+#include <tr1/unordered_map>
 #include <map.h>
 #include <tools/base.h>
 #include "project.h"
+#include <cstdio>
+
+class ProjectMap;
 
 class EditableMap:public Drawable, public Map
 {
   public:
 
-    EditableMap ():Drawable (), Map (){};
+    EditableMap () {};
 
-    ~EditableMap (){};
+    ~EditableMap () {};
 
-    explicit EditableMap (const Glib::ustring & xmldoc):Drawable (),
-	Map (xmldoc)
-    {};
+    explicit EditableMap (const Glib::ustring & xmldoc);
 
-    Drawable::iterator add_layer (const Glib::ustring & filename);
+    void open (const Glib::ustring & xmldoc);
 
-    void set_layer (const Drawable::iterator & it,
-		    const Glib::ustring & data);
+    void add_layer (const Glib::ustring & path);
 
-    void write_to_file (const Glib::ustring & filename,
-			const std::list<Glib::ustring> &l);
+    void set_layer_spec (const Glib::ustring & layername,
+			 const Glib::ustring & data);
+
+    Glib::ustring get_layer_spec (const Glib::ustring & layername)
+    {
+	Map::LayerList::iterator it = m_Ltable[layername.raw ()];
+	return (m_main_it == it) ? "main" :
+	    ((m_expl_it == it) ? "explosion" : "background");
+
+    }
 
     inline void draw (void)
     {
@@ -32,17 +40,35 @@ class EditableMap:public Drawable, public Map
 	    Map::draw ();
     }
 
-    inline bool empty (void) const
+    bool empty (void) const
     {
 	return m_layers.empty ();
     }
 
-    inline Drawable::InfoArray & get_infos (void)
+    Drawable::InfoArray & get_infos (void)
     {
 	return Map::get_infos ();
     }
 
+    const Drawable::FilesList & get_fileslist (void) const
+    {
+	return m_files_list;
+    }
 
+  private:
+
+    typedef std::tr1::unordered_map < std::string, 
+      Map::LayerList::iterator > HashTable;
+    typedef std::list < Glib::ustring > FilesList;
+
+    void write_to_file (const Glib::ustring & filename);
+
+    friend class ProjectMap;
+    friend void container_builder (const Glib::ustring &);
+
+    FilesList m_files_list;
+
+    HashTable m_Ltable;
 };
 
 
@@ -52,8 +78,7 @@ class ProjectMap:public Project
 
     void open (const Glib::ustring & filename);
 
-    void save_as (const Glib::ustring & filename,
-		  const std::list<Glib::ustring> &l);
+    void save_as (const Glib::ustring & filename);
 
     inline Drawable & get_drawable (void)
     {
@@ -62,7 +87,7 @@ class ProjectMap:public Project
 
   private:
 
-      EditableMap m_map;
+    EditableMap m_map;
 
 };
 

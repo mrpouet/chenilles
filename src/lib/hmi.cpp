@@ -35,19 +35,31 @@ namespace
 
 	if (rborder > w)
 	  {
-	    // Fix overflow due to Rectangle width 
-	    // unsigned integer on 16 bits.
-	    // thanks to vladisback bug report ;)
-	    tmp = r.w - rborder - w;
-	    r.w = (tmp < 0) ? 0 : tmp;
+	      // Fix overflow due to Rectangle width 
+	      // unsigned integer on 16 bits.
+	      // thanks to vladisback bug report ;)
+	      tmp = r.w - rborder - w;
+	      r.w = (tmp < 0) ? 0 : tmp;
 	  }
 	if (bborder > h)
 	  {
-	    tmp = r.h - bborder - h;
-	    r.h = (tmp < 0) ? 0 : tmp;
+	      tmp = r.h - bborder - h;
+	      r.h = (tmp < 0) ? 0 : tmp;
 	  }
 
     }
+
+    class IOException:public GameException
+    {
+      public:
+	IOException (const string & msg) throw ():GameException (msg)
+	{};
+
+	inline const char *what (void) const throw ()
+	{
+	    return "Human Machine Interface I/O Exception (IOException)";
+	}
+    };
 
 };
 
@@ -70,7 +82,7 @@ void
 HMI::Init (void)
 {
     if (SDL_Init (SDL_INIT_VIDEO | SDL_INIT_TIMER))
-      throw GameException (SDL_GetError());
+	throw IOException (SDL_GetError ());
     SDL_SetEventFilter (Events_Filter);
 }
 
@@ -80,10 +92,10 @@ void
 HMI::SetVideoMode (int width, int height, bool resizable)
 {
     Uint32 flags = SDL_HWSURFACE | SDL_HWACCEL | SDL_HWPALETTE
-      | SDL_DOUBLEBUF;
+	| SDL_DOUBLEBUF;
 
     if (resizable)
-      flags |= SDL_RESIZABLE;
+	flags |= SDL_RESIZABLE;
     m_screen = Surface (SDL_SetVideoMode (width, height, 32, flags));
 
 }
@@ -106,7 +118,7 @@ HMI::SetCursor (CursorType type, const string & icon)
     if (it != m_cursors.end ())
 	return;
 
-    m_cursors[type] = Surface::CreateFromFile(icon);
+    m_cursors[type] = Surface::CreateFromFile (icon);
 
     // When HMI::RefreshOutput is called,
     // current cursor is directly drawed to the
@@ -123,10 +135,10 @@ HMI::SetCursor (CursorType type, const string & icon)
 void
 HMI::HandleEvent (const SDL_Event & event)
 {
-  // Informe and fix temporaly warning.
-  // (unsed event parameter)
-  cerr << __func__ << "(event=" << event.type 
-       << "): Not implemented yet !" << endl;
+    // Informe and fix temporaly warning.
+    // (unsed event parameter)
+    cerr << __func__ << "(event=" << event.type
+	<< "): Not implemented yet !" << endl;
     return;
 }
 
@@ -136,24 +148,27 @@ HMI::RefreshOutput (void)
     Camera & camera = Camera::GetRef ();
     Camera::RegionQueue & queue = camera.m_region_queue;
     rectangle rect = { 0, 0, 0, 0 };
-    Rectangle r;
+    static Rectangle r;
 
-    int size = static_cast < int >(queue.size ());
+    int size = static_cast < int >(queue.size ()) + 1;
     rectangle *rects = NULL;
     int i;
 
     if (m_lock)
-      return;
+	return;
 
-    size += (m_current_cursor != NO_CURSOR) ? 2 : 0;
+    // Switched Cursor didn't defined
+    if ((m_current_cursor != NO_CURSOR)
+	&& m_cursors.find (m_current_cursor) == m_cursors.end ())
+	throw IOException("Cursor specified type never defined using HMI::SetCursor");
+
+    size += (m_current_cursor != NO_CURSOR) ? 1 : 0;
 
     r.w = (m_current_cursor != NO_CURSOR) ?
-	m_cursors[m_current_cursor].GetWidth () : 0;
+	m_cursors[m_current_cursor].GetWidth () : r.w;
 
     r.h = (m_current_cursor != NO_CURSOR) ?
-	m_cursors[m_current_cursor].GetHeight () : 0;
-
-    //FIXME: not the most efficient
+	m_cursors[m_current_cursor].GetHeight () : r.h;
 
     if (size)
       {
@@ -173,37 +188,34 @@ HMI::RefreshOutput (void)
 	  queue.pop ();
       }
 
+    // Delete old cursor
+    r.x = m_tip.x;
+    r.y = m_tip.y;
+
+    rect = r.GetSDLRect ();
+    m_screen.Blit (camera.m_camera, &rect, &rect);
+
+    ComputeRect (rect, m_screen.GetWidth (), m_screen.GetHeight ());
+    rects[i++] = rect;
+
     if (m_current_cursor != NO_CURSOR)
       {
-	  // Delete old cursor
-	  r.x = m_tip.x;
-	  r.y = m_tip.y;
-	  
-	  rect = r.GetSDLRect ();
-	  m_screen.Blit (camera.m_camera, &rect, &rect);
-
-	  ComputeRect (rect, m_screen.GetWidth (), m_screen.GetHeight ());
-	  rects[i++] = rect;
-
-	 
 
 	  // Compute the new cursor rectangle position
-	  RefreshMousePos();
+	  RefreshMousePos ();
 	  r.x = m_tip.x;
 	  r.y = m_tip.y;
-	  rect = r.GetSDLRect();
+	  rect = r.GetSDLRect ();
 	  ComputeRect (rect, m_screen.GetWidth (), m_screen.GetHeight ());
 
 	  // Draw cursor
 	  m_screen.Blit (m_cursors[m_current_cursor], m_tip);
-	  
+
 	  rects[i++] = rect;
 
       }
 
-    m_screen.UpdateRects(size, rects);
+    m_screen.UpdateRects (size, rects);
 
     free (rects);
 }
-
-  

@@ -5,7 +5,7 @@
 #include <SDL/SDL_types.h>
 
 using namespace Gtk;
-using sigc::signal;
+
 
 class GtkSDL: public DrawingArea
 {
@@ -13,7 +13,7 @@ class GtkSDL: public DrawingArea
     GtkSDL (int width, int height);
     ~GtkSDL ();
 
-    inline const signal<void>& signal_init (void)
+    inline sigc::signal<void>& signal_init (void)
     {
 	return m_signal_init;
     }
@@ -42,7 +42,7 @@ class GtkSDL: public DrawingArea
 
     Uint32 m_configure_time;
 
-    signal<void> m_signal_init;
+    sigc::signal<void> m_signal_init;
 
 };
 

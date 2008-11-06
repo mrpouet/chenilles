@@ -30,23 +30,18 @@ class Editor:public Singleton<Editor >
 
     // Open a project
     // @param filename The XML sheet project path.
-    void open_project (const Glib::ustring & filename);
+    inline void open_project (const Glib::ustring & filename)
+    {
+      (*m_current_project)->open(filename);
+    }
 
 
     // Save the current project
     // @param filename The filename which current project'll be save
-    // @param l The list which contains the filenames layers
-    // (respectively in the same order as the map layer).
-    inline void save_project_as (const Glib::ustring & filename,
-				 const std::list<Glib::ustring> &l) const
+    inline void save_project_as (const Glib::ustring & filename) const
     {
-	(*m_current_project)->
-	save_as (filename, l);
+	(*m_current_project)->save_as (filename);
     }
-
-    Drawable::iterator
-    add_layer_to_drawable_project (const Glib::ustring & filename);
-
 
     inline Project & get_current_project (void)
     {

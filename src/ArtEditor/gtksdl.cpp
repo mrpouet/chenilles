@@ -18,7 +18,8 @@ DrawingArea ()
 
     set_size_request (width, height);
 
-    add_events (Gdk::POINTER_MOTION_MASK);
+    set_events (Gdk::POINTER_MOTION_MASK | Gdk::LEAVE_NOTIFY_MASK 
+		| Gdk::ENTER_NOTIFY_MASK);
 
     m_init = true;
 

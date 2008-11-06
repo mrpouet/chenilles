@@ -5,22 +5,25 @@
 #include <game_exception.h>
 #include <tools/base.h>
 
+using Glib::ustring;
+
 namespace
 {
-    inline void AbsolutePath (string & str)
+    inline void AbsolutePath (ustring & str)
     {
-	str.erase (str.rfind ("/") + 1, string::npos);
+	str.erase (str.rfind ("/") + 1, ustring::npos);
     }
 
     class MapException:public GameException
     {
       public:
 
-	explicit MapException (const std::string & msg) throw ():
-	  GameException (msg)
+	explicit MapException (const std::string & msg)
+	throw (): GameException (msg)
 	{}
 
-	const char *what (void) const throw ()
+	const char *what (void) const
+	throw ()
 	{
 	    return "Map exception (MapException)";
 	}
@@ -36,8 +39,14 @@ Map::Map ()
 
 Map::Map (const string & xmldoc)
 {
+    CreateFromXML (xmldoc);
+}
+
+void
+Map::CreateFromXML (const string & xmldoc, ParseCallback vfunc)
+{
     XMLParser *parser = XMLParser::GetInstance ();
-    string path (xmldoc);
+    ustring path (xmldoc);
 
     m_main_it = m_expl_it = m_layers.end ();
 
@@ -61,11 +70,12 @@ Map::Map (const string & xmldoc)
       {
 	  if (parser->isTextNode (n))
 	      continue;
+	  path += parser->getText (n);
+	  m_layers.push_back (Surface::CreateFromFile (path));
 
-	  m_layers.push_back (Surface::CreateFromFile (path
-						       +
-						       parser->getText (n).
-						       c_str ()));
+	  if (vfunc)
+	      vfunc (path);
+
 	  m_layers.back ().DisplayFormatAlpha ();
 	  AbsolutePath (path);
 
@@ -84,37 +94,9 @@ Map::Map (const string & xmldoc)
 
     parser->FreeDoc ();
     XMLParser::CleanUp ();
+
     m_init_draw = true;
 
-}
-
-// Exactly the same complexity as std::list copy constructor
-// (linear time of size list).
-// We need to do this, due to iterators member.
-
-Map & Map::operator= (const Map & map)
-{
-
-    m_layers.clear ();
-
-    m_infos = map.m_infos;
-
-    m_init_draw = map.m_init_draw;
-
-    m_main_it = m_expl_it = m_layers.end ();
-
-    for (LayerList::const_iterator it = map.m_layers.begin ();
-	 it != map.m_layers.end (); it++)
-      {
-	  m_layers.push_back (*it);
-
-	  if (it == map.m_main_it)
-	      m_main_it--;
-	  else if (it == map.m_expl_it)
-	      m_expl_it--;
-      }
-
-    return *this;
 }
 
 void

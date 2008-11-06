@@ -11,3 +11,8 @@ AM_CPPFLAGS=@CPPFLAGS@ \
 	-I$(top_builddir)
 
 AM_CXXFLAGS=@CXXFLAGS@ @LIBXMLPP_CFLAGS@ @GTKMM_CFLAGS@
+
+if NO_STD_LIBDIR
+install-exec-hook:
+	ldconfig
+endif

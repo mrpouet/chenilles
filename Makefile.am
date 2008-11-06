@@ -14,8 +14,4 @@ DISTCLEANFILES=	aclocal.m4	\
 	install-sh		\
 	missing
 
-if NO_STD_LIBDIR
-install-exec-hook:
-	ldconfig
-endif
 

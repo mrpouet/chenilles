@@ -1,14 +1,53 @@
 #include <xml_writer.h>
+#include "editor.h"
 #include "project_map.h"
 
-Drawable::iterator EditableMap::add_layer (const Glib::ustring & filename)
+using Glib::ustring;
+
+namespace
 {
-    Surface layer = Surface::CreateFromFile(filename);
-    Drawable::iterator it;
+    inline Glib::ustring layername_from_path (const ustring & path)
+    {
+	int id = path.rfind ('/') + 1;
+	return path.substr (id, path.length () - id
+			    - (path.length () - path.rfind ('.')));
+    }
+};
+
+void
+container_builder (const Glib::ustring & path)
+{
+    Drawable & d = Editor::GetRef ().get_current_project ().get_drawable ();
+    EditableMap & map = static_cast < EditableMap & >(d);
+
+    ustring file = layername_from_path (path);
+    map.m_Ltable[file.raw ()] = --(map.m_layers.end ());
+    map.m_files_list.push_back (file);
+}
+
+EditableMap::EditableMap (const Glib::ustring & xmldoc)
+{
+    CreateFromXML (xmldoc, container_builder);
+}
+
+void
+EditableMap::open (const Glib::ustring & xmldoc)
+{
+    CreateFromXML (xmldoc, container_builder);
+}
+
+void
+EditableMap::add_layer (const Glib::ustring & path)
+{
+    Surface layer = Surface::CreateFromFile (path);
+    Map::LayerList::iterator it;
+    ustring file = layername_from_path (path);
 
     m_layers.push_back (layer);
-    it = m_layers.end ();
-    it--;
+    it = --m_layers.end ();
+
+    m_Ltable[file.raw ()] = it;
+    m_files_list.push_back (file);
 
     // Current EditableMap contains nothing, so
     // we need truncate the main layer iterator
@@ -18,33 +57,38 @@ Drawable::iterator EditableMap::add_layer (const Glib::ustring & filename)
 	m_main_it = it;
     m_init_draw = true;
 
-    return it;
-
 }
 
 void
-EditableMap::set_layer (const Drawable::iterator & it,
-			const Glib::ustring & data)
+EditableMap::set_layer_spec (const Glib::ustring & layername,
+			     const Glib::ustring & data)
 {
     if (data == "main")
-	m_main_it = it;
+      {
+	  // Switch layer from not visible to visible
+	  // so we need to redraw entire map to display it.
+	  if (get_layer_spec (layername) == "explosion")
+	      m_init_draw = true;
+	  m_main_it = m_Ltable[layername.raw ()];
+      }
     else if (data == "explosion")
       {
-	  m_expl_it = it;
+
+	  m_expl_it = m_Ltable[layername.raw ()];
 	  m_init_draw = true;
-	  draw ();
       }
 
+    if (m_init_draw)
+	draw ();
 
 }
 
 void
-EditableMap::write_to_file (const Glib::ustring & filename,
-			    const std::list < Glib::ustring > &l)
+EditableMap::write_to_file (const Glib::ustring & filename)
 {
     XMLWriter & writer = XMLWriter::GetRef ();
     Glib::ustring att_value;
-    std::list < Glib::ustring >::const_iterator itlist = l.begin ();
+    std::list < ustring >::const_iterator itlist = m_files_list.begin ();
     Node *node = NULL;
     const char *informations[] = { "author", "name", "description" };
 
@@ -64,8 +108,9 @@ EditableMap::write_to_file (const Glib::ustring & filename,
 
     node = writer.GetRootNode ();
 
-    for (LayerList::iterator it = m_layers.begin ();
-	 (it != m_layers.end ()) && (itlist != l.end ()); it++, itlist++)
+    for (Map::LayerList::iterator it = m_layers.begin ();
+	 (it != m_layers.end ()) && (itlist != m_files_list.end ());
+	 it++, itlist++)
       {
 	  node = writer.AddChild (node, "layer");
 
@@ -79,7 +124,7 @@ EditableMap::write_to_file (const Glib::ustring & filename,
 	  writer.SetAttribute (node, "type", att_value);
 	  att_value.erase ();
 
-	  writer.AddText (node, Glib::ustring (*itlist) + ".png");
+	  writer.AddText (node, (*itlist));
 
 	  node = node->get_parent ();
 
@@ -93,17 +138,20 @@ EditableMap::write_to_file (const Glib::ustring & filename,
 
 }
 
+/*
+ * ProjectMap class methods definitions
+ */
+
 void
 ProjectMap::open (const Glib::ustring & filename)
 {
-    m_map = EditableMap (filename);
+    m_map.open (filename);
     m_filename = filename;
 }
 
 void
-ProjectMap::save_as (const Glib::ustring & filename,
-		     const std::list < Glib::ustring > &l)
+ProjectMap::save_as (const Glib::ustring & filename)
 {
-    m_map.write_to_file (filename, l);
+    m_map.write_to_file (filename);
     m_filename = filename;
 }

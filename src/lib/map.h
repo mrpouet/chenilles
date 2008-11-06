@@ -16,11 +16,12 @@ namespace Chenilles
       public:
 
 	typedef std::vector < Glib::ustring > InfoArray;
+	typedef void (*ParseCallback) (const Glib::ustring &);
 
-	// Instance a Map from a map stylesheet
+	// Instance a Map from a mapsheet
 	// @throw exception
-	// @param xmldoc The absolute path to the stylesheet
-	Map (const std::string & xmldoc);
+	// @param xmldoc The absolute path to the mapsheet
+	  Map (const std::string & xmldoc);
 
 	inline bool isInTheVacuum (const Point & p) const
 	{
@@ -82,12 +83,24 @@ namespace Chenilles
 	}
 
       protected:
-	Map ();
-
-	// Non copyable, except by their sub-class
-	Map & operator= (const Map & map);
 
 	typedef std::list < Surface > LayerList;
+
+	// A map is only instanciable as default by her subclass.
+	  Map ();
+
+	// Same as public Map constructor except that this method
+	// can be called from a subclass when we want
+	// independante of constructor list initializer.
+	// @throw exception.
+	// @param xmldoc The Absolute path to the mapsheet
+	// @param vfunc function pointer which pointed from to
+	// a callback to call when a layer is added in LayerList container.
+	// parameter corresponding to layerfile path.
+	// (give extra informations about mapsheet to subclass avoiding
+	// complexity increasing, note that the only extra info are layername).
+	void CreateFromXML (const std::string & xmldoc,
+			    ParseCallback vfunc = NULL);
 
 	LayerList m_layers;
 
@@ -98,6 +111,10 @@ namespace Chenilles
 	bool m_init_draw;
 
 	InfoArray m_infos;
+
+      private:
+	// No copyable
+	Map & operator= (const Map & map);
 
     };
 

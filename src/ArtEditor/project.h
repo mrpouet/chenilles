@@ -1,9 +1,10 @@
 #ifndef __PROJECT_H__
 #define __PROJECT_H__
 
+#include <list>
+#include <utility>
 #include <glibmm/ustring.h>
 #include <surface.h>
-#include <list>
 
 // Abstract Base Class.
 //
@@ -13,21 +14,27 @@ struct Drawable
 {
   public:
 
-    typedef std::list<Surface>::iterator iterator;
-    typedef std::vector<Glib::ustring> InfoArray;
+    typedef std::list < Surface > LayerList;
+    typedef std::list < Glib::ustring > FilesList;
+    typedef std::vector < Glib::ustring > InfoArray;
 
-    virtual ~ Drawable (){};
+    virtual ~Drawable () {};
 
-    virtual inline bool empty (void) const = 0;
+    virtual bool empty (void) const = 0;
 
     virtual void draw (void) = 0;
 
-    virtual iterator add_layer (const Glib::ustring & filename) = 0;
+    virtual void add_layer (const Glib::ustring & filename) = 0;
 
-    virtual void set_layer (const iterator & it, 
-			    const Glib::ustring & data) = 0;
+    virtual void set_layer_spec (const Glib::ustring & layername,
+				 const Glib::ustring & data) = 0;
 
-    virtual inline InfoArray & get_infos (void) = 0;
+    virtual Glib::ustring get_layer_spec (const Glib::ustring & layername) 
+    = 0;
+
+    virtual InfoArray & get_infos (void) = 0;
+
+    virtual const FilesList & get_fileslist (void) const = 0;
 
 };
 
@@ -42,20 +49,19 @@ class Project
 {
   public:
 
-    virtual ~ Project (){};
+    virtual ~Project () {};
 
     virtual void open (const Glib::ustring & filename) = 0;
 
-    //FIXME: writer this method
+    //FIXME: write this method
     inline void save (void)
     {
 	return;
     }
 
-    virtual void save_as (const Glib::ustring & filename,
-			  const std::list<Glib::ustring> &l) = 0;
+    virtual void save_as (const Glib::ustring & filename) = 0;
 
-    virtual inline Drawable & get_drawable (void) = 0;
+    virtual Drawable & get_drawable (void) = 0;
 
   protected:
 
