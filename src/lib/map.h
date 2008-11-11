@@ -99,8 +99,12 @@ namespace Chenilles
 	// parameter corresponding to layerfile path.
 	// (give extra informations about mapsheet to subclass avoiding
 	// complexity increasing, note that the only extra info are layername).
-	void CreateFromXML (const std::string & xmldoc,
-			    ParseCallback vfunc = NULL);
+	void CreateFromXML (const std::string & xmldoc);
+
+	virtual void layer_add_vfunc(const Glib::ustring & path)
+	{
+	  path.raw();
+	};
 
 	LayerList m_layers;
 

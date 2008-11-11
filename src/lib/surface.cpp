@@ -4,7 +4,7 @@
 #include <surface.h>
 #include <game_exception.h>
 #include <tools/base.h>
-
+#include <cstdio>
 namespace
 {
 
@@ -182,9 +182,9 @@ Surface::vfunc_DisplayFormat (SDL_Surface * (*func) (SDL_Surface *))
     SDL_Surface *tmp = NULL;
 
     tmp = func (surface);
+    validPtr(tmp);
     SDL_FreeSurface (surface);
     surface = tmp;
-    validPtr (surface);
 }
 
 void

@@ -5,11 +5,16 @@
 #include "editor.h"
 #include "project_map.h"
 
+#define INIT_WIDTH  480
+#define INIT_HEIGHT 80
+
 using sigc::mem_fun;
 using Glib::ustring;
 
 namespace
 {
+    bool attachment = false;
+
     inline bool on_wrapper_leave_notify_event (GdkEventCrossing * event)
     {
 	HMI::GetRef ().SwitchToCursor (HMI::NO_CURSOR);
@@ -28,14 +33,11 @@ namespace
 EditorUI::EditorUI (int width, int height):
 Window (), m_info_dialog (*this), m_SDLArea (640, 480)
 {
-    VBox *vbox = manage (new VBox ());
-    HBox *hbox = manage (new HBox ());
     VBox *layerbox = manage (new VBox ());
 
     MenuBar *bar = manage (new MenuBar ());
     MenuItem *file = manage (new MenuItem ("File", true));
     MenuItem *edit = manage (new MenuItem ("Edit", true));
-    MenuItem *option = manage (new MenuItem ("Option", true));
     MenuItem *help = manage (new MenuItem ("Help", true));
 
     Menu *filemenu = manage (new Menu ());
@@ -50,11 +52,15 @@ Window (), m_info_dialog (*this), m_SDLArea (640, 480)
     list < Glib::ustring > authors;
     MenuItem *item = NULL;
 
-    set_size_request (width, height);
+    m_width = width;
+
+    m_height = height;
+
+    set_size_request (INIT_WIDTH, INIT_HEIGHT);
 
     set_border_width (0);
 
-    set_title ("ArtEditor - Artworks Editor For Chenilles");
+    set_title ("ArtEditor");
 
     // File submenu
 
@@ -68,7 +74,9 @@ Window (), m_info_dialog (*this), m_SDLArea (640, 480)
 
     add_menu_separator (filemenu);
 
-    add_menu_item (filemenu, Stock::SAVE);
+    item = add_menu_item (filemenu, Stock::SAVE);
+    item->signal_activate ().connect (mem_fun
+				      (*this, &EditorUI::on_save_clicked));
 
     item = add_menu_item (filemenu, Stock::SAVE_AS);
     item->signal_activate ().connect (mem_fun (*this,
@@ -86,13 +94,12 @@ Window (), m_info_dialog (*this), m_SDLArea (640, 480)
     item = add_menu_item (editmenu, Stock::DIALOG_INFO);
     item->signal_activate ().connect (mem_fun (*this,
 					       &EditorUI::on_info_clicked));
-    add_menu_separator (editmenu);
-    add_menu_item (editmenu, Stock::PREFERENCES);
 
     edit->set_submenu (*editmenu);
 
     m_info_dialog.signal_response ().connect (mem_fun (*this,
-						       &EditorUI::on_info_response));
+						       &EditorUI::
+						       on_info_response));
 
     // Help submenu
 
@@ -124,12 +131,13 @@ Window (), m_info_dialog (*this), m_SDLArea (640, 480)
     m_about_dialog.set_artists (authors);
 
     m_about_dialog.set_translator_credits ("PERIER Romain (mrpouet)");
-    m_about_dialog.set_logo (Gdk::
-			     Pixbuf::create_from_file (ustring (EDITORDATA) +
-						       "logo.png"));
+    m_about_dialog.
+	set_logo (Gdk::Pixbuf::
+		  create_from_file (ustring (EDITORDATA) + "logo.png"));
 
     m_about_dialog.signal_response ().connect (mem_fun (*this,
-							&EditorUI::on_about_response));
+							&EditorUI::
+							on_about_response));
 
     add_menu_item (helpmenu, Stock::HELP);
 
@@ -141,7 +149,6 @@ Window (), m_info_dialog (*this), m_SDLArea (640, 480)
 
     bar->append (*file);
     bar->append (*edit);
-    bar->append (*option);
     bar->append (*help);
 
     New->signal_clicked ().connect (mem_fun (*this,
@@ -149,8 +156,13 @@ Window (), m_info_dialog (*this), m_SDLArea (640, 480)
 
     Open->signal_clicked ().connect (mem_fun (*this,
 					      &EditorUI::on_open_clicked));
+
+    Save->signal_clicked ().connect (mem_fun
+				     (*this, &EditorUI::on_save_clicked));
+
     SaveAs->signal_clicked ().connect (mem_fun (*this,
-						&EditorUI::on_saveas_clicked));
+						&EditorUI::
+						on_saveas_clicked));
 
     toolbar->append (*New);
     toolbar->append (*Open);
@@ -158,13 +170,19 @@ Window (), m_info_dialog (*this), m_SDLArea (640, 480)
     toolbar->append (*SaveAs);
 
     // IconView
-    m_refIconTreeModel = ListStore::create (m_iconcolumns);
+    m_refIconTreeModel = LayerStore::create (m_iconcolumns);
+
+    m_refIconTreeModel->signal_drop_end ().connect (mem_fun (*this,
+							     &EditorUI::
+							     on_iconview_drop_end));
 
     m_iconview.set_model (m_refIconTreeModel);
     m_iconview.set_markup_column (m_iconcolumns.m_label);
     m_iconview.set_pixbuf_column (m_iconcolumns.m_pixbuf);
     m_iconview.signal_selection_changed ().connect (mem_fun (*this,
-							     &EditorUI::on_iconview_selection_changed));
+							     &EditorUI::
+							     on_iconview_selection_changed));
+    m_iconview.set_reorderable ();
 
     // ComboBox
     m_refComboTreeModel = ListStore::create (m_combocolumns);
@@ -176,37 +194,49 @@ Window (), m_info_dialog (*this), m_SDLArea (640, 480)
 
     m_combobox.pack_start (m_combocolumns.m_type);
     m_combobox.signal_changed ().connect (mem_fun (*this,
-						   &EditorUI::on_combo_changed));
+						   &EditorUI::
+						   on_combo_changed));
 
     // Boxes
     layerbox->pack_start (m_combobox, false, false);
     layerbox->pack_start (m_iconview);
 
-    hbox->pack_start (m_SDLArea);
-    hbox->pack_start (*layerbox);
+    m_hbox.pack_start (m_SDLArea);
+    m_hbox.pack_start (*layerbox);
 
-    vbox->pack_start (*bar, false, false);
+    m_vbox.pack_start (*bar, false, false);
 
-    vbox->pack_start (*toolbar, false, false);
+    m_vbox.pack_start (*toolbar, false, false);
 
-    vbox->pack_start (*hbox);
 
-    add (*vbox);
+    add (m_vbox);
 
     show_all ();
 
 }
 
 void
-EditorUI::on_cursor_init (void)
+EditorUI::on_wrapper_init (void)
 {
     HMI::GetRef ().SetCursor (HMI::CURSOR_TIP,
 			      Glib::ustring (UIDATA) + "cursor_main.png");
     HMI::GetRef ().SwitchToCursor (HMI::CURSOR_TIP);
     m_SDLArea.signal_enter_notify_event ().
-      connect (sigc::ptr_fun (&on_wrapper_enter_notify_event));
+	connect (sigc::ptr_fun (&on_wrapper_enter_notify_event));
     m_SDLArea.signal_leave_notify_event ().
-      connect (sigc::ptr_fun (&on_wrapper_leave_notify_event));
+	connect (sigc::ptr_fun (&on_wrapper_leave_notify_event));
+    on_open_clicked ();
+}
+
+void
+EditorUI::on_iconview_drop_end (const TreeModel::Row & dest,
+				const TreeModel::Row & src)
+{
+    Glib::ustring dest_layer_name = dest[m_iconcolumns.m_label];
+
+    Editor::GetRef ().get_current_project ().get_drawable ().
+	splice_layer (dest_layer_name, src.get_value (m_iconcolumns.m_label));
+
 }
 
 void
@@ -246,6 +276,13 @@ EditorUI::on_info_response (int response)
 	  m_info_dialog.hide ();
 	  break;
       }
+}
+
+void
+EditorUI::on_save_clicked (void)
+{
+    if (!Editor::GetRef ().get_current_project ().save ())
+	on_saveas_clicked ();
 }
 
 void
@@ -309,9 +346,9 @@ EditorUI::on_combo_changed (void)
 	return;
     }
 
-    Editor::GetRef ().get_current_project ().get_drawable ().
-	set_layer_spec (iconrow[m_iconcolumns.m_label],
-			comborow[m_combocolumns.m_type]);
+    Editor::GetRef ().get_current_project ().
+	get_drawable ().set_layer_spec (iconrow[m_iconcolumns.m_label],
+					comborow[m_combocolumns.m_type]);
 
     iconrow[m_iconcolumns.m_index] = m_combobox.get_active_row_number ();
 }
@@ -336,49 +373,66 @@ EditorUI::on_saveas_clicked (void)
 void
 EditorUI::on_open_clicked (void)
 {
-    ustring ret;
-    size_t id;
+    static ustring ret;
+    static size_t id;
     Editor & editor = Editor::GetRef ();
     Drawable & d = editor.get_current_project ().get_drawable ();
-    ustring spec;
 
-    ret = open_saveas_dialog ("Open file", FILE_CHOOSER_ACTION_OPEN);
-
-    if (ret.empty ())
-	return;
-
-    id = ret.rfind (".");
-    id++;
-
-    if (d.empty ())
-	on_cursor_init ();
-
-    if (ret.substr (id) == "png")
+    if (!attachment)
       {
-	  ustring sub = ret.substr (ret.rfind ("/") + 1);
-	  sub = sub.substr (0, sub.rfind ('.'));
-	  d.add_layer(ret);
-	  add_icon_entry (sub, "background");
-      }
-    else
-      {
-	  editor.open_project (ret);
-	  const Drawable::FilesList & list = d.get_fileslist ();
 
-	  for (Drawable::FilesList::const_iterator it = list.begin ();
-	       it != list.end (); it++)
+	  ret = open_saveas_dialog ("Open file", FILE_CHOOSER_ACTION_OPEN);
+
+	  if (ret.empty ())
+	      return;
+
+	  id = ret.rfind (".") + 1;
+
+	  // Attaching Hbox and GtkSDL stream to the window
+	  if (d.empty ())
 	    {
-		spec = d.get_layer_spec (*it);
-		add_icon_entry (*it, spec);
+		set_size_request (m_width, m_height);
+		m_vbox.pack_start (m_hbox);
+		m_vbox.show_all ();
+		m_SDLArea.signal_init ().connect (mem_fun(*this,
+				   &EditorUI::on_wrapper_init));
+		attachment = true;
+		return;
 	    }
 
       }
 
+
+    if (ret.substr (id) == "png")
+      {
+	  d.add_layer (ret);
+	  ret = EditableMap::layername_from_path (ret);
+
+	  // layer is of type background as default.
+	  // user is welcome to change it.
+	  add_icon_entry (ret, "background");
+      }
+    else
+      {
+	  editor.open_project (ret);
+
+	  for (Drawable::FilesList::const_iterator it =
+	       d.get_fileslist ().begin ();
+	       it != d.get_fileslist ().end (); it++)
+	    {
+		ret = EditableMap::layername_from_path (*it);
+		add_icon_entry (ret, d.get_layer_spec (ret));
+	    }
+
+      }
+
+    attachment = false;
+
 }
 
 ustring
-EditorUI::open_saveas_dialog (const ustring & title,
-			      const FileChooserAction & action)
+    EditorUI::open_saveas_dialog (const ustring & title,
+				  const FileChooserAction & action)
 {
     FileChooserDialog dialog (*this, title, action);
     ustring ret;

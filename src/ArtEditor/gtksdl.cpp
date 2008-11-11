@@ -34,6 +34,7 @@ DrawingArea ()
 
 GtkSDL::~GtkSDL ()
 {
+    Camera::CleanUp();
     HMI::CleanUp ();
     Timer::CleanUp ();
 }

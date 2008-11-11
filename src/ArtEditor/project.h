@@ -14,7 +14,6 @@ struct Drawable
 {
   public:
 
-    typedef std::list < Surface > LayerList;
     typedef std::list < Glib::ustring > FilesList;
     typedef std::vector < Glib::ustring > InfoArray;
 
@@ -25,6 +24,8 @@ struct Drawable
     virtual void draw (void) = 0;
 
     virtual void add_layer (const Glib::ustring & filename) = 0;
+
+    virtual void splice_layer(const Glib::ustring & dest, const Glib::ustring & src) = 0;
 
     virtual void set_layer_spec (const Glib::ustring & layername,
 				 const Glib::ustring & data) = 0;
@@ -53,10 +54,12 @@ class Project
 
     virtual void open (const Glib::ustring & filename) = 0;
 
-    //FIXME: write this method
-    inline void save (void)
+    inline bool save (void)
     {
-	return;
+      if (m_filename.empty())
+	return false;
+      save_as(m_filename);
+      return true;
     }
 
     virtual void save_as (const Glib::ustring & filename) = 0;
@@ -65,7 +68,6 @@ class Project
 
   protected:
 
-    // The file location of the current project
     Glib::ustring m_filename;
 
 };

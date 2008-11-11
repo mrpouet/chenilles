@@ -18,6 +18,7 @@ class GtkSDL: public DrawingArea
 	return m_signal_init;
     }
 
+    bool on_expose_event (GdkEventExpose * event);
 
   private:
 
@@ -31,8 +32,6 @@ class GtkSDL: public DrawingArea
     bool on_configure_event (GdkEventConfigure * event);
 
     bool on_resize (void);
-
-    bool on_expose_event (GdkEventExpose * event);
 
     bool on_motion_notify_event (GdkEventMotion * event);
 

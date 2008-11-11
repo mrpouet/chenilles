@@ -7,6 +7,8 @@ ArtEditor_SOURCES= gtksdl.h			\
 	gtksdl.cpp				\
 	info_dialog.h				\
 	info_dialog.cpp				\
+	layerstore.h				\
+	layerstore.cpp				\
 	editor_ui.h				\
 	editor_ui.cpp				\
 	project.h				\

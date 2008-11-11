@@ -4,36 +4,24 @@
 
 using Glib::ustring;
 
-namespace
-{
-    inline Glib::ustring layername_from_path (const ustring & path)
-    {
-	int id = path.rfind ('/') + 1;
-	return path.substr (id, path.length () - id
-			    - (path.length () - path.rfind ('.')));
-    }
-};
-
-void
-container_builder (const Glib::ustring & path)
-{
-    Drawable & d = Editor::GetRef ().get_current_project ().get_drawable ();
-    EditableMap & map = static_cast < EditableMap & >(d);
-
-    ustring file = layername_from_path (path);
-    map.m_Ltable[file.raw ()] = --(map.m_layers.end ());
-    map.m_files_list.push_back (file);
-}
 
 EditableMap::EditableMap (const Glib::ustring & xmldoc)
 {
-    CreateFromXML (xmldoc, container_builder);
+    open (xmldoc);
 }
 
 void
 EditableMap::open (const Glib::ustring & xmldoc)
 {
-    CreateFromXML (xmldoc, container_builder);
+    CreateFromXML (xmldoc);
+}
+
+void
+EditableMap::add_containers_entry (const Glib::ustring & path)
+{
+  m_files_list.push_back (layerfilename_from_path (path));
+  m_Ltable[layername_from_path (path).raw ()] = 
+    make_pair (--m_layers.end (), --m_files_list.end ()); 
 }
 
 void
@@ -41,22 +29,41 @@ EditableMap::add_layer (const Glib::ustring & path)
 {
     Surface layer = Surface::CreateFromFile (path);
     Map::LayerList::iterator it;
-    ustring file = layername_from_path (path);
 
     m_layers.push_back (layer);
     it = --m_layers.end ();
 
-    m_Ltable[file.raw ()] = it;
-    m_files_list.push_back (file);
+    add_containers_entry(path);
 
     // Current EditableMap contains nothing, so
     // we need truncate the main layer iterator
     // to avoiding conflicts with Map::draw().
-    // (see the source code).
     if (m_main_it == m_layers.end ())
 	m_main_it = it;
     m_init_draw = true;
 
+}
+
+void
+EditableMap::splice_layer (const Glib::ustring & dest,
+			   const Glib::ustring & src)
+{
+    Map::LayerList::iterator layer_it_from = m_Ltable[src.raw ()].first;
+    Map::LayerList::iterator layer_it_to = m_Ltable[dest.raw ()].first;
+
+    FilesList::iterator file_it_from = m_Ltable[src.raw ()].second;
+    FilesList::iterator file_it_to = m_Ltable[dest.raw ()].second;
+
+    layer_it_to++;
+    file_it_to++;
+
+    // Please not that we splice a element into the same list
+    // so, iterators will be valid after this call.
+    m_layers.splice (layer_it_to, m_layers, layer_it_from);
+
+    m_files_list.splice (file_it_to, m_files_list, file_it_from);
+
+    m_init_draw = true;
 }
 
 void
@@ -69,12 +76,12 @@ EditableMap::set_layer_spec (const Glib::ustring & layername,
 	  // so we need to redraw entire map to display it.
 	  if (get_layer_spec (layername) == "explosion")
 	      m_init_draw = true;
-	  m_main_it = m_Ltable[layername.raw ()];
+	  m_main_it = m_Ltable[layername.raw ()].first;
       }
     else if (data == "explosion")
       {
 
-	  m_expl_it = m_Ltable[layername.raw ()];
+	  m_expl_it = m_Ltable[layername.raw ()].first;
 	  m_init_draw = true;
       }
 

@@ -43,7 +43,7 @@ Map::Map (const string & xmldoc)
 }
 
 void
-Map::CreateFromXML (const string & xmldoc, ParseCallback vfunc)
+Map::CreateFromXML (const string & xmldoc)
 {
     XMLParser *parser = XMLParser::GetInstance ();
     ustring path (xmldoc);
@@ -72,9 +72,8 @@ Map::CreateFromXML (const string & xmldoc, ParseCallback vfunc)
 	      continue;
 	  path += parser->getText (n);
 	  m_layers.push_back (Surface::CreateFromFile (path));
-
-	  if (vfunc)
-	      vfunc (path);
+	      
+	  layer_add_vfunc (path);
 
 	  m_layers.back ().DisplayFormatAlpha ();
 	  AbsolutePath (path);
