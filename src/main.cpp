@@ -20,7 +20,7 @@ main (void)
 	
 	HMI::GetRef().SetCursor(HMI::CURSOR_TIP, "../data/ui/cursor_main.png");
 	HMI::GetRef().SwitchToCursor(HMI::CURSOR_TIP);
-	Unit unit(Point(200, 0),
+	Unit unit(Point(100, 0),
 		  "../data/teams/lombric/constructor/config.xml");
 	world = new Map ("../data/maps/SceneOfCrime_medium/config.xml");
 	SDL_Event event;
@@ -28,7 +28,7 @@ main (void)
 	
 	Timer::GetRef().Reset();
 	
-	unit.startWalk(Point(0, 0));
+	//unit.startWalk(Point(0, 0));
 
 	while (b)
 	  {

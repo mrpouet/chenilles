@@ -110,16 +110,10 @@ Map::draw (void)
     const Rectangle &objective = camera.getObjective();
     rectangle from = { 0, 0, 0, 0 };
     rectangle to = from;
-    //rectangle *adr = NULL;
-    //int width = (scroll == 0) ? camera_box.w : abs (scroll);
-    //int w = camera_box.w - abs (scroll);
-    //Surface tmp = Surface::CreateRGB (Rectangle (0, 0, w, camera_box.h));
 
     // If borner right or borner left of camera 
     // try to go out of the world, do nothing.
-    if (IsOutOfWorldX (objective.x + objective.w) ||
-	IsOutOfWorldX (objective.x) || 
-	IsOutOfWorldY (objective.y + objective.h) ||
+    if (IsOutOfWorldY (objective.y + objective.h) ||
 	IsOutOfWorldY (objective.y))
       {
 	  // And canceling last Camera movement
@@ -133,9 +127,15 @@ Map::draw (void)
     if (!m_init_draw)
 	return;
 
+    if ((objective.x + objective.w) >= WidthOfWorld())
+      camera.setObjectiveCoords(0, objective.y);
+    else if (objective.x < 0)
+      camera.setObjectiveCoords(WidthOfWorld() - objective.w - 1, objective.y);
+
     from = objective.GetSDLRect();
     to.w = objective.w;
     to.h = objective.h;
+
     for (LayerList::const_iterator it = m_layers.begin ();
 	 it != m_layers.end (); it++)
       {

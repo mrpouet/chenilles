@@ -29,6 +29,12 @@ namespace Chenilles
 	    return m_objective;
 	}
 
+	inline void setObjectiveCoords(Sint16 x, Sint16 y)
+	{
+	  m_objective.x = x;
+	  m_objective.y = y;
+	}
+
 	inline bool isVisible (const Rectangle& bounding_box) const
 	{
 	  return m_objective.Intersect(bounding_box);
