@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE unit SYSTEM "../../unit.dtd">
+
+<unit>
+
+  <animation>
+    <image delay="120">walk1.png</image>
+    <image delay="120">walk2.png</image>
+    <image delay="120">walk3.png</image>
+    <image delay="120">walk4.png</image>
+    <image delay="120">walk5.png</image>
+    <image delay="120">walk6.png</image>
+    <image delay="120">walk7.png</image>
+  </animation>
+  
+</unit>
