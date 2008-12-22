@@ -1,4 +1,5 @@
 #include <string>
+#include <cstdlib>
 #include <libxml++/nodes/textnode.h>
 #include <xml_parser.h>
 #include <tools/base.h>
@@ -7,6 +8,8 @@
 #if XMLPP_MINOR < 18
 #	include <libxml/tree.h>
 #endif
+
+using Glib::ustring;
 
 namespace
 {
@@ -56,6 +59,15 @@ XMLParser::getNode (const Glib::ustring & xpath) const
     return (set.empty ())? NULL : set[0];
 }
 
+const Node *
+XMLParser::getFirstChild (const Node *parent) const
+{
+  if (!parser)
+    return NULL;
+  Node::NodeList list = parent->get_children();
+  return (list.empty()) ? NULL : *list.begin();
+}
+
 Glib::ustring
 XMLParser::getAttribute (const Node * node,
 			 const Glib::ustring & att_name) const
@@ -70,6 +82,19 @@ XMLParser::getAttribute (const Node * node,
     return eNode->get_attribute (att_name)->get_value ();
 #endif
 
+}
+
+int
+XMLParser::getIntAttribute (const Node * node,
+			    const Glib::ustring & att_name) const
+{
+  ustring att = getAttribute(node, att_name);
+  char *endptr = NULL;
+  int i = strtol(att.c_str(), &endptr, 10);
+
+  if (*endptr != '\0')
+    xml_throw(node, " has not a attribute of interger form (in 10 base)");
+  return i;
 }
 
 //FIXME: replace get_children by get_child_text.

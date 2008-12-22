@@ -2,6 +2,8 @@
 #define __HMI_H__
 
 #include <map>
+#include <queue>
+
 #include <SDL_events.h>
 #include <surface.h>
 #include <singleton.h>
@@ -32,11 +34,35 @@ namespace Chenilles
 	// (false as default)
 	void SetVideoMode (int width, int height, bool resizable = false);
 
+	inline void BlitOnScreen (const Surface& src, rectangle *dstrect = NULL,
+				  rectangle *srcrect = NULL)
+	{
+	  m_screen.Blit(src, dstrect, srcrect);
+	}
+
+	inline void BlitOnScreen (const Surface& src, Rectangle *dstrect = NULL,
+				  Rectangle *srcrect = NULL)
+	{
+	  BlitOnScreen(src, reinterpret_cast<rectangle *>(dstrect), 
+		       reinterpret_cast<rectangle *>(srcrect));
+	}
+
+	inline void ScreenBlitOn (Surface & dest, Rectangle *dstrect = NULL, 
+				  Rectangle *srcrect = NULL) const
+	{
+	  dest.Blit(m_screen, reinterpret_cast<rectangle *>(dstrect),
+		    reinterpret_cast<rectangle *>(srcrect));
+	}
+
+	inline void ToRedraw (const Rectangle & region)
+	{
+	  m_region_queue.push(region);
+	}
+
 	// Blank the screen.
 	inline void Clear (void)
 	{
 	    m_screen.FillRect (Color (0, 0, 0));
-	    m_screen.Flip ();
 	}
 
 	// Lock the screen from any refresh
@@ -70,7 +96,7 @@ namespace Chenilles
 
 	void HandleEvent (const SDL_Event & event);
 
-	// Refresh ALL Output devices
+	// Refresh all output devices
 	void RefreshOutput (void);
 
 	// We need to use external tip position ?
@@ -89,7 +115,11 @@ namespace Chenilles
 
       private:
 
+        typedef std::map < CursorType, Surface > CursorContainer;
+	typedef std::queue <Rectangle> RegionQueue;
+
 	HMI (void);
+	
 	~HMI (void);
 
 	inline void RefreshMousePos (void)
@@ -101,9 +131,12 @@ namespace Chenilles
 	}
 
 	friend class Singleton < HMI >;
+
 	friend class Camera;
 
 	Surface m_screen;
+
+	Surface m_cursor_cache;
 
 	CursorType m_current_cursor;
 
@@ -113,9 +146,9 @@ namespace Chenilles
 
 	bool m_external_tip;
 
-	typedef std::map < CursorType, Surface > CursorContainer;
-
 	CursorContainer m_cursors;
+
+	RegionQueue m_region_queue;
 
 	bool m_lock;
 

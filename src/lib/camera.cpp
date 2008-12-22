@@ -1,50 +1,45 @@
 #include <camera.h>
+#include <hmi.h>
 #include <tools/base.h>
 
-#define MIN_SCROLL_MARGIN 50
+// Speed (in pixels) when we scroll (with mouse) 
+const Uint16 Camera::SCROLL_MOUSE = 20;
 
-Camera::Camera ()
+// Sensitivity margin from the screen border
+const Uint16 Camera::SENSIT_MARGIN = 40;
+
+Camera::Camera ():
+  m_objective(0, 0, 
+	      HMI::GetRef().m_screen.GetWidth(),
+	      HMI::GetRef().m_screen.GetHeight())
 {
-    m_camera_box.x = m_camera_box.y = 0;
-    m_camera_box.w = HMI::GetInstance ()->m_screen.GetWidth ();
-    m_camera_box.h = HMI::GetInstance ()->m_screen.GetHeight ();
-
-    m_camera = Surface::CreateRGB (m_camera_box);
-    m_camera.DisplayFormatAlpha ();
-    m_pixel_per_scroll = 0;
-
-    m_resized = false;
 
 }
 
 void
 Camera::Refresh (void)
 {
-    const HMI& hmi = HMI::GetRef();
-    Point tip = hmi.m_tip;
-    m_resized = false;
+    const HMI &hmi = HMI::GetRef();
+    const Point &tip = hmi.m_tip;
 
-    // Screen was resized
-    if (m_camera_box.w != hmi.m_screen.GetWidth())
-      {
+    m_last_scroll.x = m_last_scroll.y = 0;
 
-	m_camera_box.w = hmi.m_screen.GetWidth();
-	m_camera_box.h = hmi.m_screen.GetHeight();
-
-	m_camera.Resize(m_camera_box.w, m_camera_box.h);
-	ToRedraw(Rectangle(0, 0, m_camera_box.w, m_camera_box.h));
-	m_resized = true;
-      }
-
-    m_pixel_per_scroll = 0;
-
+    // When cursor is disable scroll is too.
+    // (it's absurd to scroll with no cursor).
     if (hmi.m_current_cursor == HMI::NO_CURSOR)
-	return;
+      return;
 
-    if (tip.x >= (m_camera_box.w - MIN_SCROLL_MARGIN))
-	m_pixel_per_scroll = 5;
-    else if (tip.x <= MIN_SCROLL_MARGIN)
-	m_pixel_per_scroll = -5;
-    m_camera_box.x += m_pixel_per_scroll;
+    // Horizontal scroll
+    if (tip.x <= SENSIT_MARGIN)
+      m_last_scroll.x = -SCROLL_MOUSE;
+    else if (tip.x >= (m_objective.w - SENSIT_MARGIN))
+      m_last_scroll.x = SCROLL_MOUSE;
+
+    // Vertical scroll
+    if (tip.y <= SENSIT_MARGIN)
+      m_last_scroll.y = -SCROLL_MOUSE;
+    else if (tip.y >= (m_objective.h - SENSIT_MARGIN))
+      m_last_scroll.y = SCROLL_MOUSE;
+    m_objective.Translate(m_last_scroll);
 
 }

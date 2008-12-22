@@ -2,6 +2,7 @@
 #include <gdkmm.h>
 #include <gdk/gdkx.h>
 #include <camera.h>
+#include <hmi.h>
 #include <timer.h>
 #include <tools/base.h>
 
@@ -72,6 +73,7 @@ GtkSDL::on_configure_event (GdkEventConfigure * event)
     // Locking any refresh during resize
     // (avoiding flickers)
     HMI::GetRef ().LockRefresh ();
+    printf("%s\n", __func__);
     m_configure_time = Timer::GetRef ().Read ();
     m_need_resize = true;
     return true;
@@ -92,6 +94,8 @@ GtkSDL::on_resize (void)
 	return true;
     SetVideoMode (get_width (), get_height ());
     HMI::GetRef ().UnlockRefresh ();
+    printf("%s\n", __func__);
+    on_expose_event(NULL);
     m_need_resize = false;
     return true;
 }
@@ -120,8 +124,9 @@ GtkSDL::on_expose_event (GdkEventExpose * event)
 
     if (!m_init)
       {
-	  const Rectangle & box = Camera::GetRef ().GetCameraBox ();
-	  Camera::GetRef ().ToRedraw (Rectangle (0, 0, box.w, box.h));
+	  Camera::GetRef().Refresh();
+	  const Rectangle &obj = Camera::GetRef().getObjective();
+	  HMI::GetRef().ToRedraw(Rectangle(0, 0, obj.w, obj.h));
 	  HMI::GetRef ().RefreshOutput ();
 	  return true;
       }

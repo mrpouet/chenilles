@@ -23,14 +23,14 @@ namespace Chenilles
 	// @param xmldoc The absolute path to the mapsheet
 	  Map (const std::string & xmldoc);
 
-	inline bool isInTheVacuum (const Point & p) const
+	inline bool isTheVacuum (const Point & p) const
 	{
-	    return m_main_it->GetPixColor (p).GetA () == 0;
+	  return  m_main_it->GetPixColor (p).GetA () == 0;
 	}
 
-	inline bool isInTheGround (const Point & p) const
+	inline bool isTheGround (const Point & p) const
 	{
-	    return m_main_it->GetPixColor (p).GetA () == 255;
+	  return m_main_it->GetPixColor(p).GetA() == 255;
 	}
 
 	inline int WidthOfWorld (void) const
@@ -43,12 +43,12 @@ namespace Chenilles
 	    return m_main_it->GetHeight ();
 	}
 
-	inline bool IsOutOfWorldX (int x) const
+	inline bool IsOutOfWorldX (Sint16 x) const
 	{
 	    return (x < 0) || (x >= WidthOfWorld ());
 	}
 
-	inline bool IsOutOfWorldY (int y) const
+	inline bool IsOutOfWorldY (Sint16 y) const
 	{
 	    return (y < 0) || (y >= HeightOfWorld ());
 	}
@@ -81,6 +81,11 @@ namespace Chenilles
 	{
 	    return m_infos;
 	}
+
+	// Compute angle of @pos from the horizontal axys of map
+	// @pos A pixel from which angle 'll be compute
+	// @return angle between the horizontal and @pos
+	double computeAngle(const Point& pos);
 
       protected:
 

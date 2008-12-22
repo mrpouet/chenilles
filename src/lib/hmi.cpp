@@ -1,11 +1,14 @@
-#include <cstdlib>
 #include <iostream>
-#include <new>
+#include <vector>
 #include <SDL.h>
 #include <timer.h>
+#include <hmi.h>
 #include <camera.h>
 #include <game_exception.h>
 #include <tools/base.h>
+
+#define DEFAULT_WIDTH_CACHE 21
+#define DEFAULT_HEIGHT_CACHE 21
 
 namespace
 {
@@ -53,7 +56,8 @@ namespace
     {
       public:
 	IOException (const string & msg) throw ():GameException (msg)
-	{};
+	{
+	};
 
 	inline const char *what (void) const throw ()
 	{
@@ -68,6 +72,9 @@ HMI::HMI (void)
     m_current_cursor = NO_CURSOR;
     m_external_tip = false;
     m_lock = false;
+    m_cursor_cache = Surface::CreateRGB (Rectangle (0, 0,
+						    DEFAULT_WIDTH_CACHE,
+						    DEFAULT_HEIGHT_CACHE));
 }
 
 HMI::~HMI (void)
@@ -97,7 +104,7 @@ HMI::SetVideoMode (int width, int height, bool resizable)
     if (resizable)
 	flags |= SDL_RESIZABLE;
     m_screen = Surface (SDL_SetVideoMode (width, height, 32, flags));
-
+    m_cursor_cache.DisplayFormatAlpha ();
 }
 
 void
@@ -128,8 +135,6 @@ HMI::SetCursor (CursorType type, const string & icon)
     m_tip.x = m_screen.GetWidth () / 2;
     m_tip.y = m_screen.GetHeight () / 2;
 
-    SDL_ShowCursor (SDL_DISABLE);
-
 }
 
 void
@@ -145,77 +150,60 @@ HMI::HandleEvent (const SDL_Event & event)
 void
 HMI::RefreshOutput (void)
 {
-    Camera & camera = Camera::GetRef ();
-    Camera::RegionQueue & queue = camera.m_region_queue;
-    rectangle rect = { 0, 0, 0, 0 };
     static Rectangle r;
-
-    int size = static_cast < int >(queue.size ()) + 1;
-    rectangle *rects = NULL;
-    int i;
-
-    if (m_lock)
-	return;
+    rectangle rect = { 0, 0, 0, 0 };
+    vector<Rectangle> rects;
 
     // Switched Cursor didn't defined
     if ((m_current_cursor != NO_CURSOR)
 	&& m_cursors.find (m_current_cursor) == m_cursors.end ())
-	throw IOException("Cursor specified type never defined using HMI::SetCursor");
-
-    size += (m_current_cursor != NO_CURSOR) ? 1 : 0;
-
-    r.w = (m_current_cursor != NO_CURSOR) ?
-	m_cursors[m_current_cursor].GetWidth () : r.w;
-
-    r.h = (m_current_cursor != NO_CURSOR) ?
-	m_cursors[m_current_cursor].GetHeight () : r.h;
-
-    if (size)
-      {
-	  rects = (rectangle *) malloc (size * sizeof (rectangle));
-
-	  if (!rects)
-	      throw bad_alloc ();
-      }
-
-    // "Catch" and exec all redraw events
-    for (i = 0; !queue.empty (); i++)
-      {
-
-	  rects[i] = queue.front ().GetSDLRect ();
-	  camera.m_camera.UpdateRect (queue.front ());
-	  m_screen.Blit (camera.m_camera, &rects[i], &rects[i]);
-	  queue.pop ();
-      }
-
-    // Delete old cursor
-    r.x = m_tip.x;
-    r.y = m_tip.y;
-
-    rect = r.GetSDLRect ();
-    m_screen.Blit (camera.m_camera, &rect, &rect);
-
-    ComputeRect (rect, m_screen.GetWidth (), m_screen.GetHeight ());
-    rects[i++] = rect;
+	throw IOException ("Cursor specified type never defined"
+			   " using HMI::SetCursor");
 
     if (m_current_cursor != NO_CURSOR)
       {
+	r.w = m_cursors[m_current_cursor].GetWidth();
+	r.h = m_cursors[m_current_cursor].GetHeight();
+      }
 
+    // Extract all redraw region from queue.
+    for (; !m_region_queue.empty (); m_region_queue.pop ())
+      rects.push_back(m_region_queue.front ());
+
+    // Delete old cursor using cursor cache surface
+    if (!Camera::GetRef ().wasScrolled ())
+      {
+	  r.x = m_tip.x;
+	  r.y = m_tip.y;
+
+	  if (!SDL_ShowCursor(SDL_DISABLE))
+	    {
+	      rect = r.GetSDLRect ();
+	      BlitOnScreen (m_cursor_cache, &rect);
+	      rects.push_back(r);
+	    }
+      }
+
+    if (m_current_cursor != NO_CURSOR)
+      {
 	  // Compute the new cursor rectangle position
 	  RefreshMousePos ();
 	  r.x = m_tip.x;
 	  r.y = m_tip.y;
 	  rect = r.GetSDLRect ();
-	  ComputeRect (rect, m_screen.GetWidth (), m_screen.GetHeight ());
 
-	  // Draw cursor
+	  rects.push_back(r);
+
+	  // "Compute" new cache
+	  m_cursor_cache.Blit (m_screen, NULL, &rect);
+	  m_cursor_cache.UpdateRect (&rect);
+
+	  // Draw new cursor
 	  m_screen.Blit (m_cursors[m_current_cursor], m_tip);
-
-	  rects[i++] = rect;
-
       }
-
-    m_screen.UpdateRects (size, rects);
-
-    free (rects);
+    
+    // Apply all redraw region
+    for (vector<Rectangle>::const_iterator it = rects.begin(); 
+	 it != rects.end(); it++)
+      m_screen.UpdateRect (*it);
 }

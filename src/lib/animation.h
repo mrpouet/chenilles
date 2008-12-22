@@ -12,26 +12,29 @@ namespace Chenilles
     {
       public:
 
-	//FIXME: rewrite this module unless dest Surface
-	// we need to use Camera in intern.
-	Animation (const Surface & dest);
+        Animation (const std::string& xmldoc);
 
 	// Start motion
 	// If Animation doesn't contain any Sprite (absurde)
 	// this method do nothing.
-	void Start (void);
+	void start (void);
 
 	// Refresh to next Sprite if his "time delay" was finished.
 	// If motion isn't started this method blit the first frame 
 	// to "dest" Surface.
-	void Update (void);
+	void update (bool redraw_with_cache = false);
 
 	// Stop motion
-	inline void Stop (bool visible = true)
+	inline void stop (bool visible = true)
 	{
 	    m_active = false;
 	    m_visible = visible;
-	    m_it = m_frames.begin ();
+	    m_current_frame = m_frames.begin ();
+	}
+
+	inline void forceDraw(void)
+	{
+	  m_force_draw = true;
 	}
 
 	inline void setXLocation (Sint16 x)
@@ -49,19 +52,20 @@ namespace Chenilles
 	    m_location = p;
 	}
 
-	inline int GetWidth (void) const
+	inline const Point& getLocation (void) const
 	{
-	    return m_it->m_surface.GetWidth ();
+	  return m_location;
 	}
 
-	inline int GetHeight (void) const
+	inline int getWidth (void) const
 	{
-	    return m_it->m_surface.GetHeight ();
+	    return m_current_frame->m_surface.GetWidth ();
 	}
 
-	// Add a new Sprite in the current Animation, 
-	// with the fallowing time delay.
-	void newSprite (const char *path, Uint32 delay = 120);
+	inline int getHeight (void) const
+	{
+	    return m_current_frame->m_surface.GetHeight ();
+	}
 
       private:
 
@@ -71,17 +75,17 @@ namespace Chenilles
 
 	bool m_active;
 
-	Uint32 m_last_update_time;
+	bool m_force_draw;
 
-	//FIXME: Remove this member later 
-	// (replace it by screen or map Surface directly)
-	Surface m_dest;
+	Uint32 m_last_update_time;
 
 	Point m_location;
 
 	SpriteArray m_frames;
 
-	SpriteArray::iterator m_it;
+	SpriteArray::iterator m_current_frame;
+
+	SpriteCache m_sprite_cache;
 
     };
 

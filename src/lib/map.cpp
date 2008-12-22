@@ -1,9 +1,11 @@
 #include <cstdlib>
 #include <xml_parser.h>
 #include <camera.h>
+#include <hmi.h>
 #include <map.h>
 #include <game_exception.h>
 #include <tools/base.h>
+#include <cstdio>
 
 using Glib::ustring;
 
@@ -47,6 +49,7 @@ Map::CreateFromXML (const string & xmldoc)
 {
     XMLParser *parser = XMLParser::GetInstance ();
     ustring path (xmldoc);
+    ustring attr;
 
     m_main_it = m_expl_it = m_layers.end ();
 
@@ -72,19 +75,21 @@ Map::CreateFromXML (const string & xmldoc)
 	      continue;
 	  path += parser->getText (n);
 	  m_layers.push_back (Surface::CreateFromFile (path));
+	  attr = parser->getAttribute(n, "type");
 	      
 	  layer_add_vfunc (path);
 
-	  m_layers.back ().DisplayFormatAlpha ();
+	  if (attr != "explosion")
+	    m_layers.back ().DisplayFormatAlpha ();
 	  AbsolutePath (path);
 
 	  // layers iterator are already to the sentinel of the container
 	  // so we just need to decreasing it.
 	  // (to access to the last element).
-	  if (parser->getAttribute (n, "type") == "ground")
-	      m_main_it--;
-	  else if (parser->getAttribute (n, "type") == "explosion")
-	      m_expl_it--;
+	  if (attr == "ground")
+	    m_main_it--;
+	  else if (attr == "explosion")
+	    m_expl_it--;
 
       }
 
@@ -95,83 +100,63 @@ Map::CreateFromXML (const string & xmldoc)
     XMLParser::CleanUp ();
 
     m_init_draw = true;
-
 }
 
 void
 Map::draw (void)
 {
     Camera & camera = Camera::GetRef ();
-    const Rectangle & camera_box = camera.GetCameraBox ();
+    HMI &hmi = HMI::GetRef();
+    const Rectangle &objective = camera.getObjective();
     rectangle from = { 0, 0, 0, 0 };
     rectangle to = from;
-    rectangle *adr = NULL;
-    int scroll = camera.GetSpeed ();
-    int width = (scroll == 0) ? camera_box.w : abs (scroll);
-    int w = camera_box.w - abs (scroll);
-    Surface tmp = Surface::CreateRGB (Rectangle (0, 0, w, camera_box.h));
+    //rectangle *adr = NULL;
+    //int width = (scroll == 0) ? camera_box.w : abs (scroll);
+    //int w = camera_box.w - abs (scroll);
+    //Surface tmp = Surface::CreateRGB (Rectangle (0, 0, w, camera_box.h));
 
     // If borner right or borner left of camera 
     // try to go out of the world, do nothing.
-    if ((IsOutOfWorldX (camera_box.x + camera_box.w) && (scroll > 0)) ||
-	(IsOutOfWorldX (camera_box.x) && (scroll < 0)))
+    if (IsOutOfWorldX (objective.x + objective.w) ||
+	IsOutOfWorldX (objective.x) || 
+	IsOutOfWorldY (objective.y + objective.h) ||
+	IsOutOfWorldY (objective.y))
       {
 	  // And canceling last Camera movement
-	  camera.CancelMove ();
+	  camera.unScroll ();
 	  return;
       }
 
-    if (camera.IsResized ())
-	m_init_draw = true;
+    if (camera.wasScrolled())
+      m_init_draw = true;
 
-    if ((!scroll) && (!m_init_draw))
+    if (!m_init_draw)
 	return;
 
-    // A king of "slicing" of the part which won't change
-    // (just move).
-
-    from.x = (scroll > 0) ? scroll : 0;
-    from.w = w;
-    from.h = camera_box.h;
-
-    if (scroll < 0)
-      {
-	  to.x = -scroll;
-	  to.w = w;
-	  to.h = from.h;
-	  adr = &to;
-      }
-
-    //TODO: It's possible to shift camera on itself 
-    // just from right to left... why ? 
-    tmp.Blit (camera.GetCamera (), NULL, &from);
-    tmp.Flip ();
-
-    camera.UpdateCamera (tmp, adr);
-
-    // Computing and extract only the new part to draw
-    // (tipically only a number of "scroll" pixels)
-
-    // Note: if camera_box.x == 0 then scroll is
-    // necessary equals to zero too.
-
-    from.x = (scroll > 0) ?
-	((camera_box.x + camera_box.w) - scroll) : camera_box.x;
-
-    from.w = width;
-
-    to.x = (scroll <= 0) ? 0 : w;
-    to.w = width;
-    to.h = from.h;
-
+    from = objective.GetSDLRect();
+    to.w = objective.w;
+    to.h = objective.h;
     for (LayerList::const_iterator it = m_layers.begin ();
 	 it != m_layers.end (); it++)
       {
 	  if (it == m_expl_it)
 	      continue;
-	  camera.UpdateCamera (*it, &to, &from);
+	  hmi.BlitOnScreen (*it, &to, &from);
       }
 
-    camera.ToRedraw (Rectangle (0, 0, camera_box.w, camera_box.h));
+    hmi.ToRedraw (Rectangle (0, 0, objective.w, objective.h));
     m_init_draw = false;
+
+}
+
+double
+Map::computeAngle(const Point& pos)
+{
+  Point tmppos(pos.x + 5, pos.y);
+
+  while (isTheVacuum(tmppos))
+    tmppos.y++;
+  while (isTheGround(tmppos))
+    tmppos.y--;
+  return pos.Tangente(tmppos);
 }

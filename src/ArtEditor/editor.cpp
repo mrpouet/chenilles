@@ -4,6 +4,7 @@
 #include <tools/base.h>
 
 #include "editor.h"
+#include <cstdio>
 
 #define DEFAULT_WIDTH  800
 #define DEFAULT_HEIGHT 600

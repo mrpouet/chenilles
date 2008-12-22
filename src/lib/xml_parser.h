@@ -17,6 +17,8 @@ namespace Chenilles
 
 	// Load a XML Document, parse it, and load
 	// the corresponding XML Tree and Parser context into memory.
+        // If you try to load an other document when a existing is loaded
+        // (and not freed) ask is reject (do nothing).
         // @throw exception
 	// @param xmldoc The absolute path to a XML Document
         void LoadDoc (const Glib::ustring & xmldoc);
@@ -30,6 +32,8 @@ namespace Chenilles
 	// this path exist in tree, NULL otherwises.
 	const Node *getNode (const Glib::ustring & xpath) const;
 
+	const Node *getFirstChild(const Node *parent) const;
+
 	// Get the value of following attribute in a Node
 	// @throw exception
 	// @param node The Node which contains the attribute
@@ -37,6 +41,9 @@ namespace Chenilles
 	// @return The value of the mentionned attribute
 	  Glib::ustring getAttribute (const Node * node,
 				      const Glib::ustring & att_name) const;
+
+	  int getIntAttribute (const Node *node, 
+			       const Glib::ustring & att_name) const;
 
 	// Get the text content of a Element Node
 	// @throw exception

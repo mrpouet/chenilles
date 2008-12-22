@@ -11,8 +11,6 @@
 
 namespace Chenilles
 {
-    typedef SDL_Rect rectangle;
-
     class Surface
     {
 

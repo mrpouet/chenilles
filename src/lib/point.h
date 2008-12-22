@@ -31,12 +31,35 @@ namespace Chenilles
 	    return Point (x + b.x, y + b.y);
 	}
 
+	inline Point operator- (void)
+	{
+	    return Point (-x, -y);
+	}
+
+	inline Point operator- (const Point & b)
+	{
+	    return Point (x - b.x, y - b.y);
+	}
+
+	inline Point operator* (int scale)
+	{
+	    return Point (x * scale, y * scale);
+	}
+
 	// Compute the distance between 2 Points
 	// @param p A Point
-	// @return: | *this - p |
-	inline double Distance (const Point & p);
+	// @return: Distance from @p to "this".
+	double Distance (const Point & p);
+
+
+	// Compute the tangente between this and @p
+	// @param p A Point
+	// @return The tangente between this and @p in radians.
+	double Tangente (const Point & p) const;
 
     };
+
+    bool operator!= (const Point & a, const Point & b);
 
 };
 
