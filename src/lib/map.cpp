@@ -131,10 +131,9 @@ Map::draw (void)
     if (!m_init_draw)
 	return;
 
-    // FIX IT !
     // Avoiding integer overflow (really underflow)
-    //obj_x = (objective.x <= -objective.w) ? WidthOfWorld() - objective.x :
-    //objective.x;
+    obj_x = (objective.x <= -objective.w) ? WidthOfWorld() + objective.x :
+      objective.x;
 
     camera.setObjectiveCoords (obj_x % WidthOfWorld (), objective.y);
 
@@ -171,8 +170,6 @@ Map::draw (void)
       }
     else
       redrawRegion(&to, &from);
-
-    printf("camera X: %d\n", objective.x);
 
     hmi.ToRedraw (Rectangle (0, 0, objective.w, objective.h));
     m_init_draw = false;
