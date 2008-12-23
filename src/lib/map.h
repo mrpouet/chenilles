@@ -125,6 +125,8 @@ namespace Chenilles
 	// No copyable
 	Map & operator= (const Map & map);
 
+	void redrawRegion (rectangle *to, rectangle *from);
+
     };
 
 };

@@ -7,25 +7,27 @@
 #include <tools/base.h>
 #include <cstdio>
 
-using Glib::ustring;
+using
+    Glib::ustring;
 
 namespace
 {
-    inline void AbsolutePath (ustring & str)
+    inline void
+    AbsolutePath (ustring & str)
     {
 	str.erase (str.rfind ("/") + 1, ustring::npos);
     }
 
-    class MapException:public GameException
+    class MapException: public GameException
     {
       public:
 
-	explicit MapException (const std::string & msg)
-	throw (): GameException (msg)
-	{}
+	explicit MapException (const std::string & msg) throw ():
+	  GameException (msg)
+	{
+	}
 
-	const char *what (void) const
-	throw ()
+	const char *what (void) const throw ()
 	{
 	    return "Map exception (MapException)";
 	}
@@ -75,21 +77,21 @@ Map::CreateFromXML (const string & xmldoc)
 	      continue;
 	  path += parser->getText (n);
 	  m_layers.push_back (Surface::CreateFromFile (path));
-	  attr = parser->getAttribute(n, "type");
-	      
+	  attr = parser->getAttribute (n, "type");
+
 	  layer_add_vfunc (path);
 
 	  if (attr != "explosion")
-	    m_layers.back ().DisplayFormatAlpha ();
+	      m_layers.back ().DisplayFormatAlpha ();
 	  AbsolutePath (path);
 
 	  // layers iterator are already to the sentinel of the container
 	  // so we just need to decreasing it.
 	  // (to access to the last element).
 	  if (attr == "ground")
-	    m_main_it--;
+	      m_main_it--;
 	  else if (attr == "explosion")
-	    m_expl_it--;
+	      m_expl_it--;
 
       }
 
@@ -106,10 +108,12 @@ void
 Map::draw (void)
 {
     Camera & camera = Camera::GetRef ();
-    HMI &hmi = HMI::GetRef();
-    const Rectangle &objective = camera.getObjective();
+    HMI & hmi = HMI::GetRef ();
+    const Rectangle & objective = camera.getObjective ();
     rectangle from = { 0, 0, 0, 0 };
     rectangle to = from;
+    Uint16 out_of_range_width = 0;
+    Sint16 obj_x = 0;
 
     // If borner right or borner left of camera 
     // try to go out of the world, do nothing.
@@ -121,42 +125,79 @@ Map::draw (void)
 	  return;
       }
 
-    if (camera.wasScrolled())
-      m_init_draw = true;
+    if (camera.wasScrolled ())
+	m_init_draw = true;
 
     if (!m_init_draw)
 	return;
 
-    if ((objective.x + objective.w) >= WidthOfWorld())
-      camera.setObjectiveCoords(0, objective.y);
-    else if (objective.x < 0)
-      camera.setObjectiveCoords(WidthOfWorld() - objective.w - 1, objective.y);
+    // FIX IT !
+    // Avoiding integer overflow (really underflow)
+    //obj_x = (objective.x <= -objective.w) ? WidthOfWorld() - objective.x :
+    //objective.x;
 
-    from = objective.GetSDLRect();
+    camera.setObjectiveCoords (obj_x % WidthOfWorld (), objective.y);
+
+    from = objective.GetSDLRect ();
     to.w = objective.w;
     to.h = objective.h;
 
-    for (LayerList::const_iterator it = m_layers.begin ();
-	 it != m_layers.end (); it++)
+    if (IsOutOfWorld(objective.x) ||
+	IsOutOfWorld(objective.x + objective.w))
       {
-	  if (it == m_expl_it)
-	      continue;
-	  hmi.BlitOnScreen (*it, &to, &from);
+	if ((objective.x + objective.w) > WidthOfWorld())
+	  camera.setObjectiveCoords(objective.x - WidthOfWorld(), objective.y);
+
+	if (objective.x < 0)
+	  {
+
+	    out_of_range_width = -objective.x;
+	    to.x = out_of_range_width;
+	    to.w -= out_of_range_width;
+	    from.x = 0;
+	    from.w = to.w;
+	    
+	    redrawRegion(&to, &from);
+
+	    from.x = WidthOfWorld() - out_of_range_width;
+	    from.w = out_of_range_width;
+	    
+	    to.x = 0;
+	    to.w = out_of_range_width;
+
+	    redrawRegion(&to, &from);
+	  }
+	
       }
+    else
+      redrawRegion(&to, &from);
+
+    printf("camera X: %d\n", objective.x);
 
     hmi.ToRedraw (Rectangle (0, 0, objective.w, objective.h));
     m_init_draw = false;
+}
 
+void
+Map::redrawRegion (rectangle *to, rectangle *from)
+{
+  for (LayerList::const_iterator it = m_layers.begin ();
+       it != m_layers.end (); it++)
+    {
+      if (it == m_expl_it)
+	continue;
+      HMI::GetRef().BlitOnScreen (*it, to, from);
+    }
 }
 
 double
-Map::computeAngle(const Point& pos)
+Map::computeAngle (const Point & pos)
 {
-  Point tmppos(pos.x + 5, pos.y);
+    Point tmppos (pos.x + 5, pos.y);
 
-  while (isTheVacuum(tmppos))
-    tmppos.y++;
-  while (isTheGround(tmppos))
-    tmppos.y--;
-  return pos.Tangente(tmppos);
+    while (isTheVacuum (tmppos))
+	tmppos.y++;
+    while (isTheGround (tmppos))
+	tmppos.y--;
+    return pos.Tangente (tmppos);
 }
