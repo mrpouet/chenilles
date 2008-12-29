@@ -148,14 +148,6 @@ namespace Chenilles
 	    return surface->format->BytesPerPixel;
 	}
 
-	inline void GetAmask(void) const
-	{
-	  printf("Rmask: %x\n", surface->format->Rmask);
-	  printf("Gmask: %x\n", surface->format->Gmask);
-	  printf("Bmask: %x\n", surface->format->Bmask);
-	  printf("Amask: %x\n", surface->format->Amask);
-	}
-
 	// Sets all occurences of color key 'key', 
 	// transparent in the current surface.
 	// @param key The color key to replace
