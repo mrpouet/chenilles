@@ -7,7 +7,7 @@
 class Game
 {
  public:
-  const static Uint16 PIXELS_PER_METER;
+  const static Uint8 PIXELS_PER_METER;
 };
 
 extern Map *world;

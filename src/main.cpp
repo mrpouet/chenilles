@@ -20,15 +20,27 @@ main (void)
 	
 	HMI::GetRef().SetCursor(HMI::CURSOR_TIP, "../data/ui/cursor_main.png");
 	HMI::GetRef().SwitchToCursor(HMI::CURSOR_TIP);
-	Unit unit(Point(100, 0),
+	Unit unit(Point(2002, 732),
 		  "../data/teams/lombric/constructor/config.xml");
-	world = new Map ("../data/maps/SceneOfCrime_medium/config.xml");
+	world = new Map ("../data/maps/testMap_move/config.xml");
 	SDL_Event event;
 	bool b = true;
 	
 	Timer::GetRef().Reset();
 	
 	//unit.startWalk(Point(0, 0));
+	Point p;
+	Surface main = Surface::CreateFromFile("../data/maps/testMap_move/main.png");
+	Point pos(3084, 732);
+	Color c = main.GetPixColor(pos);
+
+
+	printf("%s: couleur (r: %d, g: %d, b: %d, a: %d)\n", __func__,
+	       c.GetR(), c.GetG(), c.GetB(), c.GetA());
+
+
+	//if(world->contiguousPoint(pos, p))
+	//printf("point contigu : (%d, %d)\n", p.x, p.y);
 
 	while (b)
 	  {

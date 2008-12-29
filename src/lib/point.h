@@ -49,7 +49,7 @@ namespace Chenilles
 	// Compute the distance between 2 Points
 	// @param p A Point
 	// @return: Distance from @p to "this".
-	double Distance (const Point & p);
+	double Distance (const Point & p) const;
 
 
 	// Compute the tangente between this and @p

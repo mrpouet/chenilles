@@ -46,8 +46,6 @@ namespace Chenilles
 
 	void SetColor (Uint8 r = 0, Uint8 g = 0, Uint8 b = 0, Uint8 a = 254);
 
-	void SetColor (Uint32 key);
-
 	Uint32 GetRGBAColor (void) const;
 
 	inline SDL_Color GetSDLColor (void) const

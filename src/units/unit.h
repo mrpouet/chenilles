@@ -52,14 +52,13 @@ class Unit: public DrawableObject
     // "surface" (in m²) in contact with air force
     inline double getSurfaceResistance(void) const
     {
-      // return (27 * 40);
       return 1.728;
     }
     
     // Experimental Aerodynamic coefficiant (SI)
     inline double getAeroFactor(void) const
     {
-      return 0.01;
+      return 0.05;
     }
 
   private:

@@ -40,6 +40,7 @@ void
 DrawableObject::ComputeNewXY(void)
 {
   double dt = (Timer::GetRef().Read() / 1000.0) - m_last_move;
+  Point p;
 
   // Current computer is too fast.
   if (dt < delta_t)
@@ -81,30 +82,30 @@ DrawableObject::ComputeFallXY(double dt)
 			   weight_force, dt);
 }
 
-// à modifier
+// Thanks to necropotame explinations about this part
 void
 DrawableObject::ComputeSlopeXY(double dt)
 {
-  double mass  = getMass();
-  double angle = world->computeAngle(getMiddleBottom());
+
+  double angle = world->computeAngle(getMiddleBottom(), Game::PIXELS_PER_METER);
   double cos_angle = cos(angle);
+  double vx = 0.0;
+  double vy = 0.0;
 
-  double air_force_factor = 0.5 * air_density * getAeroFactor() *
-    getSurfaceResistance();
-  double weight_force = mass * gravity_force * cos_angle;
-  Point p;
+  printf("angle %lf°\n", (angle * 180) / M_PI);
 
-  // la pente monte (attention en SDL les coordonnées y sont inverssées)
-  if (angle < 0.0)
-    weight_force *= cos(M_PI_2 - angle);
+  if (angle > 0.0)
+    {
+      vx = m_max_speed / cos_angle;
+      vy = m_max_speed * tan(angle);
+    }
   else
-    weight_force *= sin(angle);
+    {
+      vx = m_max_speed * cos_angle * cos_angle;
+      vy = m_max_speed * cos_angle * sin(angle);
+    }
 
-  m_x.ComputeEulerEquation(mass, air_force_factor * cos_angle, 0,
-			   weight_force, dt);
-  p = getMiddleBottom();
+  m_x.setSpeed(vx, dt);
+  m_y.setSpeed(vy, dt);
 
-  while (world->isTheGround(p))
-    p.y--;
-  setTopLeftCorner(Point(p.x - m_width / 2, p.y - m_height));
 }

@@ -6,13 +6,14 @@
 
 
 Unit::Unit (const Point & foots, const string & xmldoc):
-  m_name ("generic"), m_body(xmldoc)
+  m_name ("constructor"), m_body(xmldoc)
 {
   Point pos(foots.x - m_body.getWidth() / 2, foots.y - m_body.getHeight());
 
   m_width =  m_body.getWidth();
   m_height = m_body.getHeight();
   setTopLeftCorner(pos);
+  setMaxSpeed(0.75);
   m_walking = false;
 }
 

@@ -6,6 +6,9 @@
 #include <game_exception.h>
 #include <tools/base.h>
 #include <cstdio>
+#include <cmath>
+#include <SDL/SDL_byteorder.h>
+
 
 using
     Glib::ustring;
@@ -82,7 +85,7 @@ Map::CreateFromXML (const string & xmldoc)
 	  layer_add_vfunc (path);
 
 	  if (attr != "explosion")
-	      m_layers.back ().DisplayFormatAlpha ();
+	    m_layers.back ().DisplayFormatAlpha ();
 	  AbsolutePath (path);
 
 	  // layers iterator are already to the sentinel of the container
@@ -187,14 +190,122 @@ Map::redrawRegion (rectangle *to, rectangle *from)
     }
 }
 
-double
-Map::computeAngle (const Point & pos)
+bool 
+Map::contiguousPoint(const Point& pos, Point &p)
 {
-    Point tmppos (pos.x + 5, pos.y);
+  Color c = m_main_it->GetPixColor(Point(0, 0));
+  printf("%s: couleur (r: %u, v: %u, b: %u, a: %u)\n", __func__
+	 , c.GetR(), c.GetG(), c.GetB(), c.GetA());
 
-    while (isTheVacuum (tmppos))
-	tmppos.y++;
-    while (isTheGround (tmppos))
-	tmppos.y--;
-    return pos.Tangente (tmppos);
+  // Top left pixel
+  if (!isEmpty(pos.x - 1, pos.y - 1) &&
+      (isEmpty(pos.x, pos.y - 1) ||
+       isEmpty(pos.x - 1, pos.y)))
+    {
+      p.x = pos.x - 1;
+      p.y = pos.y - 1;
+      return true;
+    }
+  // Top pixel
+  if (!isEmpty(pos.x, pos.y - 1) &&
+      (isEmpty(pos.x - 1, pos.y - 1) ||
+       isEmpty(pos.x + 1, pos.y - 1)))
+    {
+      p.x = pos.x;
+      p.y = pos.y - 1;
+      return true;
+    }
+
+  // Top right pixel
+  if (!isEmpty(pos.x + 1, pos.y - 1) &&
+      (isEmpty(pos.x, pos.y - 1) ||
+       isEmpty(pos.x - 1, pos.y - 1)))
+    {
+      p.x = pos.x + 1;
+      p.y = pos.y - 1;
+      return true;
+    }
+
+   // Right pixel
+    if (!isEmpty(pos.x + 1, pos.y) &&
+	(isEmpty(pos.x + 1, pos.y - 1) ||
+	 isEmpty(pos.x + 1, pos.y + 1)))
+      {
+	p.x = pos.x + 1;
+	p.y = pos.y;
+	return true;
+      }
+    
+    // Bottom right pixel
+    if (!isEmpty(pos.x + 1, pos.y + 1) &&
+	(isEmpty(pos.x + 1, pos.y) ||
+	 isEmpty(pos.x, pos.y + 1)))
+      {
+	p.x = pos.x + 1;
+	p.y = pos.y + 1;
+	return true;
+      }
+
+    // Bottom pixel
+    if (!isEmpty(pos.x, pos.y + 1) &&
+	(isEmpty(pos.x - 1, pos.y + 1) ||
+	 isEmpty(pos.x + 1, pos.y + 1)))
+      {
+	p.x = pos.x;
+	p.y = pos.y + 1;
+	return true;
+      }
+
+    // Bottom left pixel
+    if (!isEmpty(pos.x - 1, pos.y + 1) &&
+	(isEmpty(pos.x - 1, pos.y) ||
+	 isEmpty(pos.x, pos.y + 1)))
+      {
+	p.x = pos.x - 1;
+	p.y = pos.y + 1;
+	return true;
+      }
+
+    // Left pixel
+    if (!isEmpty(pos.x - 1, pos.y) &&
+	(isEmpty(pos.x - 1, pos.y - 1) ||
+	 isEmpty(pos.x - 1, pos.y + 1)))
+      {
+	p.x = pos.x - 1;
+	p.y = pos.y;
+	return true;
+      }
+    return false;
+}
+
+double
+Map::computeAngle (const Point & pos, Uint8 born)
+{
+  Point p2(pos.x, pos.y - born / 2);
+  Point p1(p2.x, p2.y - born);
+  double delta_x = 0.0;
+  double delta_y = 0.0;
+
+
+  while ((p1.x < (pos.x + born)) && isTheVacuum(p1))
+    p1.x++;
+  while ((p2.x < (pos.x + born)) && isTheVacuum(p2))
+    p2.x++;
+
+  if ((p2.x == p1.x) && (p1.x == (pos.x + born)))
+    {
+      Point p3 (p2);
+
+      while (isTheVacuum(p3))
+	p3.y++;
+      delta_y = (p3.y - pos.y);
+      delta_x = born;
+
+      printf("hauteur %lf\n", pos.Distance(p3));
+
+      return atan(delta_y / delta_x);
+    }
+  else if (p2.x == p1.x)
+    return -M_PI_2;
+  return 0.0;
 }

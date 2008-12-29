@@ -4,10 +4,10 @@ bin_PROGRAMS=chenilles
 
 chenilles_DEPENDENCIES= lib/libchenilles.la
 
-chenilles_SOURCES= tools/fall_vector.cpp	\
-	object/drawable_object.cpp		\
-	game/game.cpp				\
-	units/unit.cpp				\
+chenilles_SOURCES= tools/euler_vector.cpp		\
+	object/drawable_object.cpp			\
+	game/game.cpp					\
+	units/unit.cpp					\
 	main.cpp
 
 chenilles_LDADD= ${chenilles_DEPENDENCIES}

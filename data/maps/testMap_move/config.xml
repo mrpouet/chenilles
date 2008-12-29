@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE map SYSTEM "../map.dtd">
+<map>
+  <informations>
+    <author>PILLEBOUE Adrien (necropotame)</author>
+    <name>testMap_move1</name>
+    <description>Test map</description>
+  </informations>
+  <layer type="background">background.png</layer>
+  <layer type="ground">main.png</layer>
+  <layer type="background">foreground.png</layer>
+  <layer type="explosion">explosion.png</layer>
+</map>

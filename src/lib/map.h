@@ -30,7 +30,7 @@ namespace Chenilles
 
 	inline bool isTheGround (const Point & p) const
 	{
-	  return m_main_it->GetPixColor(p).GetA() == 255;
+	  return m_main_it->GetPixColor(p).GetA() >= 1;
 	}
 
 	inline int WidthOfWorld (void) const
@@ -84,8 +84,10 @@ namespace Chenilles
 
 	// Compute angle of @pos from the horizontal axys of map
 	// @pos A pixel from which angle 'll be compute
-	// @return angle between the horizontal and @pos
-	double computeAngle(const Point& pos);
+	// @return angle between the horizontal and @pos in radians.
+	double computeAngle(const Point& pos, Uint8 scale);
+
+	bool contiguousPoint(const Point& pos, Point& p);
 
       protected:
 
@@ -127,8 +129,11 @@ namespace Chenilles
 
 	void redrawRegion (rectangle *to, rectangle *from);
 
+	inline bool isEmpty(int x, int y)
+	{
+	  return m_main_it->GetPixColor(Point(x, y)).GetA() == 0;
+	}
     };
-
 };
 
 #endif

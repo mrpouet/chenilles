@@ -9,8 +9,8 @@ Point::Point (int abs, int ord)
     y = ord;
 }
 
-inline double
-Point::Distance (const Point & p)
+double
+Point::Distance (const Point & p) const
 {
     double dist = (p.x - x) * (p.x - x) + (p.y - y) * (p.y - y);
     return sqrt (dist);

@@ -148,6 +148,14 @@ namespace Chenilles
 	    return surface->format->BytesPerPixel;
 	}
 
+	inline void GetAmask(void) const
+	{
+	  printf("Rmask: %x\n", surface->format->Rmask);
+	  printf("Gmask: %x\n", surface->format->Gmask);
+	  printf("Bmask: %x\n", surface->format->Bmask);
+	  printf("Amask: %x\n", surface->format->Amask);
+	}
+
 	// Sets all occurences of color key 'key', 
 	// transparent in the current surface.
 	// @param key The color key to replace
@@ -228,13 +236,6 @@ namespace Chenilles
 	    return surface;
 	}
 
-	// Accessor/mutator to underlying C SDL object
-	// in RW.
-	inline SDL_Surface *cobj (void)
-	{
-	    return surface;
-	}
-
       private:
 
 	SDL_Surface * surface;
@@ -245,12 +246,7 @@ namespace Chenilles
 			       c.GetB ());
 	}
 
-	inline Uint8 *GetPixel (const Point & px) const
-	{
-	    return static_cast < Uint8 * >(surface->pixels)
-		+ surface->pitch * px.y +
-		px.x * surface->format->BytesPerPixel;
-	}
+	Uint32 GetPixel (const Point & px) const;
 
 	void Clone (const Surface & s);
 

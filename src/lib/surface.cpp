@@ -128,28 +128,52 @@ Surface::Flip (void)
 	throw SDLException ();
 }
 
+// Thanks for this very great example taken from SDLwiki
+Uint32 Surface::GetPixel(const Point& px) const
+{
+  int bpp = surface->format->BytesPerPixel;
+  Uint8 *pixel = (Uint8 *)surface->pixels + px.y * surface->pitch + px.x * bpp;
+
+  switch(bpp) 
+    {
+    case 1:
+      return *pixel;
+    case 2:
+      return *(Uint16 *)pixel;
+    case 3:
+      if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
+	return pixel[0] << 16 | pixel[1] << 8 | pixel[2];
+      else
+	return pixel[0] | pixel[1] << 8 | pixel[2] << 16;
+    case 4:
+      return *(Uint32 *)pixel;
+    default:
+      SDL_SetError("Unknow BytesPerPixel (bpp) size");
+      throw SDLException();
+    }
+  return 0; /* fix gcc warning */
+}
+
 Color
 Surface::GetPixColor (const Point & px) const
 {
-    if (surface->format->BytesPerPixel != 4)
-      {
-	  SDL_SetError ("%p is not a RGBA Surface !", surface);
-	  throw SDLException ();
-      }
-    Uint8 *pixel = GetPixel (px);
-    return Color (pixel[0], pixel[1], pixel[2], pixel[3]);
+  Color c;
+  Uint32 pixel = GetPixel(px);
+  Uint8 r,g,b, a = 255;
+
+  if (surface->format->BytesPerPixel == 4)
+    SDL_GetRGBA(pixel, surface->format, &r, &g, &b, &a);
+  else if (surface->format->BytesPerPixel == 3)
+    SDL_GetRGB(pixel, surface->format, &r, &g, &b);
+  c.SetColor(r, g, b, a);
+  return c;
 }
 
 void
 Surface::Dig (const Point & px, Uint8 alpha)
 {
-    Uint8 *pixel = NULL;
-
-    // This is not a RGBA surface
-    if (surface->format->BytesPerPixel != 4)
-	return;
-    pixel = GetPixel (px);
-    pixel[3] = alpha;
+  SDL_SetError("Surface::Dig not implemented yet");
+  throw SDLException();
 }
 
 void

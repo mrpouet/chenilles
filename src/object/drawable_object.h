@@ -7,7 +7,7 @@
 #include <point.h>
 #include <game/game.h>
 #include <tools/base.h>
-#include <tools/fall_vector.h>
+#include <tools/euler_vector.h>
 
 class DrawableObject
 {
@@ -28,6 +28,12 @@ class DrawableObject
   virtual bool isMoving(void) const = 0;
 
   bool hasCollidingWith(const DrawableObject& object);
+
+
+  inline void setMaxSpeed(double max_speed)
+  {
+    m_max_speed = max_speed;
+  }
 
   inline Uint16 getWidth(void) const
   {
@@ -64,7 +70,7 @@ class DrawableObject
   Uint16 m_width;
 
   Uint16 m_height;
-  
+
  private:
 
   static const double gravity_force;
@@ -73,9 +79,13 @@ class DrawableObject
 
   static const double delta_t;
 
-  FallVector m_x, m_y;
+  EulerVector m_x; 
+
+  EulerVector m_y;
 
   double m_last_move;
+  
+  double m_max_speed;
 
   void ComputeFallXY(double dt);
 
