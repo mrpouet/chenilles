@@ -159,8 +159,7 @@ Surface::GetPixColor (const Point & px) const
 {
   Color c;
   Uint32 pixel = GetPixel(px);
-  Uint8 r,g,b, a = 0;
-
+  Uint8 r,g,b, a = 255;
 
   if (surface->format->BytesPerPixel == 4)
     SDL_GetRGBA(pixel, surface->format, &r, &g, &b, &a);

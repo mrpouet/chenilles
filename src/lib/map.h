@@ -28,6 +28,16 @@ namespace Chenilles
 	  return  m_main_it->GetPixColor (p).GetA () == 0;
 	}
 
+	inline bool isEmpty(int x, int y) const
+	{
+	  return m_main_it->GetPixColor(Point(x, y)).GetA() != 255;
+	}
+
+	inline Uint8 getAlpha(int x, int y) const
+	{
+	  return m_main_it->GetPixColor(Point(x, y)).GetA();
+	}
+
 	inline bool isTheGround (const Point & p) const
 	{
 	  return m_main_it->GetPixColor(p).GetA() >= 1;
@@ -85,9 +95,7 @@ namespace Chenilles
 	// Compute angle of @pos from the horizontal axys of map
 	// @pos A pixel from which angle 'll be compute
 	// @return angle between the horizontal and @pos in radians.
-	double computeAngle(const Point& pos, Uint8 scale);
-
-	bool contiguousPoint(const Point& pos, Point& p);
+	double computeAngle(const Point& pos);
 
       protected:
 
@@ -129,10 +137,8 @@ namespace Chenilles
 
 	void redrawRegion (rectangle *to, rectangle *from);
 
-	inline bool isEmpty(int x, int y)
-	{
-	  return m_main_it->GetPixColor(Point(x, y)).GetA() == 0;
-	}
+	bool contiguousPoint(const Point& pos, Point& p, const Point& exclude);
+
     };
 };
 

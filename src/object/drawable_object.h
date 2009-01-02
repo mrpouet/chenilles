@@ -91,6 +91,8 @@ class DrawableObject
 
   void ComputeSlopeXY (double dt);
 
+  bool FindContactOnGround(Point& contact);
+
 };
 
 #endif

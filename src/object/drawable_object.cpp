@@ -40,13 +40,13 @@ void
 DrawableObject::ComputeNewXY(void)
 {
   double dt = (Timer::GetRef().Read() / 1000.0) - m_last_move;
-  Point p;
+  Point p = getMiddleBottom();
 
   // Current computer is too fast.
   if (dt < delta_t)
     dt = delta_t;
 
-  if (world->isTheVacuum(getMiddleBottom()))
+  if (world->isEmpty(p.x, p.y))
     ComputeFallXY(dt);
   else if (isMoving())
     ComputeSlopeXY(dt);
@@ -82,30 +82,45 @@ DrawableObject::ComputeFallXY(double dt)
 			   weight_force, dt);
 }
 
+bool 
+DrawableObject::FindContactOnGround(Point &contact)
+{
+  int y1  = getMiddleBottom().y;
+  int y2  = y1 - 1;
+  int x1 = getTopLeftCorner().x;
+
+  for (int x = x1; x <= (x1 + m_width); x++)
+    {
+      printf("check contact (%d, %d)\n", x, y1);
+      if (world->getAlpha(x, y2) < world->getAlpha(x, y1))
+	{
+	  contact.x = x;
+	  contact.y = y1;
+	  return true;
+	}
+    }
+  return false;
+}
+
 // Thanks to necropotame explinations about this part
 void
 DrawableObject::ComputeSlopeXY(double dt)
 {
+  Point contact;
 
-  double angle = world->computeAngle(getMiddleBottom(), Game::PIXELS_PER_METER);
-  double cos_angle = cos(angle);
-  double vx = 0.0;
-  double vy = 0.0;
-
-  printf("angle %lf°\n", (angle * 180) / M_PI);
-
-  if (angle > 0.0)
+  if (FindContactOnGround(contact))
     {
-      vx = m_max_speed / cos_angle;
-      vy = m_max_speed * tan(angle);
+      double angle = world->computeAngle(contact);
+
+      printf("angle %lf° -> %lf rads/contact (%d, %d)\n", 
+	     (angle * 180) / M_PI, angle, contact.x, contact.y);
+
+      m_x.setSpeed(m_max_speed * cos(angle), dt);
+      m_y.setSpeed(m_max_speed * sin(angle), dt);
     }
   else
     {
-      vx = m_max_speed * cos_angle * cos_angle;
-      vy = m_max_speed * cos_angle * sin(angle);
+      printf("aucun contact sur le sol trouvé\n");
+      m_x.setSpeed(m_max_speed, dt);
     }
-
-  m_x.setSpeed(vx, dt);
-  m_y.setSpeed(vy, dt);
-
 }
