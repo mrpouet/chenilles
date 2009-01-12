@@ -89,9 +89,11 @@ class DrawableObject
 
   void ComputeFallXY(double dt);
 
-  void ComputeSlopeXY (double dt);
+  void ComputeSlopeXY (Point& contact, double dt);
 
-  bool FindContactOnGround(Point& contact);
+  bool FindFootsContactOnGround(Point& contact);
+  
+  bool FindContactOnGround(Point &contact);
 
 };
 

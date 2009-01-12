@@ -25,7 +25,7 @@ namespace Chenilles
 
 	inline bool isTheVacuum (const Point & p) const
 	{
-	  return  m_main_it->GetPixColor (p).GetA () == 0;
+	  return  isEmpty(p.x, p.y);
 	}
 
 	inline bool isEmpty(int x, int y) const
@@ -33,14 +33,14 @@ namespace Chenilles
 	  return m_main_it->GetPixColor(Point(x, y)).GetA() != 255;
 	}
 
-	inline Uint8 getAlpha(int x, int y) const
+	inline bool isTheGroundXY (int x, int y) const
 	{
-	  return m_main_it->GetPixColor(Point(x, y)).GetA();
+	  return m_main_it->GetPixColor(Point(x, y)).GetA() == 255;
 	}
 
 	inline bool isTheGround (const Point & p) const
 	{
-	  return m_main_it->GetPixColor(p).GetA() >= 1;
+	  return isTheGroundXY(p.x, p.y);
 	}
 
 	inline int WidthOfWorld (void) const

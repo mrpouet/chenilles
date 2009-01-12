@@ -8,6 +8,8 @@
 #include <tools/base.h>
 #include <cstdio>
 #include <cmath>
+#include <cassert>
+
 #include <SDL/SDL_byteorder.h>
 
 
@@ -285,28 +287,26 @@ Map::contiguousPoint (const Point & pos, Point & p, const Point & exclude)
 double
 Map::computeAngle (const Point & pos)
 {
-  Point p1, p2, p3, p4;
+  Point p1, p2, p3, p4, p5, p6;
 
-    if (!contiguousPoint (pos, p1, Point (-1, -1)))
-      {
-	printf("%s: -1\n", __func__);
-	return -1.0;
-      }
-    if (!contiguousPoint (pos, p2, p1))
-      p2 = pos;
-    if (!contiguousPoint (p1, p3, pos))
-      p3 = p1;
-    if (!contiguousPoint (p2, p4, pos))
-      p4 = p2;
+  if (!contiguousPoint(pos, p1, Point(-1, -1)))
+    {
+      printf("warning: floor is not contiguous\n");
+      return -1.0;
+    }
+  if (!contiguousPoint(pos, p2, p1))
+    p2 = pos;
+  if (!contiguousPoint(p1, p3, pos))
+    p3 = p1;
+  if (!contiguousPoint(p2, p4, pos))
+    p4 = p2;
+  if (!contiguousPoint(p3, p5, p1))
+    p5 = p3;
+  if (!contiguousPoint(p4, p6, p2))
+    p6 = p4;
 
-    //printf("p1(%d, %d)\np2(%d, %d)\np3(%d, %d)\np4(%d, %d)\n", 
-    //   p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y);
+  if (p5.x == p6.x)
+    return M_PI_2;
 
-    double tangente = atan ((double) (p4.y - p3.y) / (p4.x - p3.x));
-
-    while (tangente < 0.0)
-      tangente += M_PI;
-    while (tangente > M_PI)
-      tangente -= M_PI;
-    return tangente;
+  return atan((double)(p6.y - p5.y) / (p6.x - p5.x));
 }

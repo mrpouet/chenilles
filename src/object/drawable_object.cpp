@@ -40,16 +40,14 @@ void
 DrawableObject::ComputeNewXY(void)
 {
   double dt = (Timer::GetRef().Read() / 1000.0) - m_last_move;
-  Point p = getMiddleBottom();
+  Point contact = getMiddleBottom();
 
-  // Current computer is too fast.
-  if (dt < delta_t)
-    dt = delta_t;
+  dt = delta_t;
 
-  if (world->isEmpty(p.x, p.y))
+  if (world->isTheVacuum(contact))
     ComputeFallXY(dt);
   else if (isMoving())
-    ComputeSlopeXY(dt);
+    ComputeSlopeXY(contact, dt);
 
   //printf("Moving (%lf, %lf) --> (%lf, %lf)\n", oldpos_x, oldpos_y, 
   // newpos_x, newpos_y);
@@ -83,7 +81,7 @@ DrawableObject::ComputeFallXY(double dt)
 }
 
 bool 
-DrawableObject::FindContactOnGround(Point &contact)
+DrawableObject::FindFootsContactOnGround(Point &contact)
 {
   int y1  = getMiddleBottom().y;
   int y2  = y1 - 1;
@@ -91,8 +89,8 @@ DrawableObject::FindContactOnGround(Point &contact)
 
   for (int x = x1; x <= (x1 + m_width); x++)
     {
-      printf("check contact (%d, %d)\n", x, y1);
-      if (world->getAlpha(x, y2) < world->getAlpha(x, y1))
+      if (world->isTheGroundXY(x, y1) &&
+	  world->isEmpty(x, y2))
 	{
 	  contact.x = x;
 	  contact.y = y1;
@@ -102,25 +100,60 @@ DrawableObject::FindContactOnGround(Point &contact)
   return false;
 }
 
-// Thanks to necropotame explinations about this part
-void
-DrawableObject::ComputeSlopeXY(double dt)
+bool
+DrawableObject::FindContactOnGround(Point &contact)
 {
-  Point contact;
+  int y1 = getMiddleBottom().y;
+  int x1 = getTopLeftCorner().x + m_width;
+  int x2 = x1 - 1;
 
-  if (FindContactOnGround(contact))
+  if (FindFootsContactOnGround(contact))
+    return true;
+  
+  // Right
+  for (int y = y1; y >= (y1 - m_height); y--)
     {
-      double angle = world->computeAngle(contact);
-
-      printf("angle %lf° -> %lf rads/contact (%d, %d)\n", 
-	     (angle * 180) / M_PI, angle, contact.x, contact.y);
-
-      m_x.setSpeed(m_max_speed * cos(angle), dt);
-      m_y.setSpeed(m_max_speed * sin(angle), dt);
+      if (world->isTheGroundXY(x1, y) &&
+	  world->isEmpty(x2, y))
+	{
+	  contact.x = x1;
+	  contact.y = y;
+	  return true;
+	}
     }
-  else
+  x1 -= m_width;
+  x2 = x1 + 1;
+
+  // Left
+  for (int y = y1; y >= (y1 - m_height); y--)
     {
-      printf("aucun contact sur le sol trouvé\n");
-      m_x.setSpeed(m_max_speed, dt);
+      if (world->isTheGroundXY(x1, y) &&
+	  world->isEmpty(x2, y))
+	{
+	  contact.x = x1;
+	  contact.y = y;
+	  return true;
+	}
     }
+
+  return false;
+}
+
+void
+DrawableObject::ComputeSlopeXY(Point& contact, double dt)
+{
+  double angle = 0.0;
+
+  FindContactOnGround(contact);
+
+  angle = world->computeAngle(contact);
+
+  printf("%s: angle %lf° -> %lf rads/contact (%d, %d)\n", 
+	 __func__, (angle * 180) / M_PI, angle, contact.x, contact.y);
+
+  // polar coords  => algebric coords
+  // rho * exp(it) => rho * cos(t) + i * rho * sin(t).
+  // where rho is speed strenght and t is slope
+  m_x.setSpeed(m_max_speed * cos(angle), dt);
+  m_y.setSpeed(m_max_speed * sin(angle), dt);
 }

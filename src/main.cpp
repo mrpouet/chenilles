@@ -20,9 +20,9 @@ main (void)
 	
 	HMI::GetRef().SetCursor(HMI::CURSOR_TIP, "../data/ui/cursor_main.png");
 	HMI::GetRef().SwitchToCursor(HMI::CURSOR_TIP);
-	Unit unit(Point(3453, 1001),
+	Unit unit(Point(235, 0),
 		  "../data/teams/lombric/constructor/config.xml");
-	world = new Map ("../data/maps/testMap_move/config.xml");
+	world = new Map ("../data/maps/SceneOfCrime_medium/config.xml");
 	SDL_Event event;
 	bool b = true;
 	
