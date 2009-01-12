@@ -11,6 +11,15 @@
 namespace Chenilles
 {
 
+    typedef enum
+    {
+        MOUSE_NONE,
+        MOUSE_LCLICK,
+        MOUSE_MCLICK,
+        MOUSE_RCLICK
+    }Mouse_t;
+    
+     
     class HMI:public Singleton < HMI >
     {
       public:
@@ -21,7 +30,7 @@ namespace Chenilles
 	    CURSOR_TIP,
 	    CURSOR_TARGET
 	} CursorType;
-
+	
 	// Init HMI module.
 	// @throw exception
 	static void Init (void);
@@ -94,7 +103,9 @@ namespace Chenilles
 	    m_current_cursor = type;
 	}
 
-	void HandleEvent (const SDL_Event & event);
+	// Handle an event which concern the mouse.
+    // Must we modify it to include keyboard ?
+	Mouse_t HandleEvents (const SDL_Event & event);
 
 	// Refresh all output devices
 	void RefreshOutput (void);

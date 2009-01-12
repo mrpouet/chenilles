@@ -137,14 +137,40 @@ HMI::SetCursor (CursorType type, const string & icon)
 
 }
 
-void
-HMI::HandleEvent (const SDL_Event & event)
+Mouse_t
+HMI::HandleEvents(const SDL_Event & event)
 {
-    // Informe and fix temporaly warning.
-    // (unsed event parameter)
-    cerr << __func__ << "(event=" << event.type
-	<< "): Not implemented yet !" << endl;
-    return;
+    Mouse_t current_button;
+    
+    current_button = MOUSE_NONE;
+        
+    m_tip.x = event.motion.x;
+    m_tip.y = event.motion.y;
+    
+    if (event.type == SDL_MOUSEBUTTONUP)
+    {
+        switch (event.button.button)
+        {
+            case SDL_BUTTON_LEFT :
+                current_button = MOUSE_LCLICK;
+                break;
+                
+            case SDL_BUTTON_RIGHT :
+                current_button = MOUSE_RCLICK;
+                break;
+                
+            case SDL_BUTTON_MIDDLE :
+                current_button = MOUSE_MCLICK;
+                break;
+                
+        }
+        
+        m_tip.x = event.button.x;
+        m_tip.y = event.button.y;
+        
+    }
+        
+    return current_button;
 }
 
 void
