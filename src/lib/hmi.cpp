@@ -137,39 +137,43 @@ HMI::SetCursor (CursorType type, const string & icon)
 
 }
 
-HMI::Mouse_t
-HMI::HandleEvents(const SDL_Event & event)
+HMI::Mouse_t 
+HMI::HandleEvents (const SDL_Event & event, Point &tip)
 {
     Mouse_t current_button;
-    
+
     current_button = MOUSE_NONE;
-        
-    m_tip.x = event.motion.x;
-    m_tip.y = event.motion.y;
     
+    // How do we do to get mouse coords ?
+    // (m_tip is a private object member)
+    //m_tip.x = event.motion.x;
+    //m_tip.y = event.motion.y;
+    
+    tip = m_tip;
+
     if (event.type == SDL_MOUSEBUTTONUP)
-    {
-        switch (event.button.button)
-        {
-            case SDL_BUTTON_LEFT :
-                current_button = MOUSE_LCLICK;
-                break;
-                
-            case SDL_BUTTON_RIGHT :
-                current_button = MOUSE_RCLICK;
-                break;
-                
-            case SDL_BUTTON_MIDDLE :
-                current_button = MOUSE_MCLICK;
-                break;
-                
-        }
-        
-        m_tip.x = event.button.x;
-        m_tip.y = event.button.y;
-        
-    }
-        
+      {
+	  switch (event.button.button)
+	    {
+	    case SDL_BUTTON_LEFT:
+		current_button = MOUSE_LCLICK;
+		break;
+
+	    case SDL_BUTTON_RIGHT:
+		current_button = MOUSE_RCLICK;
+		break;
+
+	    case SDL_BUTTON_MIDDLE:
+		current_button = MOUSE_MCLICK;
+		break;
+
+	    }
+
+	  //m_tip.x = event.button.x;
+	  //m_tip.y = event.button.y;
+
+      }
+
     return current_button;
 }
 
@@ -178,7 +182,7 @@ HMI::RefreshOutput (void)
 {
     static Rectangle r;
     rectangle rect = { 0, 0, 0, 0 };
-    vector<Rectangle> rects;
+    vector < Rectangle > rects;
 
     // Switched Cursor didn't defined
     if ((m_current_cursor != NO_CURSOR)
@@ -188,13 +192,13 @@ HMI::RefreshOutput (void)
 
     if (m_current_cursor != NO_CURSOR)
       {
-	r.w = m_cursors[m_current_cursor].GetWidth();
-	r.h = m_cursors[m_current_cursor].GetHeight();
+	  r.w = m_cursors[m_current_cursor].GetWidth ();
+	  r.h = m_cursors[m_current_cursor].GetHeight ();
       }
 
     // Extract all redraw region from queue.
     for (; !m_region_queue.empty (); m_region_queue.pop ())
-      rects.push_back(m_region_queue.front ());
+	rects.push_back (m_region_queue.front ());
 
     // Delete old cursor using cursor cache surface
     if (!Camera::GetRef ().wasScrolled ())
@@ -202,11 +206,11 @@ HMI::RefreshOutput (void)
 	  r.x = m_tip.x;
 	  r.y = m_tip.y;
 
-	  if (!SDL_ShowCursor(SDL_DISABLE))
+	  if (!SDL_ShowCursor (SDL_DISABLE))
 	    {
-	      rect = r.GetSDLRect ();
-	      BlitOnScreen (m_cursor_cache, &rect);
-	      rects.push_back(r);
+		rect = r.GetSDLRect ();
+		BlitOnScreen (m_cursor_cache, &rect);
+		rects.push_back (r);
 	    }
       }
 
@@ -218,7 +222,7 @@ HMI::RefreshOutput (void)
 	  r.y = m_tip.y;
 	  rect = r.GetSDLRect ();
 
-	  rects.push_back(r);
+	  rects.push_back (r);
 
 	  // "Compute" new cache
 	  m_cursor_cache.Blit (m_screen, NULL, &rect);
@@ -227,9 +231,9 @@ HMI::RefreshOutput (void)
 	  // Draw new cursor
 	  m_screen.Blit (m_cursors[m_current_cursor], m_tip);
       }
-    
+
     // Apply all redraw region
-    for (vector<Rectangle>::const_iterator it = rects.begin(); 
-	 it != rects.end(); it++)
-      m_screen.UpdateRect (*it);
+    for (vector < Rectangle >::const_iterator it = rects.begin ();
+	 it != rects.end (); it++)
+	m_screen.UpdateRect (*it);
 }
