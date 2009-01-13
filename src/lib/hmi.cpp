@@ -137,7 +137,7 @@ HMI::SetCursor (CursorType type, const string & icon)
 
 }
 
-Mouse_t
+HMI::Mouse_t
 HMI::HandleEvents(const SDL_Event & event)
 {
     Mouse_t current_button;
