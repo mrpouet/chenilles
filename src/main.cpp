@@ -24,8 +24,6 @@ main (void)
 		  "../data/teams/lombric/constructor/config.xml");
 	world = new Map ("../data/maps/SceneOfCrime_medium/config.xml");
 	SDL_Event event;
-	Point tip;
-	HMI::Mouse_t button;
 	bool b = true;
 	
 	Timer::GetRef().Reset();
