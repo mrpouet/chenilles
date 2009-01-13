@@ -1,0 +1,3 @@
+* Finir la méthode DrawableObject::ComputeSlopeXY()
+* Pofiner la méthode DrawableObject::FindContactOnGround()
+* Améliorer la précision de Map::computeAngle()
