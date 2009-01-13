@@ -63,7 +63,7 @@ if test "x${ac_cv_cxx_compiler_gnu}" = "xyes";then
       CXXFLAGS="-Wextra ${CXXFLAGS}"   
    fi
 
-   CXXFLAGS="${CXXFLAGS} -pipe -W -Wall"
+   CXXFLAGS="${CXXFLAGS} -pipe"
 fi
 
 ## Checks for header files.

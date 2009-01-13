@@ -15,8 +15,7 @@ namespace
     inline int Events_Filter (const SDL_Event * event)
     {
 	return ((event->type == SDL_MOUSEMOTION) ||
-		(event->type == SDL_MOUSEBUTTONUP) ||
-		(event->type == SDL_MOUSEBUTTONDOWN)) ? 0 : 1;
+		(event->type == SDL_MOUSEBUTTONUP)) ? 0 : 1;
     }
 
     // Necessary for Surface::UpdateRects which doesn't check
@@ -151,29 +150,30 @@ HMI::HandleEvents (const SDL_Event & event, Point &tip)
     
     tip = m_tip;
 
-    if (event.type == SDL_MOUSEBUTTONUP)
+    // Actually we're interested in BUTTONDOWN (pressed) clicked
+    // on mouse and not BUTTONUP (released).
+    if (event.type != SDL_MOUSEBUTTONDOWN)
+      return current_button;
+
+    switch (event.button.button)
       {
-	  switch (event.button.button)
-	    {
-	    case SDL_BUTTON_LEFT:
-		current_button = MOUSE_LCLICK;
-		break;
-
-	    case SDL_BUTTON_RIGHT:
-		current_button = MOUSE_RCLICK;
-		break;
-
-	    case SDL_BUTTON_MIDDLE:
-		current_button = MOUSE_MCLICK;
-		break;
-
-	    }
-
-	  //m_tip.x = event.button.x;
-	  //m_tip.y = event.button.y;
-
+      case SDL_BUTTON_LEFT:
+	current_button = MOUSE_LCLICK;
+	break;
+	
+      case SDL_BUTTON_RIGHT:
+	current_button = MOUSE_RCLICK;
+	break;
+	
+      case SDL_BUTTON_MIDDLE:
+	current_button = MOUSE_MCLICK;
+	break;
+	
       }
-
+    
+    //m_tip.x = event.button.x;
+    //m_tip.y = event.button.y;
+    
     return current_button;
 }
 

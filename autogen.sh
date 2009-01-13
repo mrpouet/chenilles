@@ -1,6 +1,9 @@
 #!/bin/sh
 
-rm -rf autom4te.cache
+if [ -d autom4te.cache ];then
+    echo "Remove autotools cache..."
+    rm -rf autom4te.cache
+fi
 
 echo "Running Autoheader..."; autoheader || exit 1
 
